@@ -34,17 +34,15 @@ public class TokenAuthenticationService {
             return null;
         }
 
-        String username = jwtTokenUtil.getDataToken(token, "accountID");
+        Long userId = Long.valueOf(jwtTokenUtil.getDataToken(token, "userId"));
 
-        String user = jwtTokenUtil.getDataToken(token, "user");
+        String username = jwtTokenUtil.getDataToken(token, "username");
 
-        String agentId = jwtTokenUtil.getDataToken(token, "agentId");
+        Long agentId = Long.valueOf(jwtTokenUtil.getDataToken(token, "agentId"));
 
-        String agentName = jwtTokenUtil.getDataToken(token, "agentName");
+        UserPrincipal principal = new UserPrincipal(userId, username, "", agentId, null);
 
-        UserPrincipal principal = new UserPrincipal(username, user, agentId, agentName);
-
-        return username != null ?
+        return userId != null ?
                 new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList())
                 : null;
     }

@@ -1,0 +1,12 @@
+[Unit]
+Description=B1ing service spring boot
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+ExecStart=/usr/bin/java -jar /artifact/b1ing-service.jar
+[Install]
+WantedBy=multi-user.target

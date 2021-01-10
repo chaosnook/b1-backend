@@ -1,25 +1,88 @@
 package com.game.b1ingservice.payload.commons;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.security.Principal;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.game.b1ingservice.postgres.entity.WebUser;
+import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class UserPrincipal implements Principal {
-    private String userId;
-    private String nameUser;
-    private String agentId;
+public class UserPrincipal implements UserDetails {
+
+    private Long id;
+
+    private String username;
+
+    @JsonIgnore
+    private String password;
+
+    private String fullName;
+
+    private Long agentId;
+
     private String agentName;
+
+    private List<String> roles;
+
+    public UserPrincipal() {
+        super();
+    }
+
+
+    private Collection<? extends GrantedAuthority> authorities;
+
+    public UserPrincipal(Long id, String username, String password, Long agentId,
+                         Collection<? extends GrantedAuthority> authorities) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.authorities = authorities;
+        this.agentId = agentId;
+    }
+
+    public static UserPrincipal create(WebUser user) {
+
+        return new UserPrincipal(user.getId(), user.getUsername(), user.getPassword(), user.getAgent().getId(),
+                null);
+    }
 
 
     @Override
-    public String getName() {
-        return userId;
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

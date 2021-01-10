@@ -56,7 +56,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) {
         web.ignoring().antMatchers(
                 "/api/v1/accesskey",
-                "/api/*/news/searchall",
+                "/api/test/**",
 //                "/api/*/highway/news/search",
                 "/api/*/master/*",
                 "/v1/api-docs/**",

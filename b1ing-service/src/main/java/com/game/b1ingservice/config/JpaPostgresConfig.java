@@ -44,7 +44,7 @@ public class JpaPostgresConfig {
             @Qualifier("postgresProperties") Properties postgresProperties) {
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(postgresDataSource);
-        factory.setPackagesToScan("com.game.b1ingservice.postgres.nosql");
+        factory.setPackagesToScan("com.game.b1ingservice.postgres.entity");
         factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         factory.setJpaProperties(postgresProperties);
         return factory;
