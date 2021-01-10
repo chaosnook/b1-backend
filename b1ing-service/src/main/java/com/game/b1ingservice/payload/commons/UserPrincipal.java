@@ -14,6 +14,8 @@ import java.security.Principal;
 public class UserPrincipal implements Principal {
     private String userId;
     private String nameUser;
+    private String agentId;
+    private String agentName;
 
 
     @Override

@@ -38,9 +38,11 @@ public class TokenAuthenticationService {
 
         String user = jwtTokenUtil.getDataToken(token, "user");
 
+        String agentId = jwtTokenUtil.getDataToken(token, "agentId");
 
+        String agentName = jwtTokenUtil.getDataToken(token, "agentName");
 
-        UserPrincipal principal = new UserPrincipal(username, user);
+        UserPrincipal principal = new UserPrincipal(username, user, agentId, agentName);
 
         return username != null ?
                 new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList())
