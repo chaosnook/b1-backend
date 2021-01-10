@@ -1,5 +1,6 @@
 package com.game.b1ingservice.config;
 
+import com.game.b1ingservice.exception.CustomizedResponseEntityExceptionHandler;
 import com.game.b1ingservice.interceptor.JwtAuthorizationTokenFilter;
 import com.game.b1ingservice.interceptor.LogTransactionFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private JwtAuthorizationTokenFilter jwtAuthorizationTokenFilter;
-
+    @Autowired
+    private CustomizedResponseEntityExceptionHandler exceptionHandler;
     @Autowired
     private LogTransactionFilter logTransactionFilter;
 
@@ -52,7 +54,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         UsernamePasswordAuthenticationFilter.class
                 )
         ;
-
+        http.exceptionHandling()
+                .authenticationEntryPoint(exceptionHandler);
     }
 
     @Override

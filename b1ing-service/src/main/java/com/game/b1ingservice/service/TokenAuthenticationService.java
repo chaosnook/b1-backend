@@ -38,9 +38,13 @@ public class TokenAuthenticationService {
 
         String username = jwtTokenUtil.getDataToken(token, "username");
 
-        Long agentId = Long.valueOf(jwtTokenUtil.getDataToken(token, "agentId"));
+        String agentIdString = jwtTokenUtil.getDataToken(token, "agentId");
 
-        UserPrincipal principal = new UserPrincipal(userId, username, "", agentId, null);
+        Long agentId = StringUtils.isEmpty(agentIdString)?null:Long.valueOf(agentIdString);
+
+        String type = jwtTokenUtil.getDataToken(token, "type");
+
+        UserPrincipal principal = new UserPrincipal(userId, username, "", agentId, type,null);
 
         return userId != null ?
                 new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList())

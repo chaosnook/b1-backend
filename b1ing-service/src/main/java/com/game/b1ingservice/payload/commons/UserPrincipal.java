@@ -28,6 +28,8 @@ public class UserPrincipal implements UserDetails {
 
     private List<String> roles;
 
+    private String type;
+
     public UserPrincipal() {
         super();
     }
@@ -35,7 +37,7 @@ public class UserPrincipal implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Long id, String username, String password, Long agentId,
+    public UserPrincipal(Long id, String username, String password, Long agentId, String type,
                          Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
@@ -46,7 +48,7 @@ public class UserPrincipal implements UserDetails {
 
     public static UserPrincipal create(WebUser user) {
 
-        return new UserPrincipal(user.getId(), user.getUsername(), user.getPassword(), user.getAgent().getId(),
+        return new UserPrincipal(user.getId(), user.getUsername(), user.getPassword(), user.getAgent().getId(), "USER",
                 null);
     }
 

@@ -42,4 +42,7 @@ public class Agent extends DateAudit<String> implements Serializable {
 
     @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     private List<WebUser> webUsers;
+
+    @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    private List<AdminUser> adminUsers;
 }

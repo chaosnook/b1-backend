@@ -1,16 +1,16 @@
-package com.game.b1ingservice.payload.auth;
+package com.game.b1ingservice.payload.admin;
 
 import lombok.Data;
 
 import java.io.Serializable;
 
 @Data
-public class SignUpRequest implements Serializable {
+public class RegisterRequest implements Serializable {
     private String username;
     private String password;
     private String tel;
     private String fullName;
-    private String limit;
-    private String active;
+    private int limit = 0;
+    private int active;
     private String prefix;
 }

@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,8 @@ public class JwtTokenUtil implements Serializable {
 
     public String getDataToken(String token, String key) {
         final Claims claims = getAllClaimsFromToken(token);
-        return String.valueOf(claims.get(key));
+
+        return ObjectUtils.isEmpty(claims.get(key))?null:String.valueOf(claims.get(key));
     }
 
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {

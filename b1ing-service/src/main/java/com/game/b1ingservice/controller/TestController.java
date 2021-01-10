@@ -21,5 +21,10 @@ public class TestController {
         return "Hello be1ing";
     }
 
+    @GetMapping("/testtoken")
+    @ResponseBody
+    public String testtoken() {
+        return "Test Token";
+    }
 
 }
