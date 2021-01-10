@@ -8,5 +8,9 @@ import java.io.Serializable;
 public class SignUpRequest implements Serializable {
     private String username;
     private String password;
-
+    private String tel;
+    private String fullName;
+    private String limit;
+    private String active;
+    private String prefix;
 }

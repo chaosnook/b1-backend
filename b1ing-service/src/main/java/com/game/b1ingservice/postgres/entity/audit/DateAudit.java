@@ -28,11 +28,11 @@ public class DateAudit<U>{
 	private Instant updatedDate;
 
 
-	@Column(name = "delete_flag", columnDefinition = "SMALLINT default 0 NOT NULL")
+	@Column(name = "delete_flag", columnDefinition = "smallint default 0 not null")
 	private int deleteFlag = 0;
 
 	@Version
-	@Column(name = "version", columnDefinition = "SMALLINT default 1 NOT NULL")
+	@Column(name = "version", columnDefinition = "smallint default 1 not null")
 	private int version = 1;
 
 }

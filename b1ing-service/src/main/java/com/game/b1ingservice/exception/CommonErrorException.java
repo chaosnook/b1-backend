@@ -1,4 +1,4 @@
-package com.game.b1ingservice.utils.exception;
+package com.game.b1ingservice.exception;
 
 
 import com.game.b1ingservice.payload.commons.ErrorObj;

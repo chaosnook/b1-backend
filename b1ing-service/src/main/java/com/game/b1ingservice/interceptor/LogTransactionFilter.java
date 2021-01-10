@@ -17,16 +17,20 @@ import java.io.IOException;
 @Component
 public class LogTransactionFilter extends OncePerRequestFilter {
 
-    final String mdcTokenKey = "TransactionId";
+    final static String mdcTransactionId = "TransactionId";
+    final static String mdcSource = "Source";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            final String transactionid = request.getHeader("transactionid");
-            MDC.put(mdcTokenKey, transactionid);
+            MDC.put(mdcTransactionId, request.getHeader("TransactionId"));
+            MDC.put(mdcSource, request.getHeader("Source"));
+
             filterChain.doFilter(request, response);
         } finally {
-            MDC.remove(mdcTokenKey);
+            MDC.remove(mdcTransactionId);
+            MDC.remove(mdcSource);
+
         }
     }
 }

@@ -43,7 +43,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(validationInterceptor)
                 .addPathPatterns("/api/**")
                 .excludePathPatterns(
-                        "/api/*/testSend",
+                        "/api/admin/auth",
+                        "/api/admin/register",
                         "/swagger-ui/**",
                         "/swagger-ui.html",
                         "/swagger-ui/index.html",

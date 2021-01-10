@@ -1,4 +1,4 @@
-package com.game.b1ingservice.utils.exception;
+package com.game.b1ingservice.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

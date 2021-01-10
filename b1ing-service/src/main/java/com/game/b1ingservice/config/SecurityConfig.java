@@ -38,6 +38,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors()
                 .and()
                 .authorizeRequests()
+//                .antMatchers("/api/admin/auth",
+//                        "/api/admin/register"
+//                ).permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -55,9 +58,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) {
         web.ignoring().antMatchers(
-                "/api/v1/accesskey",
                 "/api/test/**",
-//                "/api/*/highway/news/search",
+                "/api/admin/auth",
+                "/api/admin/register",
                 "/api/*/master/*",
                 "/v1/api-docs/**",
                 "/swagger-ui.html",

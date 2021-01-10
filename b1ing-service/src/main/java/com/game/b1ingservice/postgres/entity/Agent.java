@@ -3,6 +3,7 @@ package com.game.b1ingservice.postgres.entity;
 import com.game.b1ingservice.postgres.entity.audit.DateAudit;
 import com.game.b1ingservice.postgres.entity.audit.UserAuditEmbeddable;
 import lombok.Data;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -12,6 +13,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "agent", uniqueConstraints = {@UniqueConstraint(columnNames = {"prefix"})})
+@Where(clause = "delete_flag = 0")
 public class Agent extends DateAudit<String> implements Serializable {
 
     @Id
