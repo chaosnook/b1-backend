@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface AdminUserRepository extends JpaRepository<AdminUser, Long>, JpaSpecificationExecutor<AdminUser> {
     Optional<AdminUser> findByUsername(String username);
     boolean existsByUsername(String username);
+    Optional<AdminUser> findByTel(String tel);
 }

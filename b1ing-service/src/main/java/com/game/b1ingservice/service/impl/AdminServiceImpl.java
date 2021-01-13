@@ -60,4 +60,6 @@ public class AdminServiceImpl implements AdminService {
         adminUser.setPrefix(registerRequest.getPrefix());
         adminUserRepository.save(adminUser);
     }
+
+
 }
