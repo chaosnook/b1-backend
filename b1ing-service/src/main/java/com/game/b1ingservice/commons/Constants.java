@@ -14,6 +14,12 @@ public class Constants {
         ERR_00006("ชื่อ-นามสกุล ห้ามว่าง"),
         ERR_00007("username หรือ password ไม่ถูกต้อง"),
 
+        ERR_00008("กรุณาใส่ number1"),
+        ERR_00009("กรุณาใส่ number2"),
+        ERR_00010("กรุณาใส่ operator"),
+        ERR_00011("operator ไม่ถูกต้อง"),
+        ERR_00012("Id not found"),
+
         ;
 
         public String msg;
