@@ -48,16 +48,11 @@ public class CalculatorServiceServiceImpl implements ICalculatorService {
             throw new ErrorMessageException(Constants.ERROR.ERR_00011);
         }
 
-        UserAuditEmbeddable audit = new UserAuditEmbeddable();
-        audit.setCreatedBy("mix");
-        audit.setUpdatedBy("");
-
         CalculatorHistory history = new CalculatorHistory();
         history.setNumber1(String.valueOf(num1));
         history.setOperator(operator);
         history.setNumber2(String.valueOf(num2));
         history.setResult(String.valueOf(result));
-        history.setAudit(audit);
 
         resp.setResult(String.valueOf(result));
 
