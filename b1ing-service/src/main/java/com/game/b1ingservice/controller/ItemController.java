@@ -6,7 +6,6 @@ import com.game.b1ingservice.validator.item.AddItemValidator;
 import com.game.b1ingservice.service.item.ItemService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

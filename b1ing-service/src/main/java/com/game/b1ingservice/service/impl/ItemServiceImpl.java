@@ -1,6 +1,5 @@
 package com.game.b1ingservice.service.impl;
 
-import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.item.AddItemRequest;
 import com.game.b1ingservice.postgres.entity.Item;
 import com.game.b1ingservice.postgres.repository.ItemRepository;
@@ -18,7 +17,6 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public void addItem(AddItemRequest addItemRequest) {
         Item item = new Item();
-        item.setId(addItemRequest.getId());
         item.setName(addItemRequest.getName());
         item.setQuantity(addItemRequest.getQuantity());
         item.setCost(addItemRequest.getCost());

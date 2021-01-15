@@ -21,12 +21,10 @@ public class AddItemValidator extends CommonValidator {
 
     public void validate(Object o) {
         AddItemRequest req = AddItemRequest.class.cast(o);
-        if (StringUtils.isEmpty(req.getId()))
-            throw new ErrorMessageException(Constants.ERROR.ERR_10001);
-        else if (itemRepository.existsById(req.getId()))
-            throw new ErrorMessageException(Constants.ERROR.ERR_10002);
         if (StringUtils.isEmpty(req.getName()))
-            throw new ErrorMessageException(Constants.ERROR.ERR_10003);
+            throw new ErrorMessageException(Constants.ERROR.ERR_10002);
+//        else if (itemRepository.exists(req.getName()))
+//            throw new ErrorMessageException(Constants.ERROR.ERR_10003);
         if (StringUtils.isEmpty(req.getQuantity()))
             throw new ErrorMessageException(Constants.ERROR.ERR_10004);
         if (StringUtils.isEmpty(req.getCost()))
