@@ -25,8 +25,13 @@ public class CalculatorController {
         return calculatorService.doProcess(req);
     }
 
-    @GetMapping(value = "getHistory/{id}")
-    public ResponseEntity<?> getHistory(@PathVariable Long id) {
+    @GetMapping(value = "getHistory")
+    public ResponseEntity<?> getHistory(@RequestParam("id") Long id) {
         return calculatorService.getHistory(id);
+    }
+
+    @DeleteMapping(value = "deleteHistory")
+    public ResponseEntity<?> deleteHistory(@RequestParam("id") long id) {
+        return calculatorService.deleteHistory(id);
     }
 }

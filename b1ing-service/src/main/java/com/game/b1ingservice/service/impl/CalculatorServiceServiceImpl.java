@@ -70,4 +70,17 @@ public class CalculatorServiceServiceImpl implements ICalculatorService {
             throw new ErrorMessageException(Constants.ERROR.ERR_00012);
         }
     }
+
+    @Override
+    public ResponseEntity<?> deleteHistory(long id) {
+
+        CalculatorResponse resp = new CalculatorResponse();
+
+        int delete = historyRepository.deleteById(id);
+        if(delete == 0){
+            throw new ErrorMessageException(Constants.ERROR.ERR_00012);
+        }
+        resp.setResult(String.valueOf(delete));
+        return ResponseEntity.ok(resp);
+    }
 }

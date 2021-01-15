@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CalculatorHistoryRepository extends JpaRepository<CalculatorHistory, Long>, JpaSpecificationExecutor<CalculatorHistory> {
+    int deleteById(long id);
 }

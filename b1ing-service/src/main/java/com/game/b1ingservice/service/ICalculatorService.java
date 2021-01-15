@@ -8,4 +8,5 @@ import org.springframework.stereotype.Service;
 public interface ICalculatorService {
     ResponseEntity<?> doProcess(CalculatorResquest req);
     ResponseEntity<?> getHistory(Long id);
+    ResponseEntity<?> deleteHistory(long id);
 }
