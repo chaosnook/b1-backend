@@ -2,7 +2,7 @@ package com.game.b1ingservice.validator.item;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
-import com.game.b1ingservice.payload.item.AddItemRequest
+import com.game.b1ingservice.payload.item.AddItemRequest;
 import com.game.b1ingservice.postgres.repository.ItemRepository;
 import com.game.b1ingservice.validator.CommonValidator;
 import org.apache.commons.lang3.StringUtils;

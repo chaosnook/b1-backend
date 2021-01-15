@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("")
+@RequestMapping("/api/test")
 
 public class ItemController {
 
@@ -20,7 +20,7 @@ public class ItemController {
         @Autowired
         ItemService itemService;
 
-    @PostMapping(path = "/additem", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+    @PostMapping(value = "/additem")
     public ResponseEntity<?> item(@RequestBody AddItemRequest addItemRequest) {
         addItemValidator.validate(addItemRequest);
         itemService.addItem(addItemRequest);
