@@ -22,7 +22,7 @@ public class CalculatorController {
     @PostMapping(value = "calculator")
     public ResponseEntity<?> calculator(@RequestBody CalculatorResquest req) {
         requestValidator.validate(req);
-        return  calculatorService.doProcess(req);
+        return calculatorService.doProcess(req);
     }
 
     @GetMapping(value = "getHistory/{id}")
