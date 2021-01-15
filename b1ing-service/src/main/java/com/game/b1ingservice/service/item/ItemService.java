@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface ItemService {
-    void addItem(AddItemRequest addItemRequst);
+    void addItem(AddItemRequest addItemRequest);
     }
 
 
