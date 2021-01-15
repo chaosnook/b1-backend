@@ -1,5 +1,7 @@
 package com.game.b1ingservice.commons;
 
+import javax.swing.*;
+
 public class Constants {
     public enum  ERROR
     {
@@ -14,6 +16,12 @@ public class Constants {
         ERR_00006("ชื่อ-นามสกุล ห้ามว่าง"),
         ERR_00007("username หรือ password ไม่ถูกต้อง"),
 
+        ERR_10001("id ห้ามว่าง"),
+        ERR_10002("id ห้ามซ้ำ"),
+        ERR_10003("ีname ห้ามว่าง"),
+        ERR_10004("quantity ห้ามว่าง"),
+        ERR_10005("cost ห้ามว่าง"),
+        ERR_10006("sale ห้ามว่าง"),
         ;
 
         public String msg;
@@ -24,6 +32,8 @@ public class Constants {
     }
     public enum MESSAGE{
         MSG_00000("ระบบดำเนินการสำเร็จ"),
+
+        MSG_10000("เพิ่มสินค้าสำเร็จ"),
         GRAPES("GREEN");
 
         public String msg;
