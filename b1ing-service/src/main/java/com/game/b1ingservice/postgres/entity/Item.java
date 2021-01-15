@@ -3,7 +3,6 @@ package com.game.b1ingservice.postgres.entity;
 import com.game.b1ingservice.postgres.entity.audit.DateAudit;
 import com.game.b1ingservice.postgres.entity.audit.UserAuditEmbeddable;
 import lombok.Data;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,7 +11,6 @@ import java.io.Serializable;
 @Data
 @Entity
 @Table(name = "items")
-@Where(clause = "delete_flag = 0")
 public class Item extends DateAudit<String> implements Serializable {
 
     @Id
@@ -27,5 +25,6 @@ public class Item extends DateAudit<String> implements Serializable {
     private String cost;
     @Column(name = "sale", columnDefinition = "character varying(500) not null")
     private String sale;
+    @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
 }

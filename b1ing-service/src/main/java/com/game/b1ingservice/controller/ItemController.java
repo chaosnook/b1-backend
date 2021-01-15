@@ -20,7 +20,7 @@ public class ItemController {
         ItemService itemService;
 
     @PostMapping(value = "/additem")
-    public ResponseEntity<?> item(@RequestBody AddItemRequest addItemRequest) {
+    public ResponseEntity<?> items(@RequestBody AddItemRequest addItemRequest) {
         addItemValidator.validate(addItemRequest);
         itemService.addItem(addItemRequest);
         return ResponseHelper.success(Constants.MESSAGE.MSG_10000.msg);
