@@ -43,6 +43,6 @@ public class AdminUser extends DateAudit<String> implements Serializable {
     private Agent agent;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId
+    @JoinColumn(name = "role_id", referencedColumnName = "id")
     private Role role;
 }

@@ -8,5 +8,5 @@ import java.util.List;
 @Service
 public interface AgentService {
     List<AgentResponse> getAgentList();
-    List<AgentResponse> getAgentByPrefix(String prefix);
+    AgentResponse getAgentByPrefix(String prefix);
 }

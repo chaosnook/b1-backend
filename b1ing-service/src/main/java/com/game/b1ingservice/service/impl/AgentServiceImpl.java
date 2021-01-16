@@ -1,5 +1,7 @@
 package com.game.b1ingservice.service.impl;
 
+import com.game.b1ingservice.commons.Constants;
+import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.agent.AgentResponse;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
@@ -24,13 +26,12 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public List<AgentResponse> getAgentByPrefix(String prefix) {
+    public AgentResponse getAgentByPrefix(String prefix) {
         Optional<Agent> opt = agentRepository.findByPrefix(prefix);
-        List<AgentResponse> res = new ArrayList<>();
         if (opt.isPresent()) {
-            res.add(converter.apply(opt.get()));
+            return converter.apply(opt.get());
         }
-        return res;
+        throw new ErrorMessageException(Constants.ERROR.ERR_00008);
     }
 
     Function<Agent, AgentResponse> converter = agent -> {
