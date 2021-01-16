@@ -9,7 +9,8 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginResponse implements Serializable {
-    private String token;
-    private LoginProfile profile;
+public class LoginProfile implements Serializable {
+    private String role;
+    private String username;
+    private String prefix;
 }

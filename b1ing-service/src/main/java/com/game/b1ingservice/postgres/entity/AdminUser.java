@@ -8,6 +8,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @Entity
@@ -41,4 +42,7 @@ public class AdminUser extends DateAudit<String> implements Serializable {
     @ManyToOne
     private Agent agent;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId
+    private Role role;
 }

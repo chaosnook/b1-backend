@@ -31,6 +31,14 @@ public class ResponseHelper {
         return response(HttpStatus.OK, data);
     }
 
+    public static ResponseEntity<Object> successWithData(String message,Object obj) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("message", message);
+        data.put("status", true);
+        data.put("data", obj);
+        return response(HttpStatus.OK, data);
+    }
+
     public static ResponseEntity<Object> bad(String message) {
         Map<String, Object> data = new HashMap<>();
         data.put("message", message);

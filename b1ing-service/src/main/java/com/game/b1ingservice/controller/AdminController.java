@@ -1,6 +1,7 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
+import com.game.b1ingservice.payload.admin.LoginRequest;
 import com.game.b1ingservice.payload.admin.RegisterRequest;
 import com.game.b1ingservice.service.AdminService;
 import com.game.b1ingservice.utils.ResponseHelper;
@@ -27,16 +28,18 @@ public class AdminController {
     @Autowired
     AdminService adminService;
 
-    @GetMapping(value = "/auth",
+    @PostMapping(value = "/auth",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<?> authenticate(HttpServletRequest request, @RequestHeader Map<String, String> headers) {
-        String basic = request.getHeader("Authorization");
+    public ResponseEntity<?> authenticate(@RequestHeader Map<String, String> headers,
+                                          @RequestBody LoginRequest loginRequest) {
+
+        String basic = headers.get("authorization");
         String base64 = basic.substring(6);
         String decode = new String(Base64.decodeBase64(base64.getBytes(Charset.forName("US-ASCII"))));
         String[] arr = decode.split(":");
         if (arr.length==2)
-            return adminService.loginAdmin(arr[0],arr[1]);
+            return adminService.loginAdmin(arr[0],arr[1],loginRequest);
         else
             return ResponseHelper.bad(Constants.ERROR.ERR_00007.msg);
     }

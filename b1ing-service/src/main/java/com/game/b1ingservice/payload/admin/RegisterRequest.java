@@ -13,4 +13,5 @@ public class RegisterRequest implements Serializable {
     private int limit = 0;
     private int active;
     private String prefix;
+    private String roleCode;
 }
