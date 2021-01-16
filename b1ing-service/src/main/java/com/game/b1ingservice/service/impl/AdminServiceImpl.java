@@ -39,7 +39,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public ResponseEntity<?> loginAdmin(String username, String password, LoginRequest loginRequest) {
-        Optional<AdminUser> opt = adminUserRepository.findByUsernameAndPrefix(username,loginRequest.getPrefix());
+        Optional<AdminUser> opt = adminUserRepository.findByUsernameAndPrefixAndActive(username,loginRequest.getPrefix(),1);
         if (opt.isPresent()){
             AdminUser admin = opt.get();
             if (bCryptPasswordEncoder.matches(password,admin.getPassword())){
@@ -50,7 +50,7 @@ public class AdminServiceImpl implements AdminService {
                     claims.put("agentId", admin.getAgent().getId());
                 claims.put("type", admin.getRole().getRoleCode());
 
-                LoginProfile profile = new LoginProfile(admin.getRole().getRoleCode(), admin.getUsername(), admin.getPrefix());
+                LoginProfile profile = new LoginProfile(admin.getRole().getRoleCode(), admin.getUsername(), admin.getFullName(), admin.getPrefix());
                 return ResponseEntity.ok(new LoginResponse(jwtTokenUtil.generateToken(claims, "user"),profile));
             }
         }
