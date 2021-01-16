@@ -15,6 +15,7 @@ import com.game.b1ingservice.utils.JwtTokenUtil;
 import com.game.b1ingservice.utils.ResponseHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -91,7 +92,10 @@ public class AdminServiceImpl implements AdminService {
         if (opt.isPresent()){
             AdminUser adminUser = opt.get();
 
-            adminUser.setPassword(bCryptPasswordEncoder.encode(adminUpdateRequest.getPassword()));
+            if (!StringUtils.isEmpty(adminUpdateRequest.getPassword())) {
+                adminUser.setPassword(bCryptPasswordEncoder.encode(adminUpdateRequest.getPassword()));
+            }
+
             adminUser.setTel(adminUpdateRequest.getTel());
             adminUser.setFullName(adminUpdateRequest.getFullName());
             adminUser.setLimit(adminUpdateRequest.getLimit());

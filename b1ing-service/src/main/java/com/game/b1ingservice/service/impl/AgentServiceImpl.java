@@ -37,6 +37,14 @@ public class AgentServiceImpl implements AgentService {
     Function<Agent, AgentResponse> converter = agent -> {
         AgentResponse agentResponse = new AgentResponse();
         agentResponse.setId(agent.getId());
+        agentResponse.setPrefix(agent.getPrefix());
+        agentResponse.setCompanyName(agent.getCompanyName());
+        agentResponse.setWebsite(agent.getWebsite());
+        agentResponse.setLineId(agent.getLineId());
+        agentResponse.setLogo(agent.getLogo());
+        agentResponse.setBackground(agent.getBackground());
+        agentResponse.setLineToken(agent.getLineToken());
+
         agentResponse.setCreatedDate(agent.getCreatedDate());
         agentResponse.setUpdatedDate(agent.getUpdatedDate());
         agentResponse.setCreatedBy(agent.getAudit().getCreatedBy());
