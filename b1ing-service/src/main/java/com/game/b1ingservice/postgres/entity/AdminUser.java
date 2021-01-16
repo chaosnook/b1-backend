@@ -29,7 +29,9 @@ public class AdminUser extends DateAudit<String> implements Serializable {
     @Column(name = "full_name", columnDefinition = "character varying(50) not null")
     private String fullName;
     @Column(name = "limit_flag", columnDefinition = "smallint default 0")
-    private int limit = 0;
+    private int limitFlag = 0;
+    @Column(name = "limit_value", columnDefinition = "decimal")
+    private Integer limit = 0;
     @Column(name = "active", columnDefinition = "smallint default 0")
     private int active;
     @Column(name = "prefix", columnDefinition = "character varying(50)")

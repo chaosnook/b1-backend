@@ -44,7 +44,11 @@ public class TokenAuthenticationService {
 
         String type = jwtTokenUtil.getDataToken(token, "type");
 
+        String prefix = jwtTokenUtil.getDataToken(token, "prefix");
+
+
         UserPrincipal principal = new UserPrincipal(userId, username, "", agentId, type,null);
+        principal.setPrefix(prefix);
 
         return userId != null ?
                 new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList())

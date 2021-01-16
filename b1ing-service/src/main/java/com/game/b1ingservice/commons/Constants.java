@@ -14,6 +14,9 @@ public class Constants {
         ERR_00006("ชื่อ-นามสกุล ห้ามว่าง"),
         ERR_00007("username หรือ password ไม่ถูกต้อง"),
         ERR_00008("ไม่พบข้อมูล agent นี้"),
+        ERR_00009("ไม่พบข้อมูล user,admin นี้"),
+        ERR_00010("id ห้ามว่าง"),
+
 
         ;
 

@@ -30,6 +30,8 @@ public class UserPrincipal implements UserDetails {
 
     private String type;
 
+    private String prefix;
+
     public UserPrincipal() {
         super();
     }

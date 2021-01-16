@@ -1,11 +1,12 @@
 package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.commons.Constants;
-import com.game.b1ingservice.payload.admin.LoginProfile;
-import com.game.b1ingservice.payload.admin.LoginRequest;
-import com.game.b1ingservice.payload.admin.LoginResponse;
-import com.game.b1ingservice.payload.admin.RegisterRequest;
+import com.game.b1ingservice.exception.ErrorMessageException;
+import com.game.b1ingservice.payload.admin.*;
+import com.game.b1ingservice.payload.agent.AgentResponse;
+import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.postgres.entity.AdminUser;
+import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.Role;
 import com.game.b1ingservice.postgres.repository.AdminUserRepository;
 import com.game.b1ingservice.postgres.repository.RoleRepository;
@@ -20,8 +21,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -49,6 +53,7 @@ public class AdminServiceImpl implements AdminService {
                 if (ObjectUtils.isNotEmpty(admin.getAgent()))
                     claims.put("agentId", admin.getAgent().getId());
                 claims.put("type", admin.getRole().getRoleCode());
+                claims.put("prefix", admin.getPrefix());
 
                 LoginProfile profile = new LoginProfile(admin.getRole().getRoleCode(), admin.getUsername(), admin.getFullName(), admin.getPrefix());
                 return ResponseEntity.ok(new LoginResponse(jwtTokenUtil.generateToken(claims, "user"),profile));
@@ -59,15 +64,16 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void registerAdmin(RegisterRequest registerRequest) {
+    public void registerAdmin(RegisterRequest registerRequest, UserPrincipal principal) {
         AdminUser adminUser = new AdminUser();
         adminUser.setUsername(registerRequest.getUsername());
         adminUser.setPassword(bCryptPasswordEncoder.encode(registerRequest.getPassword()));
         adminUser.setTel(registerRequest.getTel());
         adminUser.setFullName(registerRequest.getFullName());
         adminUser.setLimit(registerRequest.getLimit());
+        adminUser.setLimitFlag(registerRequest.getIsLimit());
         adminUser.setActive(registerRequest.getActive());
-        adminUser.setPrefix(registerRequest.getPrefix());
+        adminUser.setPrefix(principal.getPrefix());
 
         Optional<Role> opt = rolerepository.findByRoleCode(registerRequest.getRoleCode());
         if (opt.isPresent()){
@@ -79,5 +85,56 @@ public class AdminServiceImpl implements AdminService {
         adminUserRepository.save(adminUser);
     }
 
+    @Override
+    public void updateAdmin(AdminUpdateRequest adminUpdateRequest,UserPrincipal principal) {
+        Optional<AdminUser> opt = adminUserRepository.findById(adminUpdateRequest.getId());
+        if (opt.isPresent()){
+            AdminUser adminUser = opt.get();
 
+            adminUser.setPassword(bCryptPasswordEncoder.encode(adminUpdateRequest.getPassword()));
+            adminUser.setTel(adminUpdateRequest.getTel());
+            adminUser.setFullName(adminUpdateRequest.getFullName());
+            adminUser.setLimit(adminUpdateRequest.getLimit());
+            adminUser.setLimitFlag(adminUpdateRequest.getIsLimit());
+            adminUser.setActive(adminUpdateRequest.getActive());
+            adminUser.setPrefix(principal.getPrefix());
+
+            Optional<Role> optRole = rolerepository.findByRoleCode(adminUpdateRequest.getRoleCode());
+            if (optRole.isPresent()){
+                adminUser.setRole(optRole.get());
+            }else {
+                optRole = rolerepository.findByRoleCode("STAFF");
+                adminUser.setRole(optRole.get());
+            }
+            adminUserRepository.save(adminUser);
+        }else {
+            throw new ErrorMessageException(Constants.ERROR.ERR_00009);
+        }
+    }
+
+    @Override
+    public List<AdminUserResponse> listByPrefix(String prefix) {
+         List<AdminUserResponse> list = adminUserRepository.findByPrefix(prefix).stream().map(converter).collect(Collectors.toList());
+         return list;
+    }
+
+
+    Function<AdminUser, AdminUserResponse> converter = admin -> {
+        AdminUserResponse response = new AdminUserResponse();
+        response.setId(admin.getId());
+        response.setCreatedDate(admin.getCreatedDate());
+        response.setUpdatedDate(admin.getUpdatedDate());
+        response.setCreatedBy(admin.getAudit().getCreatedBy());
+        response.setUpdatedBy(admin.getAudit().getUpdatedBy());
+        response.setDeleteFlag(admin.getDeleteFlag());
+        response.setVersion(admin.getVersion());
+
+        response.setUsername(admin.getUsername());
+        response.setTel(admin.getTel());
+        response.setFullName(admin.getFullName());
+        response.setLimitFlag(admin.getLimitFlag());
+        response.setLimit(admin.getLimit());
+        response.setActive(admin.getActive());
+        return response;
+    };
 }
