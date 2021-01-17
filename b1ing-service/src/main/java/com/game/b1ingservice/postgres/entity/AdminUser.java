@@ -8,6 +8,8 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
@@ -40,5 +42,11 @@ public class AdminUser extends DateAudit<String> implements Serializable {
     @JoinColumn(name = "agent_id", referencedColumnName = "id")
     @ManyToOne
     private Agent agent;
+
+    @OneToMany(mappedBy = "admin")
+    Set<AdminRole> role;
+
+//    @ManyToMany(mappedBy = "adminRole", fetch = FetchType.EAGER)
+//    private List<Role> role;
 
 }
