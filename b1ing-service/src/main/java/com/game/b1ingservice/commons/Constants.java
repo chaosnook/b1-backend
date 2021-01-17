@@ -14,6 +14,10 @@ public class Constants {
         ERR_00006("ชื่อ-นามสกุล ห้ามว่าง"),
         ERR_00007("username หรือ password ไม่ถูกต้อง"),
 
+        ERR_00008("role_code ห้ามว่าง"),
+        ERR_00009("description ห้ามว่าง"),
+        ERR_00010("role_code มีอยู่แล้ว"),
+
         ;
 
         public String msg;
