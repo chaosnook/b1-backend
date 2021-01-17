@@ -28,7 +28,7 @@ public class Role extends DateAudit<String> implements Serializable {
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
 
     @OneToMany(mappedBy = "role")
-    Set<AdminRole> adminRole;
+    Set<AdminRole> admin;
 
 //    @ManyToMany(fetch= FetchType.EAGER, cascade = CascadeType.ALL)
 //    @JoinTable(

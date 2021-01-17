@@ -44,7 +44,7 @@ public class AdminUser extends DateAudit<String> implements Serializable {
     private Agent agent;
 
     @OneToMany(mappedBy = "admin")
-    Set<AdminRole> adminRole;
+    Set<AdminRole> role;
 
 //    @ManyToMany(mappedBy = "adminRole", fetch = FetchType.EAGER)
 //    private List<Role> role;
