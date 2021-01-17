@@ -18,6 +18,11 @@ public class Constants {
         ERR_00010("id ห้ามว่าง"),
 
 
+        ERR_01000("id ห้ามว่าง"),
+        ERR_01001("ืname ห้ามว่าง"),
+        ERR_01002("ชื่อธนาคาร ห้ามว่าง"),
+        ERR_01003("หมายเลขบัญชี ห้ามว่าง"),
+        ERR_01004("ไม่มีชื่อนี้ในระบบ")
         ;
 
         public String msg;
@@ -28,6 +33,9 @@ public class Constants {
     }
     public enum MESSAGE{
         MSG_00000("ระบบดำเนินการสำเร็จ"),
+
+        MSG_01000("ดึงข้อมูลมิจฉาชีพสำเร็จ"),
+        MSG_01001("เพิ่มข้อมูลมิจฉาชีพสำเร็จ"),
         GRAPES("GREEN");
 
         public String msg;
