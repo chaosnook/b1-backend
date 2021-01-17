@@ -17,6 +17,7 @@ public class Constants {
         ERR_00008("role_code ห้ามว่าง"),
         ERR_00009("description ห้ามว่าง"),
         ERR_00010("role_code มีอยู่แล้ว"),
+        ERR_00011("Id not found"),
 
         ;
 
