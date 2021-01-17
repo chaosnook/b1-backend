@@ -23,4 +23,6 @@ public class AdminUserResponse {
     private Integer limit;
     private int active;
 
+    private String role;
+
 }

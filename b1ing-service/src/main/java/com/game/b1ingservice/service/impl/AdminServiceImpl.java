@@ -139,6 +139,7 @@ public class AdminServiceImpl implements AdminService {
         response.setLimitFlag(admin.getLimitFlag());
         response.setLimit(admin.getLimit());
         response.setActive(admin.getActive());
+        response.setRole(admin.getRole().getRoleCode());
         return response;
     };
 }
