@@ -28,6 +28,8 @@ public class Constants {
         ERR_01101("role_code ห้ามว่าง"),
         ERR_01102("description ห้ามว่าง"),
         ERR_01103("role_code มีอยู่แล้ว"),
+        ERR_01104("Id not found"),
+        ERR_01105("Id ห้ามว่าง")
         ;
 
         public String msg;
