@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/test/")
+@RequestMapping("api/role")
 public class RoleController {
 
     @Autowired
@@ -27,14 +27,14 @@ public class RoleController {
     @Autowired
     AdminUserRepository adminUserRepository;
 
-    @PostMapping(value = "addRole", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+    @PostMapping(value = "/add", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
     public ResponseEntity<?> insertRole(@RequestBody RoleRequest req) {
         roleValidator.validate(req);
         iRoleService.insertRole(req);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
-    @GetMapping(value = "get")
+    @GetMapping(value = "/get")
     public void get() {
         List<AdminUser> x = adminUserRepository.findAll();
         System.out.println(x);
