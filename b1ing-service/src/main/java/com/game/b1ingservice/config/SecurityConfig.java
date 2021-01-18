@@ -63,7 +63,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         web.ignoring().antMatchers(
                 "/api/test/**",
                 "/api/admin/auth",
-//                "/api/admin/register",
 
                 "/api/*/master/*",
                 "/v1/api-docs/**",
