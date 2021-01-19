@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/test")
 @Slf4j
 public class BankController {
 
@@ -23,10 +23,18 @@ public class BankController {
 
     //CreateBank
     @PostMapping(value = "/bank", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> insertbank(@RequestBody BankRequest bankRequest){
+    public ResponseEntity<?> insertBank(@RequestBody BankRequest bankRequest){
         bankValidator.validate(bankRequest);
         bankService.insertBank(bankRequest);
         return ResponseHelper.success(Constants.MESSAGE.MSG_02000.msg);
+    }
+
+    //GetBank
+    @GetMapping(value = "/bank",
+            consumes = { MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+    public ResponseEntity<?> getBank(){
+        return bankService.getBank();
     }
 
 }

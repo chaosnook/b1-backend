@@ -39,9 +39,9 @@ public class Bank extends DateAudit<String> implements Serializable {
     private int bankGroup;
     @Column(name = "bot_ip", columnDefinition = "character varying(50) not null")
     private String botIp;
-    @Column(name = "new_user_flag", columnDefinition = "smallint default 0")
+    @Column(name = "new_user_flag", columnDefinition = "boolean")
     private boolean newUserFlag;
-    @Column(name = "active", columnDefinition = "smallint default 0")
+    @Column(name = "active", columnDefinition = "boolean")
     private boolean active;
 
     @Embedded
