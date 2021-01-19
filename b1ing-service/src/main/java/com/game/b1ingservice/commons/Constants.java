@@ -25,6 +25,17 @@ public class Constants {
         ERR_01004("ไม่มีชื่อนี้ในระบบ"),
         ERR_01005("ไม่พบข้อมลมิจฉาชีพนี้"),
 
+        ERR_02000("ิbank_code ห้ามว่าง"),
+        ERR_02001("bank_type ห้ามว่าง"),
+        ERR_02002("bank_name ห้ามว่าง"),
+        ERR_02003("bank_account_name ห้ามว่าง"),
+        ERR_02004("bank_account_no ห้ามว่าง"),
+        ERR_02005("username ห้ามว่าง"),
+        ERR_02006("password ห้ามว่าง"),
+        ERR_02007("bank_order ห้ามว่าง"),
+        ERR_02008("bank_group ห้ามว่าง"),
+        ERR_02009("bot_ip ห้ามว่าง"),
+
         ERR_01101("role_code ห้ามว่าง"),
         ERR_01102("description ห้ามว่าง"),
         ERR_01103("role_code มีอยู่แล้ว"),
@@ -45,6 +56,8 @@ public class Constants {
         MSG_01001("เพิ่มข้อมูลมิจฉาชีพสำเร็จ"),
         MSG_01002("แก้ไขข้อมูลมิจฉาชีพสำเร็จ"),
         MSG_01003("ลบข้อมููลมิจฉาชีพสำเร็จ"),
+
+        MSG_02000("เพิ่มข้อมูลธนาคารสำเร็จ"),
         GRAPES("GREEN");
 
         public String msg;
