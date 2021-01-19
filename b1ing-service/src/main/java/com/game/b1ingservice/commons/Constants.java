@@ -28,7 +28,16 @@ public class Constants {
         ERR_01102("description ห้ามว่าง"),
         ERR_01103("role_code มีอยู่แล้ว"),
         ERR_01104("Id not found"),
-        ERR_01105("Id ห้ามว่าง")
+        ERR_01105("Id ห้ามว่าง"),
+        ERR_01106("phone number ห้ามว่าง"),
+        ERR_01107("phone number นี้มีอยู่ในระบบแล้ว"),
+        ERR_01108("password ห้ามว่าง"),
+        ERR_01109("name ห้ามว่าง"),
+        ERR_01110("bot ip ห้ามว่าง"),
+        ERR_01111("bank group ห้ามว่าง"),
+        ERR_01112("new user flag ห้ามว่าง"),
+        ERR_01113("active ห้ามว่าง"),
+        ERR_01114("phone number ไม่ถูกต้อง"),
         ;
 
         public String msg;
