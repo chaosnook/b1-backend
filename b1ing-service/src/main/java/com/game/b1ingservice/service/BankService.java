@@ -8,4 +8,6 @@ import org.springframework.stereotype.Service;
 public interface BankService {
     void insertBank(BankRequest bankRequest);
     ResponseEntity<?> getBank();
+    void updateBank(Long id, BankRequest bankRequest);
+    void deleteBank(Long id);
 }

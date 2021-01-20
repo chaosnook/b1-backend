@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -72,5 +73,40 @@ public class BankServiceImpl implements BankService {
             res.add(bankResponse);
         }
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, res);
+    }
+
+    @Override
+    public void updateBank(Long id, BankRequest bankRequest){
+        Optional<Bank> opt = bankRepository.findById(id);
+        if(opt.isPresent()){
+            Bank bank = opt.get();
+            bank.setBankCode(bankRequest.getBankCode());
+            bank.setBankType(bankRequest.getBankType());
+            bank.setBankName(bankRequest.getBankName());
+            bank.setBankAccountName(bankRequest.getBankAccountName());
+            bank.setBankAccountNo(bankRequest.getBankAccountNo());
+            bank.setUsername(bankRequest.getUsername());
+            bank.setPassword(bankRequest.getPassword());
+            bank.setBankOrder(bankRequest.getBankOrder());
+            bank.setBankGroup(bankRequest.getBankGroup());
+            bank.setBotIp(bankRequest.getBotIp());
+            bank.setNewUserFlag(bankRequest.isNewUserFlag());
+            bank.setActive(bankRequest.isActive());
+            bankRepository.save(bank);
+        } else {
+            throw new ErrorMessageException(Constants.ERROR.ERR_02011);
+        }
+    }
+
+    @Override
+    public void deleteBank(Long id){
+        Optional<Bank> opt = bankRepository.findById(id);
+        if(opt.isPresent()){
+            Bank bank = opt.get();
+            bank.setDeleteFlag(1);
+            bankRepository.save(bank);
+        } else {
+            throw new ErrorMessageException(Constants.ERROR.ERR_02011);
+        }
     }
 }

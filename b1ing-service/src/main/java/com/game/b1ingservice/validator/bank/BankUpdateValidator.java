@@ -11,7 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class BankValidator extends CommonValidator {
+public class BankUpdateValidator extends CommonValidator {
+
     @Autowired
     BankRepository bankRepository;
 
