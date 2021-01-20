@@ -39,6 +39,10 @@ public class Constants {
         ERR_01112("new user flag ห้ามว่าง"),
         ERR_01113("active ห้ามว่าง"),
         ERR_01114("phone number ไม่ถูกต้อง"),
+
+        ERR_03000("IP ห้ามว่าง"),
+        ERR_03001("ไม่พบข้อมูล"),
+
         ;
 
         public String msg;

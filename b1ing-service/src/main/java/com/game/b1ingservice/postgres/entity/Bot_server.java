@@ -10,14 +10,15 @@ import java.io.Serializable;
 
 @Data
 @Entity
-@Table(name = "bot_server", uniqueConstraints = {@UniqueConstraint(columnNames = {"bot_id"})})
+@Table(name = "bot_server", uniqueConstraints = {@UniqueConstraint(columnNames = {"bot_ip"})})
+@Where(clause = "delete_flag = 0")
 public class Bot_server extends DateAudit<String> implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "bot_id", columnDefinition = "character varying(50)")
-    private String botId;
+    @Column(name = "bot_ip", columnDefinition = "character varying(50)")
+    private String botIp;
 
 
     @Embedded

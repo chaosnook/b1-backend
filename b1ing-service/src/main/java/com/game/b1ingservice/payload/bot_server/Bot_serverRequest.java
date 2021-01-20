@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class Bot_serverRequest {
-    private String botId;
+    private String botIp;
 
 }
