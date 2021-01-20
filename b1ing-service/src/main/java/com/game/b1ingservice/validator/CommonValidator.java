@@ -70,6 +70,13 @@ public class CommonValidator implements Validator {
         return false;
     }
 
+    public boolean isIpAddress(String ipAddress){
+        String regex = "^(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(ipAddress);
+        return matcher.matches();
+    }
+
 
 }
 

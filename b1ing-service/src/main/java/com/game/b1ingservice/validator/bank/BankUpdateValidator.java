@@ -32,6 +32,8 @@ public class BankUpdateValidator extends CommonValidator {
             throw new ErrorMessageException(Constants.ERROR.ERR_02003);
         if(StringUtils.isEmpty(req.getBankAccountNo()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02004);
+        else if (!isNumber(req.getBankAccountNo()))
+            throw new ErrorMessageException(Constants.ERROR.ERR_02012);
         if(StringUtils.isEmpty(req.getUsername()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02005);
         if(StringUtils.isEmpty((req.getPassword())))
@@ -42,6 +44,7 @@ public class BankUpdateValidator extends CommonValidator {
             throw new ErrorMessageException(Constants.ERROR.ERR_02008);
         if(StringUtils.isEmpty(req.getBotIp()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02009);
-
+        else if (!isIpAddress(req.getBotIp()))
+            throw new ErrorMessageException(Constants.ERROR.ERR_02013);
     }
 }
