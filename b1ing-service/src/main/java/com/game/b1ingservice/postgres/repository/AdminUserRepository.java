@@ -15,7 +15,7 @@ public interface AdminUserRepository extends JpaRepository<AdminUser, Long>, Jpa
     Optional<AdminUser> findByUsernameAndPrefixAndActive(String username,String prefix,int active);
     boolean existsByUsername(String username);
     Optional<AdminUser> findByTel(String tel);
-    @Query("select o from AdminUser o where o.prefix = :prefix and o.role.roleCode <> 'XSUPERADMIN' ")
+    @Query("select o from AdminUser o where o.prefix = :prefix and o.role.roleCode <> 'XSUPERADMIN' order by -o.id")
     List<AdminUser> findByPrefix(String prefix);
 
 }
