@@ -6,13 +6,15 @@ import com.game.b1ingservice.service.TrueWalletService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.truewallet.TrueWalletRequestValidator;
 import com.game.b1ingservice.validator.truewallet.TrueWalletUpdateValidator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
-@RequestMapping("api/admin")
+@RequestMapping("api/test")
 public class TrueWalletController {
 
     @Autowired
