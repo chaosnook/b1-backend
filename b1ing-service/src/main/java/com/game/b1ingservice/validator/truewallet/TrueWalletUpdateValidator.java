@@ -30,6 +30,8 @@ public class TrueWalletUpdateValidator extends CommonValidator {
         }
         if(StringUtils.isEmpty(req.getBotIp())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01110);
+        } else if(!isIpAddress(req.getBotIp())) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_O1115);
         }
         if(ObjectUtils.isEmpty(req.getBankGroup())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01111);
