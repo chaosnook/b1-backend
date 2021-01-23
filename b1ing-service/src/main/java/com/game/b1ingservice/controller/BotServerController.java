@@ -1,7 +1,7 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
-import com.game.b1ingservice.payload.bot_server.Bot_serverRequest;
+import com.game.b1ingservice.payload.bot_server.BotServerRequest;
 import com.game.b1ingservice.service.BotServerService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.botserver.BotServerRequestValidator;
@@ -23,7 +23,7 @@ public class BotServerController {
     BotServerUpdateValidator botServerUpdateValidator;
 
     @PostMapping(value = "/bot", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<?> addBot(@RequestBody Bot_serverRequest botServerRequest){
+    public ResponseEntity<?> addBot(@RequestBody BotServerRequest botServerRequest){
         botServerRequestValidator.validate(botServerRequest);
         botServerService.addBot(botServerRequest);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
@@ -33,7 +33,7 @@ public class BotServerController {
         return botServerService.getBot();
     }
     @PutMapping(value = "/bot/{id}")
-    public ResponseEntity<?> updateBot(@PathVariable Long id, @RequestBody Bot_serverRequest req){
+    public ResponseEntity<?> updateBot(@PathVariable Long id, @RequestBody BotServerRequest req){
         botServerUpdateValidator.validate(req);
         botServerService.updateBot(id, req);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);

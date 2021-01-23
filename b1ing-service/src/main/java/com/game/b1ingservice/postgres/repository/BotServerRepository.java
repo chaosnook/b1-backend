@@ -1,10 +1,10 @@
 package com.game.b1ingservice.postgres.repository;
 
-import com.game.b1ingservice.postgres.entity.Bot_server;
+import com.game.b1ingservice.postgres.entity.BotServer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface Bot_serverRepository extends JpaRepository<Bot_server, Long>, JpaSpecificationExecutor<Bot_server> {
+public interface BotServerRepository extends JpaRepository<BotServer, Long>, JpaSpecificationExecutor<BotServer> {
 }

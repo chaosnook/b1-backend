@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.Instant;
 
 @Data
-public class Bot_serverResponse {
+public class BotServerResponse {
     private Long id;
     private String botIp;
     private Instant createdDate;

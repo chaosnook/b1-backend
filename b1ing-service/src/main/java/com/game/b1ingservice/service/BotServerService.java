@@ -1,13 +1,13 @@
 package com.game.b1ingservice.service;
 
-import com.game.b1ingservice.payload.bot_server.Bot_serverRequest;
+import com.game.b1ingservice.payload.bot_server.BotServerRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 public interface BotServerService {
-    void addBot(Bot_serverRequest botServerRequest);
+    void addBot(BotServerRequest botServerRequest);
      ResponseEntity<?> getBot();
-     void updateBot(Long id,Bot_serverRequest botServerRequest);
+     void updateBot(Long id,BotServerRequest botServerRequest);
      void  deleteBot(Long id);
 }

@@ -3,10 +3,10 @@ package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
-import com.game.b1ingservice.payload.bot_server.Bot_serverRequest;
-import com.game.b1ingservice.payload.bot_server.Bot_serverResponse;
-import com.game.b1ingservice.postgres.entity.Bot_server;
-import com.game.b1ingservice.postgres.repository.Bot_serverRepository;
+import com.game.b1ingservice.payload.bot_server.BotServerRequest;
+import com.game.b1ingservice.payload.bot_server.BotServerResponse;
+import com.game.b1ingservice.postgres.entity.BotServer;
+import com.game.b1ingservice.postgres.repository.BotServerRepository;
 import com.game.b1ingservice.service.BotServerService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -23,23 +23,23 @@ import java.util.Optional;
 @Service
 public class BotServerServicelmpl implements BotServerService {
     @Autowired
-    Bot_serverRepository botServerRepository;
+    BotServerRepository botServerRepository;
 
     @Override
-    public void addBot(Bot_serverRequest botServerRequest){
-        Bot_server bot_server = new Bot_server();
-        bot_server.setBotIp(botServerRequest.getBotIp());
-        botServerRepository.save(bot_server);
+    public void addBot(BotServerRequest botServerRequest){
+        BotServer botServer = new BotServer();
+        botServer.setBotIp(botServerRequest.getBotIp());
+        botServerRepository.save(botServer);
     }
     @Override
     public ResponseEntity<?> getBot(){
-        List<Bot_serverResponse> responseList = new ArrayList<>();
-        List<Bot_server> bot_serverList = botServerRepository.findAll();
+        List<BotServerResponse> responseList = new ArrayList<>();
+        List<BotServer> bot_serverList = botServerRepository.findAll();
         if(bot_serverList.isEmpty()){
             return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, responseList);
         }
-        for (Bot_server botServer: bot_serverList){
-            Bot_serverResponse bot_serverResponse = new Bot_serverResponse();
+        for (BotServer botServer: bot_serverList){
+            BotServerResponse bot_serverResponse = new BotServerResponse();
             bot_serverResponse.setId(botServer.getId());
             bot_serverResponse.setBotIp(botServer.getBotIp());
             bot_serverResponse.setCreatedBy(botServer.getAudit().getCreatedBy());
@@ -52,10 +52,10 @@ public class BotServerServicelmpl implements BotServerService {
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, responseList);
     }
     @Override
-    public void updateBot(Long id,Bot_serverRequest botServerRequest){
-        Optional<Bot_server> opt = botServerRepository.findById(id);
+    public void updateBot(Long id,BotServerRequest botServerRequest){
+        Optional<BotServer> opt = botServerRepository.findById(id);
         if (opt.isPresent()) {
-            Bot_server botServer = opt.get();
+            BotServer botServer = opt.get();
             botServer.setBotIp(botServerRequest.getBotIp());
             botServerRepository.save(botServer);
         }
@@ -66,9 +66,9 @@ public class BotServerServicelmpl implements BotServerService {
 
     @Override
     public void deleteBot(Long id) {
-      Optional<Bot_server> opt = botServerRepository.findById(id);
+      Optional<BotServer> opt = botServerRepository.findById(id);
       if(opt.isPresent()){
-          Bot_server botServer = opt.get();
+          BotServer botServer = opt.get();
           botServer.setDeleteFlag(1);
           botServerRepository.save(botServer);
       }

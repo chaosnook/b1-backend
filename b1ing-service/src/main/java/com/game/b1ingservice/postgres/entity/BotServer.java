@@ -10,9 +10,9 @@ import java.io.Serializable;
 
 @Data
 @Entity
-@Table(name = "bot_server", uniqueConstraints = {@UniqueConstraint(columnNames = {"delete_flag"})})
+@Table(name = "bot_server", uniqueConstraints = {@UniqueConstraint(columnNames = {"bot_ip"})})
 @Where(clause = "delete_flag = 0")
-public class Bot_server extends DateAudit<String> implements Serializable {
+public class BotServer extends DateAudit<String> implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
