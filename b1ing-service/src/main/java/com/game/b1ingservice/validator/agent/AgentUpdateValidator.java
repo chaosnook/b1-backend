@@ -18,7 +18,6 @@ public class AgentUpdateValidator {
         if (ObjectUtils.isEmpty(principal.getRole())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
         } else if (Constants.ROLE.STAFF.name().equals(principal.getRole())
-                || Constants.ROLE.ADMIN.name().equals(principal.getRole())
                 || !principal.getPrefix().equals(req.getPrefix()) && !Constants.ROLE.XSUPERADMIN.name().equals(principal.getRole())) {
 
             throw new ErrorMessageException(Constants.ERROR.ERR_88888);
