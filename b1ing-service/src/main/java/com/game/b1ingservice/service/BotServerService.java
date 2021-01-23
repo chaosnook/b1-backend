@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface Bot_serverService {
+public interface BotServerService {
     void addBot(Bot_serverRequest botServerRequest);
      ResponseEntity<?> getBot();
      void updateBot(Long id,Bot_serverRequest botServerRequest);

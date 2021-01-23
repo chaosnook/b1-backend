@@ -2,10 +2,10 @@ package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.bot_server.Bot_serverRequest;
-import com.game.b1ingservice.service.Bot_serverService;
+import com.game.b1ingservice.service.BotServerService;
 import com.game.b1ingservice.utils.ResponseHelper;
-import com.game.b1ingservice.validator.bot_server.Bot_serverRequestValidator;
-import com.game.b1ingservice.validator.bot_server.Bot_serverUpdateValidator;
+import com.game.b1ingservice.validator.botserver.BotServerRequestValidator;
+import com.game.b1ingservice.validator.botserver.BotServerUpdateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/test")
-public class Bot_serverController {
+public class BotServerController {
 
     @Autowired
-    Bot_serverService botServerService;
+    BotServerService botServerService;
     @Autowired
-    Bot_serverRequestValidator botServerRequestValidator;
+    BotServerRequestValidator botServerRequestValidator;
     @Autowired
-    Bot_serverUpdateValidator botServerUpdateValidator;
+    BotServerUpdateValidator botServerUpdateValidator;
 
     @PostMapping(value = "/bot", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
     public ResponseEntity<?> addBot(@RequestBody Bot_serverRequest botServerRequest){

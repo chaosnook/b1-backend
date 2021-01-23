@@ -1,4 +1,4 @@
-package com.game.b1ingservice.validator.bot_server;
+package com.game.b1ingservice.validator.botserver;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
@@ -10,14 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Bot_serverUpdateValidator extends CommonValidator {
+public class BotServerRequestValidator extends CommonValidator {
     @Autowired
     private Bot_serverRepository botServerRepository;
 
     public void validate(Bot_serverRequest req){
         if(StringUtils.isEmpty(req.getBotIp()))
-            throw new ErrorMessageException(Constants.ERROR.ERR_03000);
+            throw new ErrorMessageException(Constants.ERROR.ERR_02009);
         else if (!isIpAddress(req.getBotIp()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02013);
-    }
+        }
 }

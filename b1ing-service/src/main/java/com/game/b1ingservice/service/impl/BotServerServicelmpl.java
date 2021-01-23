@@ -7,7 +7,7 @@ import com.game.b1ingservice.payload.bot_server.Bot_serverRequest;
 import com.game.b1ingservice.payload.bot_server.Bot_serverResponse;
 import com.game.b1ingservice.postgres.entity.Bot_server;
 import com.game.b1ingservice.postgres.repository.Bot_serverRepository;
-import com.game.b1ingservice.service.Bot_serverService;
+import com.game.b1ingservice.service.BotServerService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-public class Bot_serverServicelmpl implements Bot_serverService {
+public class BotServerServicelmpl implements BotServerService {
     @Autowired
     Bot_serverRepository botServerRepository;
 
