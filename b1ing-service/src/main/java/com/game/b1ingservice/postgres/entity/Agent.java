@@ -46,6 +46,7 @@ public class Agent extends DateAudit<String> implements Serializable {
     @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     private List<AdminUser> adminUsers;
 
+    @Where(clause = "type = 'AGENT-CONFIG'")
     @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     private List<Config> configs;
 
