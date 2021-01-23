@@ -4,6 +4,7 @@ import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.bot_server.Bot_serverRequest;
 import com.game.b1ingservice.service.Bot_serverService;
 import com.game.b1ingservice.utils.ResponseHelper;
+import com.game.b1ingservice.validator.bot_server.Bot_serverRequestValidator;
 import com.game.b1ingservice.validator.bot_server.Bot_serverUpdateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -17,10 +18,13 @@ public class Bot_serverController {
     @Autowired
     Bot_serverService botServerService;
     @Autowired
+    Bot_serverRequestValidator botServerRequestValidator;
+    @Autowired
     Bot_serverUpdateValidator botServerUpdateValidator;
 
     @PostMapping(value = "/bot", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
     public ResponseEntity<?> addBot(@RequestBody Bot_serverRequest botServerRequest){
+        botServerRequestValidator.validate(botServerRequest);
         botServerService.addBot(botServerRequest);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }

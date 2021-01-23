@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 @Data
 @Entity
-@Table(name = "bot_server", uniqueConstraints = {@UniqueConstraint(columnNames = {"bot_ip"})})
+@Table(name = "bot_server", uniqueConstraints = {@UniqueConstraint(columnNames = {"delete_flag"})})
 @Where(clause = "delete_flag = 0")
 public class Bot_server extends DateAudit<String> implements Serializable {
     @Id

@@ -15,9 +15,9 @@ public class Bot_serverUpdateValidator extends CommonValidator {
     private Bot_serverRepository botServerRepository;
 
     public void validate(Bot_serverRequest req){
-        if(StringUtils.isEmpty(req.getBotIp())) {
-        throw new ErrorMessageException(Constants.ERROR.ERR_03000);
-    }
-
+        if(StringUtils.isEmpty(req.getBotIp()))
+            throw new ErrorMessageException(Constants.ERROR.ERR_03000);
+        else if (!isIpAddress(req.getBotIp()))
+            throw new ErrorMessageException(Constants.ERROR.ERR_02013);
     }
 }

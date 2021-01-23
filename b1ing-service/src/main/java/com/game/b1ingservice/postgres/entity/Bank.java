@@ -11,7 +11,7 @@ import java.io.Serializable;
 
 @Data
 @Entity
-@Table(name = "bank", uniqueConstraints = {@UniqueConstraint(columnNames = {"bank_order", "bank_group"})})
+@Table(name = "bank", uniqueConstraints = {@UniqueConstraint(columnNames = {"bank_order", "bank_group", "delete_flag"})})
 @Where(clause = "delete_flag = 0")
 public class Bank extends DateAudit<String> implements Serializable {
 
