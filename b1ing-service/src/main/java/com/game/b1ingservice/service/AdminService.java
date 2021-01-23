@@ -16,4 +16,6 @@ public interface AdminService {
     void registerAdmin(RegisterRequest registerRequest, UserPrincipal principal);
     void updateAdmin(AdminUpdateRequest adminUpdateRequest, UserPrincipal principal);
     List<AdminUserResponse> listByPrefix(String prefix);
+
+    AdminUserResponse findAdminByUsernamePrefix(String username, String prefix);
 }

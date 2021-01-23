@@ -4,6 +4,7 @@ public class Constants {
     public enum  ERROR
     {
         ERR_TOKEN("Your token has expired"),
+        ERR_PREFIX("ข้อมูลไม่ถูกต้อง"),
         ERR_99999("ระบบไม่สามารถดำเนินการได้"),
         ERR_00000("ไม่สามารถต่อ Database ได้"),
         ERR_00001("มีข้อมูลอยู่ในระบบแล้ว"),

@@ -7,6 +7,7 @@ import com.game.b1ingservice.payload.admin.RegisterRequest;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.service.AdminService;
 import com.game.b1ingservice.utils.ResponseHelper;
+import com.game.b1ingservice.validator.admin.PrefixValidator;
 import com.game.b1ingservice.validator.admin.RegisterValidator;
 import com.game.b1ingservice.validator.admin.UpdateValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,8 @@ public class AdminController {
     RegisterValidator registerValidator;
     @Autowired
     UpdateValidator updateValidator;
+    @Autowired
+    PrefixValidator prefixValidator;
     @Autowired
     AdminService adminService;
 
@@ -72,6 +75,15 @@ public class AdminController {
                                           @AuthenticationPrincipal UserPrincipal principal) {
 
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, adminService.listByPrefix(prefix));
+    }
+
+    @GetMapping(value = "/get/{username}",
+            consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> getUser(@PathVariable("username") String username,
+                                     @AuthenticationPrincipal UserPrincipal principal) {
+
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, adminService.findAdminByUsernamePrefix(username, principal.getPrefix()));
     }
 
 }

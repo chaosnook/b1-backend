@@ -122,6 +122,16 @@ public class AdminServiceImpl implements AdminService {
          return list;
     }
 
+    @Override
+    public AdminUserResponse findAdminByUsernamePrefix(String username, String prefix) {
+        Optional<AdminUser> opt = adminUserRepository.findByUsernameAndPrefixAndActive(username, prefix, 1);
+        if (opt.isPresent()) {
+            return converter.apply(opt.get());
+        } else {
+            throw new ErrorMessageException(Constants.ERROR.ERR_00009);
+        }
+    }
+
 
     Function<AdminUser, AdminUserResponse> converter = admin -> {
         AdminUserResponse response = new AdminUserResponse();

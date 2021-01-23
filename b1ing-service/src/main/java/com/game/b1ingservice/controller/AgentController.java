@@ -22,7 +22,7 @@ public class AgentController {
     @Autowired
     AgentService agentService;
 
-    @GetMapping(value = "/agent",
+    @GetMapping(value = "/agents-list",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
     public ResponseEntity<?> authenticate(@RequestHeader Map<String, String> headers) {
