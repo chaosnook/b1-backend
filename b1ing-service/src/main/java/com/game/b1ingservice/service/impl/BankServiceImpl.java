@@ -58,7 +58,6 @@ public class BankServiceImpl implements BankService {
             bankResponse.setBankAccountName(bank.getBankAccountName());
             bankResponse.setBankAccountNo(bank.getBankAccountNo());
             bankResponse.setUsername(bank.getUsername());
-            bankResponse.setPassword(bank.getPassword());
             bankResponse.setBankOrder(bank.getBankOrder());
             bankResponse.setBankGroup(bank.getBankGroup());
             bankResponse.setBotIp(bank.getBotIp());
