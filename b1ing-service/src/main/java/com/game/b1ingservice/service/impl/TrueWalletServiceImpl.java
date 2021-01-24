@@ -8,6 +8,7 @@ import com.game.b1ingservice.postgres.entity.TrueWallet;
 import com.game.b1ingservice.postgres.repository.TrueWalletRepository;
 import com.game.b1ingservice.service.TrueWalletService;
 import com.game.b1ingservice.utils.ResponseHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -72,7 +73,9 @@ public class TrueWalletServiceImpl implements TrueWalletService {
             TrueWallet trueWallet = opt.get();
             trueWallet.setPhoneNumber(req.getPhoneNumber());
             trueWallet.setName(req.getName());
-            trueWallet.setPassword(req.getPassword());
+            if(!StringUtils.isEmpty(req.getPassword())) {
+                trueWallet.setPassword(req.getPassword());
+            }
             trueWallet.setBankGroup(req.getBankGroup());
             trueWallet.setBotIp(req.getBotIp());
             trueWallet.setNewUserFlag(req.isNewUserFlag());

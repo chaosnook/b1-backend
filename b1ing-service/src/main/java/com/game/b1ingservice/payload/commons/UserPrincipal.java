@@ -28,7 +28,7 @@ public class UserPrincipal implements UserDetails {
 
     private List<String> roles;
 
-    private String type;
+    private String role;
 
     private String prefix;
 
@@ -39,13 +39,14 @@ public class UserPrincipal implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Long id, String username, String password, Long agentId, String type,
+    public UserPrincipal(Long id, String username, String password, Long agentId, String role,
                          Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.authorities = authorities;
         this.agentId = agentId;
+        this.role = role;
     }
 
     public static UserPrincipal create(WebUser user) {

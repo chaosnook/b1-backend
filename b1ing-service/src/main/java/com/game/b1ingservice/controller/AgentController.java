@@ -1,17 +1,18 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
-import com.game.b1ingservice.payload.admin.LoginRequest;
+import com.game.b1ingservice.payload.agent.AgentRequest;
+import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.service.AgentService;
 import com.game.b1ingservice.utils.ResponseHelper;
+import com.game.b1ingservice.validator.agent.AgentUpdateValidator;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.charset.Charset;
 import java.util.Map;
 
 @RestController
@@ -21,6 +22,9 @@ public class AgentController {
 
     @Autowired
     AgentService agentService;
+
+    @Autowired
+    private AgentUpdateValidator agentUpdateValidator;
 
     @GetMapping(value = "/agents-list",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
@@ -36,5 +40,14 @@ public class AgentController {
                                           @PathVariable("prefix") String prefix) {
 
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, agentService.getAgentByPrefix(prefix));
+    }
+
+    @PutMapping(path = "/agent",
+            consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> update(@RequestBody AgentRequest agentRequest, @AuthenticationPrincipal UserPrincipal principal) {
+        agentUpdateValidator.validate(agentRequest, principal);
+        agentService.update(agentRequest, principal);
+        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 }

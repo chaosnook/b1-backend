@@ -6,6 +6,8 @@ public class Constants {
         ERR_TOKEN("Your token has expired"),
         ERR_PREFIX("ข้อมูลไม่ถูกต้อง"),
         ERR_99999("ระบบไม่สามารถดำเนินการได้"),
+        ERR_88888("ไม่มีสิทธ์ในการทำรายการ"),
+
         ERR_00000("ไม่สามารถต่อ Database ได้"),
         ERR_00001("มีข้อมูลอยู่ในระบบแล้ว"),
         ERR_00002("ข้อมูลถูกล๊อกอยู่"),
@@ -85,6 +87,24 @@ public class Constants {
 
         MESSAGE(String label) {
             this.msg = label;
+        }
+    }
+
+    public enum ROLE {
+        XSUPERADMIN("XSUPERADMIN"),
+        SUPERADMIN("SUPERADMIN"),
+        ADMIN("ADMIN"),
+        STAFF("STAFF");
+
+        private final String role;
+
+        ROLE(final String text) {
+            this.role = text;
+        }
+
+        @Override
+        public String toString() {
+            return role;
         }
     }
 }
