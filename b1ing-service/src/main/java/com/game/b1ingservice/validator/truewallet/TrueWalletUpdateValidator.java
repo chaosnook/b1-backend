@@ -22,9 +22,6 @@ public class TrueWalletUpdateValidator extends CommonValidator {
         } else if (!isNumber(req.getPhoneNumber())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01114);
         }
-        if(StringUtils.isEmpty(req.getPassword())) {
-            throw new ErrorMessageException(Constants.ERROR.ERR_01108);
-        }
         if(StringUtils.isEmpty(req.getName())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01109);
         }
