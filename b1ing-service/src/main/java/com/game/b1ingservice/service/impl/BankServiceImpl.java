@@ -45,9 +45,9 @@ public class BankServiceImpl implements BankService {
     public ResponseEntity<?> getBank(){
         List<BankResponse> res = new ArrayList<>();
         List<Bank> listBank = bankRepository.findAll();
-        if(listBank.isEmpty()) {
-            throw new ErrorMessageException(Constants.ERROR.ERR_02010);
-        }
+//        if(listBank.isEmpty()) {
+//            throw new ErrorMessageException(Constants.ERROR.ERR_02010);
+//        }
            for(Bank bank: listBank){
             BankResponse bankResponse = new BankResponse();
 

@@ -36,8 +36,8 @@ public class BankUpdateValidator extends CommonValidator {
             throw new ErrorMessageException(Constants.ERROR.ERR_02012);
         if(StringUtils.isEmpty(req.getUsername()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02005);
-        if(StringUtils.isEmpty((req.getPassword())))
-            throw new ErrorMessageException(Constants.ERROR.ERR_02006);
+//        if(StringUtils.isEmpty((req.getPassword())))
+//            throw new ErrorMessageException(Constants.ERROR.ERR_02006);
         if(ObjectUtils.isEmpty(req.getBankOrder()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02007);
         if(ObjectUtils.isEmpty(req.getBankGroup()))
