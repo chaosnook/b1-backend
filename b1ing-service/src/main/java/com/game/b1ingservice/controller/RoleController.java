@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/role")
+@RequestMapping("api/admin")
 public class RoleController {
 
     @Autowired
