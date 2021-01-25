@@ -23,7 +23,6 @@ public class BankUpdateValidator extends CommonValidator {
         BankRequest req = BankRequest.class.cast(o);
         if(StringUtils.isEmpty(req.getBankCode()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02000);
-//        else if (bankRepository.existsByBankCode(req.getBankCode()));
         if(StringUtils.isEmpty(req.getBankType()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02001);
         if(StringUtils.isEmpty(req.getBankName()))
@@ -38,10 +37,24 @@ public class BankUpdateValidator extends CommonValidator {
             throw new ErrorMessageException(Constants.ERROR.ERR_02005);
 //        if(StringUtils.isEmpty((req.getPassword())))
 //            throw new ErrorMessageException(Constants.ERROR.ERR_02006);
-        if(ObjectUtils.isEmpty(req.getBankOrder()))
+
+
+        if(ObjectUtils.isEmpty(req.getBankOrder())){
             throw new ErrorMessageException(Constants.ERROR.ERR_02007);
-        if(ObjectUtils.isEmpty(req.getBankGroup()))
+        }else if (req.getBankOrder() <= 0){
+            throw new ErrorMessageException(Constants.ERROR.ERR_02014);
+        }
+
+        if(ObjectUtils.isEmpty(req.getBankGroup())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_02008);
+        } else if (req.getBankGroup() <= 0) {
+        throw new ErrorMessageException(Constants.ERROR.ERR_02016);
+        }
+
+        if(bankRepository.existsByBankOrder(req.getBankOrder()) && bankRepository.existsByBankGroup(req.getBankGroup())) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_02018);
+        }
+
         if(StringUtils.isEmpty(req.getBotIp()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02009);
         else if (!isIpAddress(req.getBotIp()))

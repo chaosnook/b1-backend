@@ -42,6 +42,9 @@ public class Constants {
         ERR_02011("ไม่พบข้อมูลธนาคารนี้"),
         ERR_02012("หมายเลขบัญชีธนาคารต้องเป็นตัวเลขเท่านั้น"),
         ERR_02013("หมายเลข Bot Ip ไม่ถูกต้อง"),
+        ERR_02014("bank order ไม่ถูกต้อง"),
+        ERR_02016("bank group ไม่ถูกต้อง"),
+        ERR_02018("bank group และ bank order มีอยู่ในระบบแล้ว"),
 
         ERR_01101("role_code ห้ามว่าง"),
         ERR_01102("description ห้ามว่าง"),
