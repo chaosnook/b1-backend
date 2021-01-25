@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("api/admin")
+@RequestMapping("api/test")
 public class TrueWalletController {
 
     @Autowired

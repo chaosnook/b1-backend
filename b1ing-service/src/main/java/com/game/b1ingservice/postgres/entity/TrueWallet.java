@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 @Data
 @Entity
-@Table(name = "true_wallet", uniqueConstraints = {@UniqueConstraint(columnNames = {"phone_number"})})
+@Table(name = "true_wallet")
 @Where(clause = "delete_flag = 0")
 public class TrueWallet extends DateAudit<String> implements Serializable {
 

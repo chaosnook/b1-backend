@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TrueWalletRepository extends JpaRepository<TrueWallet, Long>, JpaSpecificationExecutor<TrueWallet> {
     boolean existsByPhoneNumber(String phoneNumber);
+    boolean existsByBankGroup(int bankGroup);
 }
