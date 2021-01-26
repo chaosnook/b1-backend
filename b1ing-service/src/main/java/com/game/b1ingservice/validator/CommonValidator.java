@@ -77,6 +77,13 @@ public class CommonValidator implements Validator {
         return matcher.matches();
     }
 
+    public boolean isPassword(String password) {
+        String regex = "^([A-z,0-9,\\_]{8,20})$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(password);
+        return matcher.matches();
+    }
+
 
 }
 
