@@ -8,7 +8,9 @@ import com.game.b1ingservice.payload.webuser.WebUserUpdate;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.WebUserService;
+import com.game.b1ingservice.utils.ResponseHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -37,24 +39,30 @@ public class WebUserServiceImpl implements WebUserService {
     EntityManager em;
 
     @Override
-    public void createUser(WebUserRequest req) {
+    public ResponseEntity<?> createUser(WebUserRequest req) {
 
         String tel = req.getTel();
         String prefix = "BNG";
-        String username = prefix + tel.substring(2, tel.length()-1);
+        String username = prefix + tel.substring(3, tel.length()-1);
 
         WebUser user = new WebUser();
         user.setUsername(username);
         user.setTel(req.getTel());
         user.setPassword(bCryptPasswordEncoder.encode(req.getPassword()));
-        user.setBank_name(req.getBankName());
-        user.setAccount_number(req.getAccountNumber());
-        user.setFirst_name(req.getFirstName());
-        user.setLast_name(req.getLastName());
+        user.setBankName(req.getBankName());
+        user.setAccountNumber(req.getAccountNumber());
+        user.setFirstName(req.getFirstName());
+        user.setLastName(req.getLastName());
         user.setLine(req.getLine());
-        user.setIs_bonus(req.getIsBonus());
+        user.setIsBonus(req.getIsBonus());
 
         webUserRepository.save(user);
+
+        WebUserResponse resp = new WebUserResponse();
+        resp.setUsername(username);
+        resp.setPassword(req.getPassword());
+
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
     }
 
     @Override
@@ -62,12 +70,12 @@ public class WebUserServiceImpl implements WebUserService {
         Optional<WebUser> opt = webUserRepository.findById(id);
         if(opt.isPresent()) {
             WebUser user = opt.get();
-            user.setBank_name(req.getBankName());
-            user.setAccount_number(req.getAccountNumber());
-            user.setFirst_name(req.getFirstName());
-            user.setLast_name(req.getLastName());
+            user.setBankName(req.getBankName());
+            user.setAccountNumber(req.getAccountNumber());
+            user.setFirstName(req.getFirstName());
+            user.setLastName(req.getLastName());
             user.setLine(req.getLine());
-            user.setIs_bonus(req.getIsBonus());
+            user.setIsBonus(req.getIsBonus());
 
             webUserRepository.save(user);
         } else {

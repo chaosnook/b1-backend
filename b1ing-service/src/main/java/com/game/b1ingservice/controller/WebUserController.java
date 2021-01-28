@@ -30,8 +30,7 @@ public class WebUserController {
     @PostMapping(value = "/webuser")
     public ResponseEntity<?> createWebUser(@RequestBody WebUserRequest req){
         webUserRequestValidator.validate(req);
-        webUserService.createUser(req);
-        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+        return webUserService.createUser(req);
     }
 
     @PutMapping(value = "/webuser/{id}")
