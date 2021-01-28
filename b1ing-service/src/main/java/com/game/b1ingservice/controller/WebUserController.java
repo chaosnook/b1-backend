@@ -8,8 +8,11 @@ import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.webuser.WebUserRequestValidator;
 import com.game.b1ingservice.validator.webuser.WebUserUpdateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "api/test")
@@ -36,5 +39,12 @@ public class WebUserController {
         webUserUpdateValidator.validate(req);
         webUserService.updateUser(id, req);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+    }
+
+    @GetMapping(value = "/webuser-list",
+            consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity getWebUser(@RequestHeader Map<String, String> headers){
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, webUserService.getUserList());
     }
 }
