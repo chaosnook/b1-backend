@@ -7,6 +7,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @Entity
@@ -44,4 +45,8 @@ public class TrueWallet extends DateAudit<String> implements Serializable {
 
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
+
+    @OneToMany(mappedBy = "trueWallet", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    private List<Wallet> wallet;
+
 }

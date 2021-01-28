@@ -27,17 +27,17 @@ public class WebUser extends DateAudit<String> implements Serializable {
     @Column(name = "tel", columnDefinition = "character varying(50)")
     private String tel;
     @Column(name = "bank_name", columnDefinition = "character varying(50)")
-    private String bank_name;
+    private String bankName;
     @Column(name = "account_number", columnDefinition = "character varying(50)")
-    private String account_number;
+    private String accountNumber;
     @Column(name = "first_name", columnDefinition = "character varying(50)")
-    private String first_name;
+    private String firstName;
     @Column(name = "last_name", columnDefinition = "character varying(50)")
-    private String last_name;
+    private String lastName;
     @Column(name = "line", columnDefinition = "character varying(50)")
     private String line;
     @Column(name = "is_bonus", columnDefinition = "character varying(50)")
-    private String is_bonus;
+    private String isBonus;
 
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
@@ -46,5 +46,8 @@ public class WebUser extends DateAudit<String> implements Serializable {
     @JoinColumn(name = "agent_id", referencedColumnName = "id")
     @ManyToOne
     private Agent agent;
+
+    @OneToOne(mappedBy = "user", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    private Wallet wallet;
 
 }

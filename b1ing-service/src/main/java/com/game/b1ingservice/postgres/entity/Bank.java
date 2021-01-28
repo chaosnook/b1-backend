@@ -8,6 +8,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @Entity
@@ -51,4 +52,7 @@ public class Bank extends DateAudit<String> implements Serializable {
 //    @JoinColumn(name = "admin_id", referencedColumnName = "id")
 //    @ManyToOne
 //    private AdminUser adminUser;
+
+    @OneToMany(mappedBy = "bank", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    private List<Wallet> wallet;
 }
