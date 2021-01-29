@@ -10,6 +10,9 @@ import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,7 +24,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -88,6 +93,11 @@ public class WebUserServiceImpl implements WebUserService {
         return webUserRepository.findAll().stream().map(converter).collect(Collectors.toList());
     }
 
+    @Override
+            public Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable){
+        return webUserRepository.findAll(specification, pageable).map(converter);
+    }
+
     Function<WebUser, WebUserResponse> converter = users -> {
         WebUserResponse webUserResponse = new WebUserResponse();
         webUserResponse.setId(users.getId());
@@ -108,19 +118,10 @@ public class WebUserServiceImpl implements WebUserService {
         webUserResponse.setDeleteFlag(users.getDeleteFlag());
         webUserResponse.setVersion(users.getVersion());
 
+        Map<String, Object> configMap = new HashMap<>();
+
+
         return webUserResponse;
     };
 
-
-    public List<WebUser> findUserByUserName(String userName) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<WebUser> cq = cb.createQuery(WebUser.class);
-
-        Root<WebUser> webUser = cq.from(WebUser.class);
-        Predicate userNamePredicate = cb.equal(webUser.get("userName"), userName);
-        cq.where(userNamePredicate);
-
-        TypedQuery<WebUser> query = em.createQuery(cq);
-        return query.getResultList();
-    }
 }

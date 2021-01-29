@@ -11,5 +11,4 @@ import java.util.List;
 public interface WebUserRepository extends JpaRepository<WebUser, Long>, JpaSpecificationExecutor<WebUser> {
 
     boolean existsByTel(String tel);
-    List<WebUser> findUserByUserName(String userName);
 }
