@@ -10,6 +10,9 @@ import com.game.b1ingservice.postgres.entity.Config;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.service.AgentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -61,6 +64,11 @@ public class AgentServiceImpl implements AgentService {
             throw new ErrorMessageException(Constants.ERROR.ERR_00008);
         }
 
+    }
+
+    @Override
+    public Page<AgentResponse> findByCriteria(Specification<Agent> specification, Pageable pageable) {
+        return agentRepository.findAll(specification,pageable).map(converter);
     }
 
     Function<Agent, AgentResponse> converter = agent -> {

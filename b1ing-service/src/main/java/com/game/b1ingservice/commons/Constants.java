@@ -121,4 +121,10 @@ public class Constants {
             return role;
         }
     }
+
+    public static class Sort {
+        public static final String ASC = "A";
+        public static final String DESC = "D";
+    }
+
 }
