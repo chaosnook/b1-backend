@@ -27,18 +27,26 @@ public class SearchAgentSpecification extends SearchPageSpecification<AgentSearc
             );
         }
 
+
         boolean parseCreateDateFrom = DateUtils.canCastDate(searchBody.getCreatedDateFrom());
         boolean parseCreateDateTo = DateUtils.canCastDate(searchBody.getCreatedDateTo());
 
         if (parseCreateDateFrom && parseCreateDateTo) {
-            predicates.add(criteriaBuilder.between(root.<Instant>get("createdDate")
-                    , DateUtils.convertStartDate(searchBody.getCreatedDateFrom()).toInstant()
-                    , DateUtils.convertEndDate(searchBody.getCreatedDateTo()).toInstant()));
+            predicates.add(criteriaBuilder.between(
+                    root.<Instant>get("createdDate"), DateUtils.convertStartDate(searchBody.getCreatedDateFrom()).toInstant(), DateUtils.convertEndDate(searchBody.getCreatedDateTo()).toInstant()
+            ));
         } else if (parseCreateDateFrom) {
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.<Instant>get("createdDate"), DateUtils.convertStartDate(searchBody.getCreatedDateFrom()).toInstant()));
         } else if (parseCreateDateTo) {
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Instant>get("createdDate"),DateUtils.convertStartDate(searchBody.getCreatedDateTo()).toInstant()));
         }
+
+        // add search prefix
+        if (StringUtils.isNotEmpty(searchBody.getPrefix())){
+            String prefix = StringUtils.trimToEmpty(searchBody.getPrefix());
+            predicates.add(criteriaBuilder.like(root.get("prefix"),"%"+prefix+"%"));
+        }
+
 
         return super.buildParallelPredicate(root, query, criteriaBuilder);
     }

@@ -15,14 +15,14 @@ import java.util.List;
  * @param <T> Domain object
  */
 public abstract class SearchBodySpecification<B,T> implements Specification<T> {
-
+    
     private static final long serialVersionUID = 1L;
 
     protected B searchBody;
     protected List<Predicate> predicates;
 
-    public SearchBodySpecification(B serachBody) {
-        this.searchBody = serachBody;
+    public SearchBodySpecification(B searchBody) {
+        this.searchBody = searchBody;
         this.predicates = new ArrayList<Predicate>();
     }
 
