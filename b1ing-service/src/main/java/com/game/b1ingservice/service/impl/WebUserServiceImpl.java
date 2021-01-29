@@ -94,12 +94,12 @@ public class WebUserServiceImpl implements WebUserService {
         webUserResponse.setUsername(users.getUsername());
         webUserResponse.setPassword(users.getPassword());
         webUserResponse.setTel(users.getTel());
-        webUserResponse.setBankName(users.getBank_name());
-        webUserResponse.setAccountNumber(users.getAccount_number());
-        webUserResponse.setFirstName(users.getFirst_name());
-        webUserResponse.setLastName(users.getLast_name());
+        webUserResponse.setBankName(users.getBankName());
+        webUserResponse.setAccountNumber(users.getAccountNumber());
+        webUserResponse.setFirstName(users.getFirstName());
+        webUserResponse.setLastName(users.getLastName());
         webUserResponse.setLine(users.getLine());
-        webUserResponse.setIsBonus(users.getIs_bonus());
+        webUserResponse.setIsBonus(users.getIsBonus());
 
         webUserResponse.setCreatedDate(users.getCreatedDate());
         webUserResponse.setUpdatedDate(users.getUpdatedDate());
