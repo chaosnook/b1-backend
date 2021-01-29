@@ -45,17 +45,17 @@ public class WebUserController {
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
-//    @GetMapping(value = "/webuser-list",
-//            consumes = {MediaType.APPLICATION_JSON_VALUE},
-//            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-//    public ResponseEntity getWebUser(@RequestHeader Map<String, String> headers){
-//        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, webUserService.getUserList());
-//    }
+    @GetMapping(value = "/webuser-list",
+            consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity getWebUser(@RequestHeader Map<String, String> headers){
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, webUserService.getUserList());
+    }
 
     @PostMapping(value = "/webuser/search", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity search(@RequestBody WebUserSearchRequest request){
         SearchWebUserSpecification specification = new SearchWebUserSpecification(request);
-        Page<WebUserResponse> webusers = webUserService.findByCriteria(specification,specification.getPageable());
-        return ResponseHelper.successPage(webusers, "datas",Constants.MESSAGE.MSG_00000.msg);
+        Page<WebUserResponse> users = webUserService.findByCriteria(specification,specification.getPageable());
+        return ResponseHelper.successPage(users, "datas",Constants.MESSAGE.MSG_00000.msg);
     }
 }

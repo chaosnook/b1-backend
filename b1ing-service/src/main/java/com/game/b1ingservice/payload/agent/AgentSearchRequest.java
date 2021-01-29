@@ -14,4 +14,6 @@ public class AgentSearchRequest extends SearchPageable {
     private String createdDateFrom;
     private String createdDateTo;
 
+    private String prefix;
+
 }

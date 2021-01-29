@@ -19,13 +19,44 @@ public class SearchWebUserSpecification extends SearchPageSpecification<WebUserS
     @Override
     public Predicate toPredicate(Root<WebUser> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 
-        if (StringUtils.isEmpty(searchBody.getAccountNumber())) {
-            String accountNumber = StringUtils.trimToEmpty(searchBody.getAccountNumber());
+        if (StringUtils.isNotEmpty(searchBody.getUserName())) {
+            String userName = StringUtils.trimToEmpty(searchBody.getUserName());
 
                 predicates.add(
-                        criteriaBuilder.like(root.get("accountNumber"), "%" + accountNumber + "%")
+                        criteriaBuilder.like(root.get("userName"), "%" + userName + "%")
                 );
             }
+
+        if (StringUtils.isNotEmpty(searchBody.getTel())){
+            String tel = StringUtils.trimToEmpty(searchBody.getTel());
+
+            predicates.add(
+                    criteriaBuilder.like(root.get("tel"),"%"+tel+"%"));
+        }
+
+        if (StringUtils.isNotEmpty(searchBody.getAccountNumber())) {
+            String accountNumber = StringUtils.trimToEmpty(searchBody.getAccountNumber());
+
+            predicates.add(
+                    criteriaBuilder.like(root.get("accountNumber"), "%" + accountNumber + "%")
+            );
+        }
+
+        if (StringUtils.isNotEmpty(searchBody.getFirstName())) {
+            String firstName = StringUtils.trimToEmpty(searchBody.getFirstName());
+
+            predicates.add(
+                    criteriaBuilder.like(root.get("firstName"), "%" + firstName + "%")
+            );
+        }
+
+        if (StringUtils.isNotEmpty(searchBody.getLastName())) {
+            String lastName = StringUtils.trimToEmpty(searchBody.getLastName());
+
+            predicates.add(
+                    criteriaBuilder.like(root.get("lastName"), "%" + lastName + "%")
+            );
+        }
 
             boolean parseCreateDateFrom = DateUtils.canCastDate(searchBody.getCreatedDateFrom());
             boolean parseCreateDateTo = DateUtils.canCastDate(searchBody.getCreatedDateTo());
@@ -39,6 +70,7 @@ public class SearchWebUserSpecification extends SearchPageSpecification<WebUserS
             } else if (parseCreateDateTo) {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Instant>get("createdDate"), DateUtils.convertStartDate(searchBody.getCreatedDateTo()).toInstant()));
             }
+
 
             return super.buildParallelPredicate(root, query, criteriaBuilder);
         }
