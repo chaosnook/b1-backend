@@ -1,5 +1,8 @@
 package com.game.b1ingservice.utils;
 
+import com.game.b1ingservice.payload.commons.PageObject;
+import com.game.b1ingservice.payload.commons.PageResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +49,23 @@ public class ResponseHelper {
         return response(HttpStatus.BAD_REQUEST, data);
     }
 
+    public static ResponseEntity<Object> successPage(Page<?> page, String propertyName, String message) {
 
+        PageObject pageable = new PageObject();
+        pageable.setPage(page.getNumber());
+        pageable.setSize(page.getSize());
+        pageable.setTotalElements(page.getTotalElements());
+        pageable.setTotalPages(page.getTotalPages());
+        pageable.setLast(page.isLast());
+
+        PageResponse resPage = new PageResponse();
+        resPage.setStatus(true);
+        resPage.setMessage(message);
+        resPage.setPage(pageable);
+        resPage.setData(page.getContent());
+        resPage.setFieldName(propertyName);
+
+        return response(HttpStatus.OK, resPage);
+    }
 
 }
