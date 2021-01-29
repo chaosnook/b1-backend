@@ -21,18 +21,28 @@ public class TrueWalletUpdateValidator extends CommonValidator {
             throw new ErrorMessageException(Constants.ERROR.ERR_01106);
         } else if (!isNumber(req.getPhoneNumber())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01114);
+        } else if(trueWalletRepository.existsByPhoneNumber(req.getPhoneNumber())) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_01107);
         }
+
         if(StringUtils.isEmpty(req.getName())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01109);
         }
+
         if(StringUtils.isEmpty(req.getBotIp())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01110);
         } else if(!isIpAddress(req.getBotIp())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_O1115);
         }
+
         if(ObjectUtils.isEmpty(req.getBankGroup())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01111);
+        } else if(req.getBankGroup() <= 0) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_01116);
+        } else if(trueWalletRepository.existsByBankGroup(req.getBankGroup())) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_01117);
         }
+
         if(ObjectUtils.isEmpty(req.isNewUserFlag())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01112);
         }

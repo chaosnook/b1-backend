@@ -7,10 +7,11 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @Entity
-@Table(name = "true_wallet", uniqueConstraints = {@UniqueConstraint(columnNames = {"phone_number"})})
+@Table(name = "true_wallet")
 @Where(clause = "delete_flag = 0")
 public class TrueWallet extends DateAudit<String> implements Serializable {
 
@@ -44,4 +45,8 @@ public class TrueWallet extends DateAudit<String> implements Serializable {
 
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
+
+    @OneToMany(mappedBy = "trueWallet", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    private List<Wallet> wallet;
+
 }
