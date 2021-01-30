@@ -27,16 +27,16 @@ public class Wallet extends DateAudit<String> implements Serializable {
 
     @JsonIgnore
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private WebUser user;
 
     @JsonIgnore
     @JoinColumn(name = "deposit_bank_id", referencedColumnName = "id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Bank bank;
 
     @JsonIgnore
     @JoinColumn(name = "deposit_true_wallet_id", referencedColumnName = "id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private TrueWallet trueWallet;
 }
