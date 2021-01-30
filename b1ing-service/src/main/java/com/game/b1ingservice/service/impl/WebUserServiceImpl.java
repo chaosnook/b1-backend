@@ -33,7 +33,7 @@ public class WebUserServiceImpl implements WebUserService {
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @Autowired
+//    @Autowired
 //    private PasswordGenerator passwordGenerator;
 
     @Override
@@ -113,20 +113,21 @@ public class WebUserServiceImpl implements WebUserService {
         return webUserResponse;
     };
 
-//    @Override
-//    public void resetPassword(Long id, WebUserUpdate req){
-//
+    @Override
+    public void resetPassword(Long id, WebUserUpdate req){
+
 //        passwordGenerator.generateStrongPassword();
-//
-//        Optional<WebUser> opt = webUserRepository.findById(id);
-//        if(opt.isPresent()) {
-//            WebUser user = opt.get();
-////            user.setPassword(bCryptPasswordEncoder.encode());
-//            webUserRepository.save(user);
-//        } else {
-//            throw new ErrorMessageException(Constants.ERROR.ERR_01104);
-//        }
-//
-//    }
+
+        Optional<WebUser> opt = webUserRepository.findById(id);
+        if(opt.isPresent()) {
+            WebUser user = opt.get();
+            user.setPassword(bCryptPasswordEncoder.encode(req.getPassword()));
+            webUserRepository.save(user);
+
+        } else {
+            throw new ErrorMessageException(Constants.ERROR.ERR_01104);
+        }
+
+    }
 
 }

@@ -14,4 +14,5 @@ public interface WebUserRepository extends JpaRepository<WebUser, Long>, JpaSpec
     boolean existsByTel(String tel);
 
     Optional<WebUser> findFirstByUsernameAndAgent_Prefix(String username, String prefix);
+
 }

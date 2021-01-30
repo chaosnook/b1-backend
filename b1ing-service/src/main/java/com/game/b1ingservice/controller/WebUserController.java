@@ -18,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 
 @RestController
 @RequestMapping(value = "api/test")
@@ -53,10 +52,10 @@ public class WebUserController {
         return ResponseHelper.successPage(users, "datas",Constants.MESSAGE.MSG_00000.msg);
     }
 
-//    @PutMapping(value = "webuser/reset",
-//            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-//    public ResponseEntity<?> resetPassword(@PathVariable Long id, @RequestBody WebUserUpdate req){
-//        webUserService.resetPassword(id, req);
-//        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
-//    }
+    @PutMapping(value = "webuser/reset",
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> resetPassword(@PathVariable Long id, @RequestBody WebUserUpdate req){
+        webUserService.resetPassword(id, req);
+        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+    }
 }

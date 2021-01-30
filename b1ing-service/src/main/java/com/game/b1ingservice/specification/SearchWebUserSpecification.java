@@ -19,11 +19,11 @@ public class SearchWebUserSpecification extends SearchPageSpecification<WebUserS
     @Override
     public Predicate toPredicate(Root<WebUser> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 
-        if (StringUtils.isNotEmpty(searchBody.getBankCode())){
-            String bankCode = StringUtils.trimToEmpty(searchBody.getBankCode());
+        if (StringUtils.isNotEmpty(searchBody.getBankName())){
+            String bankName = StringUtils.trimToEmpty(searchBody.getBankName());
 
             predicates.add(
-                    criteriaBuilder.like(root.get("bankCode"),"%"+bankCode+"%"));
+                    criteriaBuilder.like(root.get("bankName"),"%"+bankName+"%"));
         }
 
         if (StringUtils.isNotEmpty(searchBody.getUserName())) {
