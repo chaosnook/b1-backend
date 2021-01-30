@@ -35,7 +35,10 @@ public class SearchWalletDepositSpecification extends SearchPageSpecification<Wa
                     criteriaBuilder.equal(trueWallet.<Integer>get("bankGroup"), searchBody.getBankGroup())
             );
         }
-        
+
+        predicates.add(
+                criteriaBuilder.equal(trueWallet.<String>get("prefix"), searchBody.getPrefix())
+        );
 
         return super.buildParallelPredicate(root, query, criteriaBuilder);
     }

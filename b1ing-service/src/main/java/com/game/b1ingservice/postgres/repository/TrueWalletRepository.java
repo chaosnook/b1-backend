@@ -12,4 +12,5 @@ public interface TrueWalletRepository extends JpaRepository<TrueWallet, Long>, J
     boolean existsByPhoneNumber(String phoneNumber);
     boolean existsByBankGroup(int bankGroup);
     Optional<TrueWallet> findFirstByActiveOrderByBankGroupAsc(boolean active);
+    Optional<TrueWallet> findFirstByBankGroupAndPrefixAndActive(int bankGroup, String prefix,boolean active);
 }

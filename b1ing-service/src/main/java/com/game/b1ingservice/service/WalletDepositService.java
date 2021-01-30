@@ -1,5 +1,6 @@
 package com.game.b1ingservice.service;
 
+import com.game.b1ingservice.payload.walletdeposit.WalletDepositAllRequest;
 import com.game.b1ingservice.payload.walletdeposit.WalletDepositRequest;
 import com.game.b1ingservice.payload.walletdeposit.WalletDepositResponse;
 import com.game.b1ingservice.postgres.entity.Wallet;
@@ -13,4 +14,7 @@ public interface WalletDepositService {
 
     WalletDepositRequest checkSortField(WalletDepositRequest request);
 
+    void updateTrueWalletDeposit(WalletDepositRequest request);
+
+    void updateAllTrueWalletDeposit(WalletDepositAllRequest request);
 }
