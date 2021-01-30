@@ -23,7 +23,7 @@ public class SearchAgentSpecification extends SearchPageSpecification<AgentSearc
         if (StringUtils.isNotEmpty(searchBody.getCompanyName())) {
             String companyName = StringUtils.trimToEmpty(searchBody.getCompanyName());
             predicates.add(
-                    criteriaBuilder.like(root.<String>get("companyName"), "%" + companyName + "%")
+                    criteriaBuilder.like(root.get("companyName"), "%" + companyName + "%")
             );
         }
 

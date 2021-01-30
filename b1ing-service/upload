@@ -6,3 +6,7 @@ ssh root@68.183.92.145
 
 systemctl restart b1ing.service
 
+systemctl stop b1ing.service
+
+systemctl start b1ing.service
+

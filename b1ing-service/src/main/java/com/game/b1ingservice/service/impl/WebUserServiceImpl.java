@@ -10,11 +10,26 @@ import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class WebUserServiceImpl implements WebUserService {
@@ -24,6 +39,9 @@ public class WebUserServiceImpl implements WebUserService {
 
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    EntityManager em;
 
     @Override
     public ResponseEntity<?> createUser(WebUserRequest req) {
@@ -69,4 +87,41 @@ public class WebUserServiceImpl implements WebUserService {
             throw new ErrorMessageException(Constants.ERROR.ERR_01104);
         }
     }
+
+    @Override
+    public List<WebUserResponse> getUserList() {
+        return webUserRepository.findAll().stream().map(converter).collect(Collectors.toList());
+    }
+
+    @Override
+            public Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable){
+        return webUserRepository.findAll(specification, pageable).map(converter);
+    }
+
+    Function<WebUser, WebUserResponse> converter = users -> {
+        WebUserResponse webUserResponse = new WebUserResponse();
+        webUserResponse.setId(users.getId());
+        webUserResponse.setUsername(users.getUsername());
+        webUserResponse.setPassword(users.getPassword());
+        webUserResponse.setTel(users.getTel());
+        webUserResponse.setBankName(users.getBankName());
+        webUserResponse.setAccountNumber(users.getAccountNumber());
+        webUserResponse.setFirstName(users.getFirstName());
+        webUserResponse.setLastName(users.getLastName());
+        webUserResponse.setLine(users.getLine());
+        webUserResponse.setIsBonus(users.getIsBonus());
+
+        webUserResponse.setCreatedDate(users.getCreatedDate());
+        webUserResponse.setUpdatedDate(users.getUpdatedDate());
+        webUserResponse.setCreatedBy(users.getAudit().getCreatedBy());
+        webUserResponse.setUpdatedBy(users.getAudit().getUpdatedBy());
+        webUserResponse.setDeleteFlag(users.getDeleteFlag());
+        webUserResponse.setVersion(users.getVersion());
+
+        Map<String, Object> configMap = new HashMap<>();
+
+
+        return webUserResponse;
+    };
+
 }

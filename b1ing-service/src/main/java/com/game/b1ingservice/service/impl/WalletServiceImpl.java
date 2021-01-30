@@ -45,6 +45,5 @@ public class WalletServiceImpl implements WalletService {
         }
 
         walletRepository.save(wallet);
-
     }
 }
