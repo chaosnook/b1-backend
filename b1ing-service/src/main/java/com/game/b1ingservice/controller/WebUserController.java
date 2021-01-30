@@ -8,6 +8,7 @@ import com.game.b1ingservice.payload.webuser.WebUserSearchRequest;
 import com.game.b1ingservice.payload.webuser.WebUserUpdate;
 import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.specification.SearchWebUserSpecification;
+//import com.game.b1ingservice.utils.PasswordGenerator;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.webuser.WebUserRequestValidator;
 import com.game.b1ingservice.validator.webuser.WebUserUpdateValidator;
@@ -45,17 +46,17 @@ public class WebUserController {
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
-    @GetMapping(value = "/webuser-list",
-            consumes = {MediaType.APPLICATION_JSON_VALUE},
-            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity getWebUser(@RequestHeader Map<String, String> headers){
-        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, webUserService.getUserList());
-    }
-
     @PostMapping(value = "/webuser/search", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity search(@RequestBody WebUserSearchRequest request){
+    public ResponseEntity<?> search(@RequestBody WebUserSearchRequest request){
         SearchWebUserSpecification specification = new SearchWebUserSpecification(request);
         Page<WebUserResponse> users = webUserService.findByCriteria(specification,specification.getPageable());
         return ResponseHelper.successPage(users, "datas",Constants.MESSAGE.MSG_00000.msg);
     }
+
+//    @PutMapping(value = "webuser/reset",
+//            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+//    public ResponseEntity<?> resetPassword(@PathVariable Long id, @RequestBody WebUserUpdate req){
+//        webUserService.resetPassword(id, req);
+//        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+//    }
 }

@@ -14,6 +14,7 @@ public class WebUserResponse {
     private String accountNumber;
     private String firstName;
     private String lastName;
+    private String fullName;
     private String line;
     private String recommend;
     private String isBonus;

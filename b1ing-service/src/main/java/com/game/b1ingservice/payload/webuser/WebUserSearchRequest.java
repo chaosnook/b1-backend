@@ -10,6 +10,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 public class WebUserSearchRequest extends SearchPageable {
 
+    private String bankCode;
     private String userName;
     private String accountNumber;
     private String tel;

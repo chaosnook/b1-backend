@@ -17,6 +17,7 @@ public interface WebUserService {
     ResponseEntity<?> createUser(WebUserRequest req);
     void updateUser(Long id, WebUserUpdate req);
 
-    List<WebUserResponse> getUserList();
     Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable);
+
+//    void resetPassword(Long id, WebUserUpdate req);
 }

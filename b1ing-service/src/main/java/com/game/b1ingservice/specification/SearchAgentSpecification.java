@@ -38,7 +38,7 @@ public class SearchAgentSpecification extends SearchPageSpecification<AgentSearc
         } else if (parseCreateDateFrom) {
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.<Instant>get("createdDate"), DateUtils.convertStartDate(searchBody.getCreatedDateFrom()).toInstant()));
         } else if (parseCreateDateTo) {
-            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Instant>get("createdDate"),DateUtils.convertStartDate(searchBody.getCreatedDateTo()).toInstant()));
+            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Instant>get("createdDate"),DateUtils.convertEndDate(searchBody.getCreatedDateTo()).toInstant()));
         }
 
         // add search prefix

@@ -19,6 +19,13 @@ public class SearchWebUserSpecification extends SearchPageSpecification<WebUserS
     @Override
     public Predicate toPredicate(Root<WebUser> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 
+        if (StringUtils.isNotEmpty(searchBody.getBankCode())){
+            String bankCode = StringUtils.trimToEmpty(searchBody.getBankCode());
+
+            predicates.add(
+                    criteriaBuilder.like(root.get("bankCode"),"%"+bankCode+"%"));
+        }
+
         if (StringUtils.isNotEmpty(searchBody.getUserName())) {
             String userName = StringUtils.trimToEmpty(searchBody.getUserName());
 
@@ -68,7 +75,7 @@ public class SearchWebUserSpecification extends SearchPageSpecification<WebUserS
             } else if (parseCreateDateFrom) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.<Instant>get("createdDate"), DateUtils.convertStartDate(searchBody.getCreatedDateFrom()).toInstant()));
             } else if (parseCreateDateTo) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Instant>get("createdDate"), DateUtils.convertStartDate(searchBody.getCreatedDateTo()).toInstant()));
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Instant>get("createdDate"), DateUtils.convertEndDate(searchBody.getCreatedDateTo()).toInstant()));
             }
 
 
