@@ -10,4 +10,6 @@ public class B1ingServiceApplication {
 		SpringApplication.run(B1ingServiceApplication.class, args);
 	}
 
+
+
 }

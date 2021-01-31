@@ -44,6 +44,8 @@ public class Bank extends DateAudit<String> implements Serializable {
     private boolean newUserFlag;
     @Column(name = "active", columnDefinition = "boolean")
     private boolean active;
+    @Column(name = "prefix", columnDefinition = "character varying(50)")
+    private String prefix;
 
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();

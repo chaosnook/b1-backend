@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.game.b1ingservice.postgres.entity.audit.DateAudit;
 import com.game.b1ingservice.postgres.entity.audit.UserAuditEmbeddable;
 import lombok.Data;
+import lombok.ToString;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -43,11 +44,12 @@ public class WebUser extends DateAudit<String> implements Serializable {
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
 
     @JsonIgnore
+    @ToString.Exclude
     @JoinColumn(name = "agent_id", referencedColumnName = "id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Agent agent;
 
-    @OneToOne(mappedBy = "user", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    @OneToOne(mappedBy = "user", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
     private Wallet wallet;
 
 }

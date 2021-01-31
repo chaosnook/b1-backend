@@ -3,12 +3,15 @@ package com.game.b1ingservice.validator.bank;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.bank.BankRequest;
+import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.repository.BankRepository;
 import com.game.b1ingservice.validator.CommonValidator;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 public class BankUpdateValidator extends CommonValidator {
@@ -19,7 +22,14 @@ public class BankUpdateValidator extends CommonValidator {
     @Override
     public boolean supports(Class clazz) {return BankRequest.class.isAssignableFrom(clazz); }
 
-    public void validate(Object o){
+    public void validate(Object o, Long id){
+
+            Bank bank = new Bank();
+            Optional<Bank> opt = bankRepository.findById(id);
+            if(opt.isPresent()) {
+                bank = opt.get();
+            }
+
         BankRequest req = BankRequest.class.cast(o);
         if(StringUtils.isEmpty(req.getBankCode()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02000);
@@ -51,8 +61,10 @@ public class BankUpdateValidator extends CommonValidator {
         throw new ErrorMessageException(Constants.ERROR.ERR_02016);
         }
 
-        if(bankRepository.existsByBankOrder(req.getBankOrder()) && bankRepository.existsByBankGroup(req.getBankGroup())) {
-            throw new ErrorMessageException(Constants.ERROR.ERR_02018);
+        if(bank.getBankGroup() != req.getBankGroup() && bank.getBankOrder() != req.getBankOrder()) {
+            if (bankRepository.existsByBankOrder(req.getBankOrder()) && bankRepository.existsByBankGroup(req.getBankGroup())) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_02018);
+            }
         }
 
         if(StringUtils.isEmpty(req.getBotIp()))

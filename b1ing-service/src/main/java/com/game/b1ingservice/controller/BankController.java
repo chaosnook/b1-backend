@@ -2,6 +2,7 @@ package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.bank.BankRequest;
+import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.service.BankService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.bank.BankUpdateValidator;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,9 +28,9 @@ public class BankController {
 
     //CreateBank
     @PostMapping(value = "/bank", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> insertBank(@RequestBody BankRequest bankRequest){
+    public ResponseEntity<?> insertBank(@RequestBody BankRequest bankRequest, @AuthenticationPrincipal UserPrincipal principal){
         bankValidator.validate(bankRequest);
-        bankService.insertBank(bankRequest);
+        bankService.insertBank(bankRequest, principal);
         return ResponseHelper.success(Constants.MESSAGE.MSG_02000.msg);
     }
 
@@ -44,7 +46,7 @@ public class BankController {
     @PutMapping(value = "/bank/{id}",
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
     public ResponseEntity<?> updateBank(@PathVariable Long id,@RequestBody BankRequest bankRequest){
-        bankUpdateValidator.validate(bankRequest);
+        bankUpdateValidator.validate(bankRequest, id);
         bankService.updateBank(id, bankRequest);
         return ResponseHelper.success(Constants.MESSAGE.MSG_02001.msg);
     }

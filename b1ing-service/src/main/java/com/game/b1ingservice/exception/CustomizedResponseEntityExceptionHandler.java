@@ -142,7 +142,7 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
         resError.setStatus(false);
         resError.setMessage(Constants.ERROR.ERR_00001.msg);
 
-        return ResponseHelper.response(HttpStatus.OK, resError);
+        return ResponseHelper.response(HttpStatus.BAD_REQUEST, resError);
     }
 
     @ExceptionHandler(JWTException.class)

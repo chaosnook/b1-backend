@@ -2,17 +2,19 @@ package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
+import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.truewallet.TrueWalletRequest;
 import com.game.b1ingservice.payload.truewallet.TrueWalletResponse;
+import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.TrueWallet;
 import com.game.b1ingservice.postgres.entity.Wallet;
+import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.TrueWalletRepository;
 import com.game.b1ingservice.postgres.repository.WalletRepository;
 import com.game.b1ingservice.service.TrueWalletService;
-import com.game.b1ingservice.utils.ResponseHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,8 +29,17 @@ public class TrueWalletServiceImpl implements TrueWalletService {
     @Autowired
     private WalletRepository walletRepository;
 
+    @Autowired
+    private AgentRepository agentRepository;
+
     @Override
-    public void insertTrueWallet(TrueWalletRequest req) {
+    public void insertTrueWallet(TrueWalletRequest req, UserPrincipal principal) {
+        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
+
+        if (!agent.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
         TrueWallet truewallet = new TrueWallet();
         truewallet.setPhoneNumber(req.getPhoneNumber());
         truewallet.setName(req.getName());
@@ -37,22 +48,26 @@ public class TrueWalletServiceImpl implements TrueWalletService {
         truewallet.setBotIp(req.getBotIp());
         truewallet.setNewUserFlag(req.isNewUserFlag());
         truewallet.setActive(req.isActive());
+        truewallet.setPrefix(principal.getPrefix());
+        truewallet.setAgent(agent.get());
+       // trueWalletRepository.save(truewallet);
         TrueWallet entity = trueWalletRepository.save(truewallet);
         List<Wallet> list = walletRepository.findByTrueWalletIsNull();
         for (Wallet wallet: list){
            wallet.setTrueWallet(entity);
            walletRepository.save(wallet);
         }
+
+
+
     }
 
     @Override
-    public ResponseEntity<?> getTrueWallet() {
+    public List<TrueWalletResponse> getTrueWallet(UserPrincipal principal) {
         List<TrueWalletResponse> resp = new ArrayList<>();
-        List<TrueWallet> listTrueWallet = trueWalletRepository.findAll();
-        if(listTrueWallet.isEmpty()){
-            return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
-        }
-        for(TrueWallet truewallet: listTrueWallet){
+        List<TrueWallet> listTrueWallet = trueWalletRepository.findAllByPrefix(principal.getPrefix(), Sort.by(Sort.Direction.ASC, "id"));
+
+        for (TrueWallet truewallet : listTrueWallet) {
             TrueWalletResponse truewalletResp = new TrueWalletResponse();
             truewalletResp.setId(truewallet.getId());
             truewalletResp.setPhoneNumber(truewallet.getPhoneNumber());
@@ -67,21 +82,20 @@ public class TrueWalletServiceImpl implements TrueWalletService {
             truewalletResp.setUpdatedBy(truewallet.getAudit().getUpdatedBy());
             truewalletResp.setCreatedDate(truewallet.getCreatedDate());
             truewalletResp.setUpdatedDate(truewallet.getUpdatedDate());
-
             resp.add(truewalletResp);
         }
 
-        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
+        return resp;
     }
 
     @Override
-    public void updateTrueWallet(Long id, TrueWalletRequest req) {
-        Optional<TrueWallet> opt = trueWalletRepository.findById(id);
-        if(opt.isPresent()) {
+    public void updateTrueWallet(Long id, TrueWalletRequest req, UserPrincipal principal) {
+        Optional<TrueWallet> opt = trueWalletRepository.findFirstByIdAndPrefix(id, principal.getPrefix());
+        if (opt.isPresent()) {
             TrueWallet trueWallet = opt.get();
             trueWallet.setPhoneNumber(req.getPhoneNumber());
             trueWallet.setName(req.getName());
-            if(!StringUtils.isEmpty(req.getPassword())) {
+            if (!StringUtils.isEmpty(req.getPassword())) {
                 trueWallet.setPassword(req.getPassword());
             }
             trueWallet.setBankGroup(req.getBankGroup());
@@ -95,9 +109,9 @@ public class TrueWalletServiceImpl implements TrueWalletService {
     }
 
     @Override
-    public void deleteTrueWallet(Long id) {
-        Optional<TrueWallet> opt = trueWalletRepository.findById(id);
-        if(opt.isPresent()) {
+    public void deleteTrueWallet(Long id, UserPrincipal principal) {
+        Optional<TrueWallet> opt = trueWalletRepository.findFirstByIdAndPrefix(id, principal.getPrefix());
+        if (opt.isPresent()) {
             TrueWallet trueWallet = opt.get();
             trueWallet.setDeleteFlag(1);
             trueWalletRepository.save(trueWallet);

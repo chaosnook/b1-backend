@@ -17,7 +17,7 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping("/api/test")
+@RequestMapping("/api/admin")
 @Slf4j
 public class ThieveController {
 

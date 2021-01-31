@@ -4,6 +4,7 @@ import com.game.b1ingservice.payload.wellet.WalletRequest;
 import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.entity.TrueWallet;
 import com.game.b1ingservice.postgres.entity.Wallet;
+import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.repository.BankRepository;
 import com.game.b1ingservice.postgres.repository.TrueWalletRepository;
 import com.game.b1ingservice.postgres.repository.WalletRepository;
@@ -26,11 +27,12 @@ public class WalletServiceImpl implements WalletService {
     private TrueWalletRepository trueWalletRepository;
 
     @Override
-    public void createWallet(WalletRequest req) {
+    public void createWallet(WalletRequest req, WebUser user) {
 
         Wallet wallet = new Wallet();
         wallet.setCredit(req.getCredit());
         wallet.setPoint(req.getPoint());
+        wallet.setUser(user);
 
         Optional<Bank> optionalBank = bankRepository.findFirstByActiveOrderByBankGroupAscBankOrderAsc(true);
         if(optionalBank.isPresent()) {
@@ -45,6 +47,5 @@ public class WalletServiceImpl implements WalletService {
         }
 
         walletRepository.save(wallet);
-
     }
 }
