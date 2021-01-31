@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("api/admin")
+@RequestMapping("api/test")
 public class TrueWalletController {
 
     @Autowired
@@ -40,7 +40,7 @@ public class TrueWalletController {
 
     @PutMapping(value = "/truewallet/{id}")
     public ResponseEntity<?> updateTrueWallet(@PathVariable Long id, @RequestBody TrueWalletRequest req) {
-        trueWalletUpdateValidator.validate(req);
+        trueWalletUpdateValidator.validate(req, id);
         trueWalletService.updateTrueWallet(id, req);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }

@@ -10,6 +10,7 @@ import com.game.b1ingservice.service.TrueWalletService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +41,7 @@ public class TrueWalletServiceImpl implements TrueWalletService {
     @Override
     public ResponseEntity<?> getTrueWallet() {
         List<TrueWalletResponse> resp = new ArrayList<>();
-        List<TrueWallet> listTrueWallet = trueWalletRepository.findAll();
+        List<TrueWallet> listTrueWallet = trueWalletRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
         if(listTrueWallet.isEmpty()){
             return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
         }
