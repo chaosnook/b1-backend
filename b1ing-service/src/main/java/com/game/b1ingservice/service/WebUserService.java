@@ -10,8 +10,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public interface WebUserService {
     ResponseEntity<?> createUser(WebUserRequest req);
@@ -19,5 +17,6 @@ public interface WebUserService {
 
     Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable);
 
-    void resetPassword(Long id, WebUserUpdate req);
+    ResponseEntity<?> resetPassword(Long id);
+
 }

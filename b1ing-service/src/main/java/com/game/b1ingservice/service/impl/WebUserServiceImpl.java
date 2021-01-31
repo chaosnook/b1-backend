@@ -8,7 +8,7 @@ import com.game.b1ingservice.payload.webuser.WebUserUpdate;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.WebUserService;
-//import com.game.b1ingservice.utils.PasswordGenerator;
+import com.game.b1ingservice.utils.PasswordGenerator;
 import com.game.b1ingservice.utils.ResponseHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,8 +33,8 @@ public class WebUserServiceImpl implements WebUserService {
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
-//    @Autowired
-//    private PasswordGenerator passwordGenerator;
+    @Autowired
+    private PasswordGenerator passwordGenerator;
 
     @Override
     public ResponseEntity<?> createUser(WebUserRequest req) {
@@ -114,15 +114,21 @@ public class WebUserServiceImpl implements WebUserService {
     };
 
     @Override
-    public void resetPassword(Long id, WebUserUpdate req){
+    public ResponseEntity<?> resetPassword(Long id){
 
-//        passwordGenerator.generateStrongPassword();
+        String password =  passwordGenerator.generateStrongPassword();
 
         Optional<WebUser> opt = webUserRepository.findById(id);
         if(opt.isPresent()) {
+
             WebUser user = opt.get();
-            user.setPassword(bCryptPasswordEncoder.encode(req.getPassword()));
+            user.setPassword(bCryptPasswordEncoder.encode(passwordGenerator.generateStrongPassword()));
             webUserRepository.save(user);
+
+            WebUserResponse resp = new WebUserResponse();
+            resp.setPassword(password);
+
+            return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
 
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_01104);

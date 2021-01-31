@@ -52,10 +52,10 @@ public class WebUserController {
         return ResponseHelper.successPage(users, "datas",Constants.MESSAGE.MSG_00000.msg);
     }
 
-    @PutMapping(value = "webuser/reset",
+    @PutMapping(value = "webuser/reset/{id}",
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> resetPassword(@PathVariable Long id, @RequestBody WebUserUpdate req){
-        webUserService.resetPassword(id, req);
-        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+    public ResponseEntity<?> resetPassword(@PathVariable Long id){
+        webUserService.resetPassword(id);
+        return webUserService.resetPassword(id);
     }
 }

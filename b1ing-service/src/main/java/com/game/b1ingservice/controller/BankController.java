@@ -44,7 +44,7 @@ public class BankController {
     @PutMapping(value = "/bank/{id}",
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
     public ResponseEntity<?> updateBank(@PathVariable Long id,@RequestBody BankRequest bankRequest){
-        bankUpdateValidator.validate(bankRequest);
+        bankUpdateValidator.validate(bankRequest, id);
         bankService.updateBank(id, bankRequest);
         return ResponseHelper.success(Constants.MESSAGE.MSG_02001.msg);
     }
