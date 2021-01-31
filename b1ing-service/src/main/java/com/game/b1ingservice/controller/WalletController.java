@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "api/test")
+@RequestMapping(value = "api/admin")
 public class WalletController {
 
     @Autowired
