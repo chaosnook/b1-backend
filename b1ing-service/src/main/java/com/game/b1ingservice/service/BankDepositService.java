@@ -18,6 +18,8 @@ public interface BankDepositService {
 
     List<BankDepositList> listActiveBank();
 
+    List<BankDepositList> listUsageBank();
+
     Page<BankDepositResponse> findByCriteria(Specification<Wallet> specification, Pageable pageable);
 
     BankDepositRequest checkSortField(BankDepositRequest request);

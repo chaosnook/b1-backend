@@ -7,6 +7,7 @@ import com.game.b1ingservice.payload.bankdeposit.BankDepositList;
 import com.game.b1ingservice.payload.bankdeposit.BankDepositRequest;
 import com.game.b1ingservice.payload.bankdeposit.BankDepositResponse;
 import com.game.b1ingservice.postgres.entity.Bank;
+import com.game.b1ingservice.postgres.entity.TrueWallet;
 import com.game.b1ingservice.postgres.entity.Wallet;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.repository.BankRepository;
@@ -40,6 +41,12 @@ public class BankDepositServiceImpl implements BankDepositService {
     }
 
     @Override
+    public List<BankDepositList> listUsageBank() {
+        List<BankDepositList> list = bankRepository.findUsageBank().stream().map(converterBank).collect(Collectors.toList());
+        return list;
+    }
+
+    @Override
     public Page<BankDepositResponse> findByCriteria(Specification<Wallet> specification, Pageable pageable) {
         return walletRepository.findAll(specification, pageable).map(converter);
     }
@@ -50,13 +57,15 @@ public class BankDepositServiceImpl implements BankDepositService {
             request.setSortField("user.username");
         } else if (request.getSortField().equals("bankGroup")) {
             request.setSortField("bank.bankGroup");
+        } else if (request.getSortField().equals("bankOrder")){
+            request.setSortField("bank.bankOrder");
         }
         return request;
     }
 
     @Override
     public void updateBankDeposit(BankDepositRequest request) {
-        Optional<Bank> bank = bankRepository.findFirstByActiveAndBankCodeAndBankGroupOrderByBankGroupAscBankOrderAsc(true, request.getBankCode(), request.getBankGroup());
+        Optional<Bank> bank = bankRepository.findById(request.getBankId());
         if (!bank.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_04000);
         }
@@ -74,8 +83,15 @@ public class BankDepositServiceImpl implements BankDepositService {
 
     @Override
     public void updateAllBankDeposit(BankDepositAllRequest request) {
-
-//        walletRepository.updateAllTrueWalletDeposit(trueWalletTo.get().getId(), trueWalletFrom.get().getId());
+        Optional<Bank> trueWalletFrom = bankRepository.findById(request.getBankIdFrom());
+        if (!trueWalletFrom.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_04000);
+        }
+        Optional<Bank> trueWalletTo = bankRepository.findById(request.getBankIdTo());
+        if (!trueWalletTo.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_04000);
+        }
+        walletRepository.updateAllBankDeposit(trueWalletTo.get().getId(), trueWalletFrom.get().getId());
     }
 
     private final Function<Wallet, BankDepositResponse> converter = wallet -> {

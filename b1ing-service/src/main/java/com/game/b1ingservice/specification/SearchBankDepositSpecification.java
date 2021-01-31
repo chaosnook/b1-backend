@@ -43,6 +43,12 @@ public class SearchBankDepositSpecification extends SearchPageSpecification<Bank
             );
         }
 
+        if (searchBody.getBankOrder() != null) {
+            predicates.add(
+                    criteriaBuilder.equal(bank.<Integer>get("bankOrder"), searchBody.getBankOrder())
+            );
+        }
+
         predicates.add(
                 criteriaBuilder.equal(bank.<String>get("prefix"), searchBody.getPrefix())
         );

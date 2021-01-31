@@ -21,4 +21,7 @@ public interface BankRepository extends JpaRepository<Bank, Long>, JpaSpecificat
 
     List<Bank> findAllByActiveOrderByBankGroupAscBankOrderAsc(boolean active);
 
+    @Query(value = "select o from Bank o where o.wallet.size>0")
+    List<Bank> findUsageBank();
+
 }
