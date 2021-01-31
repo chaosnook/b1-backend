@@ -4,11 +4,13 @@ import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.bank.BankRequest;
 import com.game.b1ingservice.payload.bank.BankResponse;
+import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.repository.BankRepository;
 import com.game.b1ingservice.service.BankService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,7 +26,7 @@ public class BankServiceImpl implements BankService {
     BankRepository bankRepository;
 
     @Override
-    public void insertBank(BankRequest bankRequest){
+    public void insertBank(BankRequest bankRequest, UserPrincipal principal){
         Bank bank = new Bank();
         bank.setBankCode(bankRequest.getBankCode());
         bank.setBankType(bankRequest.getBankType());
@@ -38,6 +40,7 @@ public class BankServiceImpl implements BankService {
         bank.setBotIp(bankRequest.getBotIp());
         bank.setNewUserFlag(bankRequest.isNewUserFlag());
         bank.setActive(bankRequest.isActive());
+        bank.setPrefix(principal.getPrefix());
         bankRepository.save(bank);
     }
 
@@ -85,7 +88,8 @@ public class BankServiceImpl implements BankService {
             bank.setBankAccountName(bankRequest.getBankAccountName());
             bank.setBankAccountNo(bankRequest.getBankAccountNo());
             bank.setUsername(bankRequest.getUsername());
-            bank.setPassword(bankRequest.getPassword());
+            if (StringUtils.isNotEmpty(bankRequest.getPassword()))
+                bank.setPassword(bankRequest.getPassword());
             bank.setBankOrder(bankRequest.getBankOrder());
             bank.setBankGroup(bankRequest.getBankGroup());
             bank.setBotIp(bankRequest.getBotIp());

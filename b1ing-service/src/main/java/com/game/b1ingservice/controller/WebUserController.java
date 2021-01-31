@@ -2,6 +2,7 @@ package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.agent.AgentResponse;
+import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.webuser.WebUserRequest;
 import com.game.b1ingservice.payload.webuser.WebUserResponse;
 import com.game.b1ingservice.payload.webuser.WebUserSearchRequest;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -33,9 +35,9 @@ public class WebUserController {
     private WebUserUpdateValidator webUserUpdateValidator;
 
     @PostMapping(value = "/webuser")
-    public ResponseEntity<?> createWebUser(@RequestBody WebUserRequest req){
+    public ResponseEntity<?> createWebUser(@RequestBody WebUserRequest req, @AuthenticationPrincipal UserPrincipal principal){
         webUserRequestValidator.validate(req);
-        WebUserResponse resp = webUserService.createUser(req);
+        WebUserResponse resp = webUserService.createUser(req, principal);
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
     }
 

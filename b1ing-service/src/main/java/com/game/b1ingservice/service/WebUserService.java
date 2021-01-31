@@ -1,5 +1,6 @@
 package com.game.b1ingservice.service;
 
+import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.webuser.WebUserRequest;
 import com.game.b1ingservice.payload.webuser.WebUserResponse;
 import com.game.b1ingservice.payload.webuser.WebUserUpdate;
@@ -12,11 +13,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface WebUserService {
-    WebUserResponse createUser(WebUserRequest req);
+    WebUserResponse createUser(WebUserRequest req, UserPrincipal principal);
     void updateUser(Long id, WebUserUpdate req);
-
     Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable);
-
     ResponseEntity<?> resetPassword(Long id);
-
 }
