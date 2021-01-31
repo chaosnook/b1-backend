@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface WebUserService {
-    ResponseEntity<?> createUser(WebUserRequest req);
+    WebUserResponse createUser(WebUserRequest req);
     void updateUser(Long id, WebUserUpdate req);
 
     Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable);

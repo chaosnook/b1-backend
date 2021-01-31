@@ -7,11 +7,9 @@ import com.game.b1ingservice.payload.truewallet.TrueWalletResponse;
 import com.game.b1ingservice.postgres.entity.TrueWallet;
 import com.game.b1ingservice.postgres.repository.TrueWalletRepository;
 import com.game.b1ingservice.service.TrueWalletService;
-import com.game.b1ingservice.utils.ResponseHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -39,11 +37,11 @@ public class TrueWalletServiceImpl implements TrueWalletService {
     }
 
     @Override
-    public ResponseEntity<?> getTrueWallet() {
+    public  List<TrueWalletResponse> getTrueWallet() {
         List<TrueWalletResponse> resp = new ArrayList<>();
         List<TrueWallet> listTrueWallet = trueWalletRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
         if(listTrueWallet.isEmpty()){
-            return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
+            return resp;
         }
         for(TrueWallet truewallet: listTrueWallet){
             TrueWalletResponse truewalletResp = new TrueWalletResponse();
@@ -64,7 +62,7 @@ public class TrueWalletServiceImpl implements TrueWalletService {
             resp.add(truewalletResp);
         }
 
-        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
+        return resp;
     }
 
     @Override

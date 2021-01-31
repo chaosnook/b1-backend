@@ -37,7 +37,7 @@ public class WebUserServiceImpl implements WebUserService {
     private PasswordGenerator passwordGenerator;
 
     @Override
-    public ResponseEntity<?> createUser(WebUserRequest req) {
+    public WebUserResponse createUser(WebUserRequest req) {
 
         String tel = req.getTel();
         String prefix = "BNG";
@@ -60,7 +60,7 @@ public class WebUserServiceImpl implements WebUserService {
         resp.setUsername(username);
         resp.setPassword(req.getPassword());
 
-        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
+        return resp;
     }
 
     @Override

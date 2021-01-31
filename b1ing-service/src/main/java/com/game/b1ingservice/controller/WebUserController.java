@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping(value = "api/test")
+@RequestMapping(value = "api/admin")
 public class WebUserController {
 
     @Autowired
@@ -35,7 +35,8 @@ public class WebUserController {
     @PostMapping(value = "/webuser")
     public ResponseEntity<?> createWebUser(@RequestBody WebUserRequest req){
         webUserRequestValidator.validate(req);
-        return webUserService.createUser(req);
+        WebUserResponse resp = webUserService.createUser(req);
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
     }
 
     @PutMapping(value = "/webuser/{id}")

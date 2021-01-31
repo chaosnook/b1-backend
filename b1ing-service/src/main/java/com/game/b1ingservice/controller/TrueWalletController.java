@@ -2,6 +2,7 @@ package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.truewallet.TrueWalletRequest;
+import com.game.b1ingservice.payload.truewallet.TrueWalletResponse;
 import com.game.b1ingservice.service.TrueWalletService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.truewallet.TrueWalletRequestValidator;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -34,8 +37,10 @@ public class TrueWalletController {
     }
 
     @GetMapping(value = "/truewallet")
-    public ResponseEntity<?> getTrueWallet() {
-        return trueWalletService.getTrueWallet();
+    public ResponseEntity<?> getTrueWallet()
+    {
+        List<TrueWalletResponse> resp = trueWalletService.getTrueWallet();
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
     }
 
     @PutMapping(value = "/truewallet/{id}")
