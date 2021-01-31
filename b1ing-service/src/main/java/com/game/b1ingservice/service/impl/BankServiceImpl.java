@@ -5,7 +5,9 @@ import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.bank.BankRequest;
 import com.game.b1ingservice.payload.bank.BankResponse;
 import com.game.b1ingservice.postgres.entity.Bank;
+import com.game.b1ingservice.postgres.entity.Wallet;
 import com.game.b1ingservice.postgres.repository.BankRepository;
+import com.game.b1ingservice.postgres.repository.WalletRepository;
 import com.game.b1ingservice.service.BankService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,8 @@ import java.util.Optional;
 public class BankServiceImpl implements BankService {
     @Autowired
     BankRepository bankRepository;
+    @Autowired
+    WalletRepository walletRepository;
 
     @Override
     public void insertBank(BankRequest bankRequest){
@@ -38,7 +42,13 @@ public class BankServiceImpl implements BankService {
         bank.setBotIp(bankRequest.getBotIp());
         bank.setNewUserFlag(bankRequest.isNewUserFlag());
         bank.setActive(bankRequest.isActive());
-        bankRepository.save(bank);
+        Bank entity = bankRepository.save(bank);
+        List<Wallet> list = walletRepository.findByBankIsNull();
+        //System.out.println(list);
+        for (Wallet wallet: list){
+            wallet.setBank(entity);
+            walletRepository.save(wallet);
+        }
     }
 
     @Override
@@ -103,7 +113,13 @@ public class BankServiceImpl implements BankService {
         if(opt.isPresent()){
             Bank bank = opt.get();
             bank.setDeleteFlag(1);
-            bankRepository.save(bank);
+           bankRepository.save(bank);
+           List<Wallet> listdelete = walletRepository.findByBankIsNull();
+           for(Wallet wallet: listdelete){
+               wallet.setBank(null);
+               walletRepository.save(wallet);
+           }
+
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_02011);
         }

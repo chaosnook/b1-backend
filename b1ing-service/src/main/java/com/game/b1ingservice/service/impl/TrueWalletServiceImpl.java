@@ -5,7 +5,9 @@ import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.truewallet.TrueWalletRequest;
 import com.game.b1ingservice.payload.truewallet.TrueWalletResponse;
 import com.game.b1ingservice.postgres.entity.TrueWallet;
+import com.game.b1ingservice.postgres.entity.Wallet;
 import com.game.b1ingservice.postgres.repository.TrueWalletRepository;
+import com.game.b1ingservice.postgres.repository.WalletRepository;
 import com.game.b1ingservice.service.TrueWalletService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +24,8 @@ public class TrueWalletServiceImpl implements TrueWalletService {
 
     @Autowired
     private TrueWalletRepository trueWalletRepository;
+    @Autowired
+    private WalletRepository walletRepository;
 
     @Override
     public void insertTrueWallet(TrueWalletRequest req) {
@@ -33,8 +37,12 @@ public class TrueWalletServiceImpl implements TrueWalletService {
         truewallet.setBotIp(req.getBotIp());
         truewallet.setNewUserFlag(req.isNewUserFlag());
         truewallet.setActive(req.isActive());
-
-        trueWalletRepository.save(truewallet);
+        TrueWallet entity = trueWalletRepository.save(truewallet);
+        List<Wallet> list = walletRepository.findByTrueWalletIsNull();
+        for (Wallet wallet: list){
+           wallet.setTrueWallet(entity);
+           walletRepository.save(wallet);
+        }
     }
 
     @Override
@@ -93,6 +101,11 @@ public class TrueWalletServiceImpl implements TrueWalletService {
             TrueWallet trueWallet = opt.get();
             trueWallet.setDeleteFlag(1);
             trueWalletRepository.save(trueWallet);
+            List<Wallet> listdelete = walletRepository.findByTrueWalletIsNull();
+            for(Wallet wallet: listdelete){
+                wallet.setTrueWallet(null);
+                walletRepository.save(wallet);
+            }
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_01104);
         }

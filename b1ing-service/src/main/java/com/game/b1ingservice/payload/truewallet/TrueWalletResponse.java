@@ -3,6 +3,7 @@ package com.game.b1ingservice.payload.truewallet;
 import lombok.Data;
 
 import java.time.Instant;
+import java.util.Map;
 
 @Data
 public class TrueWalletResponse {
@@ -20,4 +21,6 @@ public class TrueWalletResponse {
     private Instant updatedDate;
     private String createdBy;
     private String updatedBy;
+
+    private Map<String, Object> wallet;
 }

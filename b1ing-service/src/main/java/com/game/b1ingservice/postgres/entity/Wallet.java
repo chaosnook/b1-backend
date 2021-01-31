@@ -3,6 +3,7 @@ package com.game.b1ingservice.postgres.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.game.b1ingservice.postgres.entity.audit.DateAudit;
 import lombok.Data;
+import lombok.ToString;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -25,6 +26,8 @@ public class Wallet extends DateAudit<String> implements Serializable {
     @Column(name = "point", columnDefinition = "numeric(18,2)")
     private BigDecimal point;
 
+
+
     @JsonIgnore
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @OneToOne
@@ -39,4 +42,5 @@ public class Wallet extends DateAudit<String> implements Serializable {
     @JoinColumn(name = "deposit_true_wallet_id", referencedColumnName = "id")
     @ManyToOne
     private TrueWallet trueWallet;
+
 }
