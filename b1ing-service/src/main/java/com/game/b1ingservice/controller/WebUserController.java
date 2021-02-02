@@ -8,7 +8,6 @@ import com.game.b1ingservice.payload.webuser.WebUserSearchRequest;
 import com.game.b1ingservice.payload.webuser.WebUserUpdate;
 import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.specification.SearchWebUserSpecification;
-//import com.game.b1ingservice.utils.PasswordGenerator;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.webuser.WebUserRequestValidator;
 import com.game.b1ingservice.validator.webuser.WebUserUpdateValidator;
@@ -54,8 +53,8 @@ public class WebUserController {
 
     @PutMapping(value = "webuser/reset/{id}",
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> resetPassword(@PathVariable Long id){
-        webUserService.resetPassword(id);
-        return webUserService.resetPassword(id);
+    public ResponseEntity<?> resetPassword(@PathVariable Long id, @RequestBody WebUserUpdate webUserUpdate){
+        webUserService.resetPassword(id, webUserUpdate);
+        return webUserService.resetPassword(id, webUserUpdate);
     }
 }

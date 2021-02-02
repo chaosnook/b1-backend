@@ -114,7 +114,7 @@ public class WebUserServiceImpl implements WebUserService {
     };
 
     @Override
-    public ResponseEntity<?> resetPassword(Long id){
+    public ResponseEntity<?> resetPassword(Long id, WebUserUpdate webUserUpdate) {
 
         String password =  passwordGenerator.generateStrongPassword();
 
@@ -125,7 +125,8 @@ public class WebUserServiceImpl implements WebUserService {
             user.setPassword(bCryptPasswordEncoder.encode(passwordGenerator.generateStrongPassword()));
             webUserRepository.save(user);
 
-            WebUserResponse resp = new WebUserResponse();
+            WebUserUpdate resp = new WebUserUpdate();
+            resp.setUsername(user.getUsername());
             resp.setPassword(password);
 
             return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
