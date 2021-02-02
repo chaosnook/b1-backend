@@ -10,6 +10,6 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 public class WalletDepositRequest extends SearchPageable {
     String username;
-    Integer bankGroup;
+    Long trueWalletId;
     String prefix;
 }

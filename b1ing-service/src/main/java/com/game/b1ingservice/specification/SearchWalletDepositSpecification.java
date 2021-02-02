@@ -30,9 +30,9 @@ public class SearchWalletDepositSpecification extends SearchPageSpecification<Wa
         }
 
 
-        if (searchBody.getBankGroup() != null) {
+        if (searchBody.getTrueWalletId() != null) {
             predicates.add(
-                    criteriaBuilder.equal(trueWallet.<Integer>get("bankGroup"), searchBody.getBankGroup())
+                    criteriaBuilder.equal(trueWallet.<Integer>get("id"), searchBody.getTrueWalletId())
             );
         }
 

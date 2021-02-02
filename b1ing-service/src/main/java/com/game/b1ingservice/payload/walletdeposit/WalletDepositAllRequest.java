@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class WalletDepositAllRequest {
-    Integer bankGroupFrom;
-    Integer bankGroupTo;
+    Long trueWalletIdFrom;
+    Long trueWalletIdTo;
     String prefix;
 }
