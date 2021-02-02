@@ -1,8 +1,10 @@
 package com.game.b1ingservice.postgres.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.game.b1ingservice.postgres.entity.audit.DateAudit;
 import com.game.b1ingservice.postgres.entity.audit.UserAuditEmbeddable;
 import lombok.Data;
+import lombok.ToString;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -45,6 +47,12 @@ public class TrueWallet extends DateAudit<String> implements Serializable {
 
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
+
+    @ToString.Exclude
+    @JsonIgnore
+    @JoinColumn(name = "agent_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Agent agent;
 
     @OneToMany(mappedBy = "trueWallet", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     private List<Wallet> wallet;

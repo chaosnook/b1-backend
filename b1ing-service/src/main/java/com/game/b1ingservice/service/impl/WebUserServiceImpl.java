@@ -1,12 +1,18 @@
 package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.commons.Constants;
+import com.game.b1ingservice.
 import com.game.b1ingservice.exception.ErrorMessageException;
+import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.webuser.WebUserRequest;
 import com.game.b1ingservice.payload.webuser.WebUserResponse;
 import com.game.b1ingservice.payload.webuser.WebUserUpdate;
+import com.game.b1ingservice.payload.wellet.WalletRequest;
+import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.WebUser;
+import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.WebUserRepository;
+import com.game.b1ingservice.service.WalletService;
 import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.utils.PasswordGenerator;
 import com.game.b1ingservice.utils.ResponseHelper;
@@ -19,6 +25,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -36,11 +43,16 @@ public class WebUserServiceImpl implements WebUserService {
     @Autowired
     private PasswordGenerator passwordGenerator;
 
-    @Override
-    public ResponseEntity<?> createUser(WebUserRequest req) {
+    @Autowired
+    private AgentRepository agentRepository;
 
+    @Autowired
+    private WalletService walletService;
+
+    @Override
+    public WebUserResponse createUser(WebUserRequest req, UserPrincipal principal) {
         String tel = req.getTel();
-        String prefix = "BNG";
+        String prefix = principal.getPrefix();
         String username = prefix + tel.substring(3, tel.length()-1);
 
         WebUser user = new WebUser();
@@ -53,14 +65,22 @@ public class WebUserServiceImpl implements WebUserService {
         user.setLastName(req.getLastName());
         user.setLine(req.getLine());
         user.setIsBonus(req.getIsBonus());
+        Optional<Agent> opt = agentRepository.findByPrefix(principal.getPrefix());
+        if (opt.isPresent()) {
+            user.setAgent(opt.get());
+        }
+        WebUser userResp = webUserRepository.save(user);
 
-        webUserRepository.save(user);
+        WalletRequest walletRequest = new WalletRequest();
+        walletRequest.setCredit(BigDecimal.valueOf(0));
+        walletRequest.setPoint(BigDecimal.valueOf(0));
+        walletService.createWallet(walletRequest, userResp);
 
         WebUserResponse resp = new WebUserResponse();
         resp.setUsername(username);
         resp.setPassword(req.getPassword());
 
-        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
+        return resp;
     }
 
     @Override

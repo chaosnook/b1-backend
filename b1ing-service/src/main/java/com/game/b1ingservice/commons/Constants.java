@@ -73,6 +73,8 @@ public class Constants {
         ERR_01125("is bonus ห้ามว่าง"),
         ERR_01126("password ไม่ถูกต้อง"),
         ERR_01127("username นี้ไม่มีอยูในระบบ"),
+        ERR_01128("credit ห้ามว่าง"),
+        ERR_01129("point ห้ามว่าง"),
 
         ERR_03000("IP ห้ามว่าง"),
         ERR_03001("ไม่พบข้อมูล"),

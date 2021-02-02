@@ -1,9 +1,9 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
-import com.game.b1ingservice.payload.agent.AgentResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.walletdeposit.WalletDepositAllRequest;
+import com.game.b1ingservice.payload.walletdeposit.WalletDepositList;
 import com.game.b1ingservice.payload.walletdeposit.WalletDepositRequest;
 import com.game.b1ingservice.payload.walletdeposit.WalletDepositResponse;
 import com.game.b1ingservice.service.WalletDepositService;
@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,4 +50,9 @@ public class WalletDepositController {
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
+    @GetMapping(value = "/list-active-true-wallet")
+    public ResponseEntity<?> listActiveTrueWallet(@AuthenticationPrincipal UserPrincipal principal) {
+        List<WalletDepositList> listList = walletDepositService.findActiveWallet(principal.getPrefix());
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, listList);
+    }
 }

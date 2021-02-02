@@ -1,6 +1,8 @@
 package com.game.b1ingservice.specification;
 
+import com.game.b1ingservice.payload.bankdeposit.BankDepositRequest;
 import com.game.b1ingservice.payload.walletdeposit.WalletDepositRequest;
+import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.entity.TrueWallet;
 import com.game.b1ingservice.postgres.entity.Wallet;
 import com.game.b1ingservice.postgres.entity.WebUser;
@@ -9,9 +11,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.criteria.*;
 
-public class SearchWalletDepositSpecification extends SearchPageSpecification<WalletDepositRequest, Wallet> {
+public class SearchBankDepositSpecification extends SearchPageSpecification<BankDepositRequest, Wallet> {
 
-    public SearchWalletDepositSpecification(WalletDepositRequest searchBody) {
+    public SearchBankDepositSpecification(BankDepositRequest searchBody) {
         super(searchBody);
 
     }
@@ -20,7 +22,7 @@ public class SearchWalletDepositSpecification extends SearchPageSpecification<Wa
     public Predicate toPredicate(Root<Wallet> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 
         Join<Wallet, WebUser> member = root.join("user", JoinType.INNER);
-        Join<Wallet, TrueWallet> trueWallet = root.join("trueWallet", JoinType.INNER);
+        Join<Wallet, Bank> bank = root.join("bank", JoinType.INNER);
 
         if (StringUtils.isNotEmpty(searchBody.getUsername())) {
             String username = StringUtils.trimToEmpty(searchBody.getUsername());
@@ -29,15 +31,26 @@ public class SearchWalletDepositSpecification extends SearchPageSpecification<Wa
             );
         }
 
-
-        if (searchBody.getTrueWalletId() != null) {
+        if (StringUtils.isNotEmpty(searchBody.getBankCode())){
             predicates.add(
-                    criteriaBuilder.equal(trueWallet.<Integer>get("id"), searchBody.getTrueWalletId())
+                    criteriaBuilder.equal(bank.<Integer>get("bankCode"), searchBody.getBankCode())
+            );
+        }
+
+        if (searchBody.getBankGroup() != null) {
+            predicates.add(
+                    criteriaBuilder.equal(bank.<Integer>get("bankGroup"), searchBody.getBankGroup())
+            );
+        }
+
+        if (searchBody.getBankOrder() != null) {
+            predicates.add(
+                    criteriaBuilder.equal(bank.<Integer>get("bankOrder"), searchBody.getBankOrder())
             );
         }
 
         predicates.add(
-                criteriaBuilder.equal(trueWallet.<String>get("prefix"), searchBody.getPrefix())
+                criteriaBuilder.equal(bank.<String>get("prefix"), searchBody.getPrefix())
         );
 
         return super.buildParallelPredicate(root, query, criteriaBuilder);

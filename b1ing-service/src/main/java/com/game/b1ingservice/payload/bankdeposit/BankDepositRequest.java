@@ -1,4 +1,4 @@
-package com.game.b1ingservice.payload.walletdeposit;
+package com.game.b1ingservice.payload.bankdeposit;
 
 import com.game.b1ingservice.specification.commons.SearchPageable;
 import lombok.Data;
@@ -8,8 +8,11 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
-public class WalletDepositRequest extends SearchPageable {
+public class BankDepositRequest extends SearchPageable {
     String username;
-    Long trueWalletId;
+    String bankCode;
+    Integer bankGroup;
+    Integer bankOrder;
     String prefix;
+    Long bankId;
 }
