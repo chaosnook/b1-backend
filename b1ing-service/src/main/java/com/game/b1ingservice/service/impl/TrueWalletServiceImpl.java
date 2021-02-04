@@ -9,6 +9,7 @@ import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.TrueWallet;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.TrueWalletRepository;
+import com.game.b1ingservice.postgres.repository.WalletRepository;
 import com.game.b1ingservice.service.TrueWalletService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class TrueWalletServiceImpl implements TrueWalletService {
 
     @Autowired
     private AgentRepository agentRepository;
+
+    @Autowired
+    private WalletRepository walletRepository;
 
     @Override
     public void insertTrueWallet(TrueWalletRequest req, UserPrincipal principal) {
@@ -103,6 +107,16 @@ public class TrueWalletServiceImpl implements TrueWalletService {
             TrueWallet trueWallet = opt.get();
             trueWallet.setDeleteFlag(1);
             trueWalletRepository.save(trueWallet);
+
+            int bankGroupFrom = trueWallet.getBankGroup();
+            Optional<TrueWallet> opt2 = trueWalletRepository.findFirstByActiveAndBankGroupGreaterThanOrderByBankGroupAsc(true, bankGroupFrom);
+            if(opt2.isPresent()) {
+                TrueWallet trueWalletCurrent = opt2.get();
+                walletRepository.updateAllTrueWalletDeposit(trueWalletCurrent.getId(), trueWallet.getId());
+            } else {
+                walletRepository.updateAllTrueWalletDeposit(null, trueWallet.getId());
+            }
+
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_01104);
         }

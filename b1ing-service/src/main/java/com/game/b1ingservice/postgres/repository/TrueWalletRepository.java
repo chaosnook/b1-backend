@@ -24,4 +24,6 @@ public interface TrueWalletRepository extends JpaRepository<TrueWallet, Long>, J
     List<TrueWallet> findAllByPrefix(String prefix, Sort sort);
 
     List<TrueWallet> findAllByPrefixAndActiveOrderByBankGroupAsc(String prefix, boolean active);
+
+    Optional<TrueWallet> findFirstByActiveAndBankGroupGreaterThanOrderByBankGroupAsc(boolean active, int bankGroupFrom);
 }
