@@ -11,6 +11,6 @@ public class WebUserRequest {
     private String firstName;
     private String lastName;
     private String line;
-    private String recommend;
+    private String affiliate;
     private String isBonus;
 }

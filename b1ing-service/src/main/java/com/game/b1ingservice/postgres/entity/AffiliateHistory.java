@@ -13,16 +13,19 @@ import java.math.BigDecimal;
 
 @Data
 @Entity
-@Table(name = "wallet")
+@Table(name = "affiliate_history")
 @Where(clause = "delete_flag = 0")
-public class Wallet extends DateAudit<String> implements Serializable {
+public class AffiliateHistory extends DateAudit<String> implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "credit", columnDefinition = "numeric(18,2)")
-    private BigDecimal credit;
+    @Column(name = "affiliate_user_id", columnDefinition = "smallint not null")
+    private Long affiliateUserTd;
+
+    @Column(name = "affiliate", columnDefinition = "character varying(255) not null")
+    private String affiliate;
 
     @Column(name = "point", columnDefinition = "numeric(18,2)")
     private BigDecimal point;
@@ -30,20 +33,8 @@ public class Wallet extends DateAudit<String> implements Serializable {
     @JsonIgnore
     @ToString.Exclude
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private WebUser user;
-
-    @JsonIgnore
-    @ToString.Exclude
-    @JoinColumn(name = "deposit_bank_id", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Bank bank;
-
-    @JsonIgnore
-    @ToString.Exclude
-    @JoinColumn(name = "deposit_true_wallet_id", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private TrueWallet trueWallet;
 
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();

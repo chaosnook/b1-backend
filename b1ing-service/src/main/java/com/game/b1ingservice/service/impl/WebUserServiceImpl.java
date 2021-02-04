@@ -7,14 +7,17 @@ import com.game.b1ingservice.payload.webuser.WebUserRequest;
 import com.game.b1ingservice.payload.webuser.WebUserResponse;
 import com.game.b1ingservice.payload.webuser.WebUserUpdate;
 import com.game.b1ingservice.payload.wellet.WalletRequest;
+import com.game.b1ingservice.postgres.entity.AffiliateHistory;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.WebUser;
+import com.game.b1ingservice.postgres.repository.AffiliateHistoryRepository;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.WalletService;
 import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.utils.PasswordGenerator;
 import com.game.b1ingservice.utils.ResponseHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -48,6 +51,9 @@ public class WebUserServiceImpl implements WebUserService {
     @Autowired
     private WalletService walletService;
 
+    @Autowired
+    private AffiliateHistoryRepository affiliateHistoryRepository;
+
     @Override
     public WebUserResponse createUser(WebUserRequest req, UserPrincipal principal) {
         String tel = req.getTel();
@@ -70,6 +76,10 @@ public class WebUserServiceImpl implements WebUserService {
         }
         WebUser userResp = webUserRepository.save(user);
 
+        if(!StringUtils.isEmpty(req.getAffiliate())) {
+            insertAffiliateHistory(req.getAffiliate(), userResp);
+        }
+
         WalletRequest walletRequest = new WalletRequest();
         walletRequest.setCredit(BigDecimal.valueOf(0));
         walletRequest.setPoint(BigDecimal.valueOf(0));
@@ -80,6 +90,21 @@ public class WebUserServiceImpl implements WebUserService {
         resp.setPassword(req.getPassword());
 
         return resp;
+    }
+
+    public void insertAffiliateHistory(String affiliate, WebUser userResp) {
+
+        AffiliateHistory affiliateHistory = new AffiliateHistory();
+        Optional<WebUser> opt = webUserRepository.findByUsernameOrTel(affiliate, affiliate);
+        if(opt.isPresent()) {
+            WebUser affiliateUser = opt.get();
+            affiliateHistory.setAffiliateUserTd(affiliateUser.getId());
+        }
+        affiliateHistory.setAffiliate(affiliate);
+        affiliateHistory.setUser(userResp);
+        affiliateHistory.setPoint(BigDecimal.valueOf(0L));
+
+        affiliateHistoryRepository.save(affiliateHistory);
     }
 
     @Override

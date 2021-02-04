@@ -11,6 +11,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Entity
@@ -51,5 +52,8 @@ public class WebUser extends DateAudit<String> implements Serializable {
 
     @OneToOne(mappedBy = "user", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
     private Wallet wallet;
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
+    private List<AffiliateHistory> affiliateHistory;
 
 }
