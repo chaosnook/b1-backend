@@ -36,4 +36,10 @@ public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecif
     int updateAllBankDeposit(Long bankIdTo, Long bankIdFrom);
 
 
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE wallet SET deposit_bank_id = null WHERE deposit_bank_id = ? ", nativeQuery = true)
+    int deleteAllBankDeposit(Long bankIdFrom);
+
+
 }

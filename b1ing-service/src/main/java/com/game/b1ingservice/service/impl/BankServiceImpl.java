@@ -105,21 +105,6 @@ public class BankServiceImpl implements BankService {
             bank.setActive(bankRequest.isActive());
             bankRepository.save(bank);
 
-            int bankGroupFrom = bank.getBankGroup();
-            int bankOrderFrom = bank.getBankOrder();
-            Optional<Bank> opt2 = bankRepository.findFirstByActiveAndBankGroupAndBankOrderGreaterThanOrderByBankOrderAsc(true, bankGroupFrom, bankOrderFrom);
-            Optional<Bank> opt3 = bankRepository.findFirstByActiveAndBankGroupGreaterThanOrderByBankGroupAsc(true, bankGroupFrom);
-            if(opt2.isPresent()) {
-                Bank bankCurrent = opt2.get();
-                walletRepository.updateAllBankDeposit(bankCurrent.getId(), bank.getId());
-            } else if(!opt2.isPresent() && opt3.isPresent()) {
-                Bank bankCurrent = opt3.get();
-                walletRepository.updateAllBankDeposit(bankCurrent.getId(), bank.getId());
-            } else if(!opt3.isPresent()){
-                walletRepository.updateAllBankDeposit(null, bank.getId());
-            }
-
-
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_02011);
         }
@@ -130,9 +115,6 @@ public class BankServiceImpl implements BankService {
         Optional<Bank> opt = bankRepository.findById(id);
         if(opt.isPresent()){
             Bank bank = opt.get();
-//            bank.setDeleteFlag(1);
-//            bankRepository.save(bank);
-
             int bankGroupFrom = bank.getBankGroup();
             int bankOrderFrom = bank.getBankOrder();
             Optional<Bank> opt2 = bankRepository.findFirstByActiveAndBankGroupAndBankOrderGreaterThanOrderByBankOrderAsc(true, bankGroupFrom, bankOrderFrom);
@@ -142,18 +124,12 @@ public class BankServiceImpl implements BankService {
                 walletRepository.updateAllBankDeposit(bankCurrent.getId(), bank.getId());
                 bank.setDeleteFlag(1);
                 bankRepository.save(bank);
-            } else if(!opt2.isPresent()) {
+            } else if(!opt2.isPresent() && opt3.isPresent()) {
                 Bank bankCurrent = opt3.get();
                 walletRepository.updateAllBankDeposit(bankCurrent.getId(), bank.getId());
                 bank.setDeleteFlag(1);
                 bankRepository.save(bank);
-            } else if(!opt3.isPresent()){
-                walletRepository.updateAllBankDeposit(null, bank.getId());
-                bank.setDeleteFlag(1);
-                bankRepository.save(bank);
             }
-
-
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_02011);
         }
