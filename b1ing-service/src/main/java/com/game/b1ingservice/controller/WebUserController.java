@@ -4,10 +4,8 @@ import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.agent.AgentResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.userinfo.UserInfoResponse;
-import com.game.b1ingservice.payload.webuser.WebUserRequest;
-import com.game.b1ingservice.payload.webuser.WebUserResponse;
-import com.game.b1ingservice.payload.webuser.WebUserSearchRequest;
-import com.game.b1ingservice.payload.webuser.WebUserUpdate;
+import com.game.b1ingservice.payload.webuser.*;
+import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
 import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.specification.SearchWebUserSpecification;
 import com.game.b1ingservice.utils.ResponseHelper;
@@ -33,6 +31,9 @@ public class WebUserController {
 
     @Autowired
     private WebUserUpdateValidator webUserUpdateValidator;
+
+    @Autowired
+    private WebUserJdbcRepository webUserJdbcRepository;
 
     @PostMapping(value = "/webuser")
     public ResponseEntity<?> createWebUser(@RequestBody WebUserRequest req, @AuthenticationPrincipal UserPrincipal principal){
@@ -61,4 +62,19 @@ public class WebUserController {
         webUserService.resetPassword(id, webUserUpdate);
         return webUserService.resetPassword(id, webUserUpdate);
     }
+
+//    @PostMapping(value = "/webuser/reghistory" ,
+//            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+//    public ResponseEntity<?> registerHistory(@RequestBody WebUserHistoryRequest webUserHistoryRequest){
+////        webUserService.registerHistory(webUserHistoryRequest);
+//        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+//    }
+
+    @GetMapping("/webuser/reghistory")
+    @ResponseBody
+    public Object testSendToSource() {
+        return webUserJdbcRepository.summaryRegisterUsersByDay("2021-02-01");
+    }
+
+
 }

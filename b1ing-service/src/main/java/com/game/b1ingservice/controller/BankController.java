@@ -1,8 +1,10 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
+import com.game.b1ingservice.payload.bank.BankAllRequest;
 import com.game.b1ingservice.payload.bank.BankRequest;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.postgres.repository.WalletRepository;
 import com.game.b1ingservice.service.BankService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.bank.BankUpdateValidator;
@@ -26,6 +28,9 @@ public class BankController {
     @Autowired
     BankService bankService;
 
+    @Autowired
+    WalletRepository walletRepository;
+
     //CreateBank
     @PostMapping(value = "/bank", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> insertBank(@RequestBody BankRequest bankRequest, @AuthenticationPrincipal UserPrincipal principal){
@@ -45,7 +50,7 @@ public class BankController {
     //UpdateBank
     @PutMapping(value = "/bank/{id}",
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<?> updateBank(@PathVariable Long id,@RequestBody BankRequest bankRequest){
+    public ResponseEntity<?> updateBank(@PathVariable Long id, @RequestBody BankRequest bankRequest, @RequestBody BankAllRequest bankAllRequest){
         bankUpdateValidator.validate(bankRequest, id);
         bankService.updateBank(id, bankRequest);
         return ResponseHelper.success(Constants.MESSAGE.MSG_02001.msg);

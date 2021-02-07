@@ -95,6 +95,11 @@ public class TrueWalletServiceImpl implements TrueWalletService {
             trueWallet.setNewUserFlag(req.isNewUserFlag());
             trueWallet.setActive(req.isActive());
             trueWalletRepository.save(trueWallet);
+
+            if(!req.isActive()) {
+                updateDepositTruewalletId(trueWallet);
+            }
+
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_01104);
         }
@@ -108,17 +113,21 @@ public class TrueWalletServiceImpl implements TrueWalletService {
             trueWallet.setDeleteFlag(1);
             trueWalletRepository.save(trueWallet);
 
-            int bankGroupFrom = trueWallet.getBankGroup();
-            Optional<TrueWallet> opt2 = trueWalletRepository.findFirstByActiveAndBankGroupGreaterThanOrderByBankGroupAsc(true, bankGroupFrom);
-            if(opt2.isPresent()) {
-                TrueWallet trueWalletCurrent = opt2.get();
-                walletRepository.updateAllTrueWalletDeposit(trueWalletCurrent.getId(), trueWallet.getId());
-            } else {
-                walletRepository.updateAllTrueWalletDeposit(null, trueWallet.getId());
-            }
+            updateDepositTruewalletId(trueWallet);
 
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_01104);
+        }
+    }
+
+    public void updateDepositTruewalletId(TrueWallet trueWallet) {
+        int bankGroupFrom = trueWallet.getBankGroup();
+        Optional<TrueWallet> opt2 = trueWalletRepository.findFirstByActiveAndBankGroupGreaterThanOrderByBankGroupAsc(true, bankGroupFrom);
+        if(opt2.isPresent()) {
+            TrueWallet trueWalletCurrent = opt2.get();
+            walletRepository.updateAllTrueWalletDeposit(trueWalletCurrent.getId(), trueWallet.getId());
+        } else {
+            walletRepository.updateAllTrueWalletDeposit(null, trueWallet.getId());
         }
     }
 }
