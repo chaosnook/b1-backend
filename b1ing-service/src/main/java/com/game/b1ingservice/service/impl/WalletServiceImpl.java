@@ -1,5 +1,8 @@
 package com.game.b1ingservice.service.impl;
 
+import com.game.b1ingservice.commons.Constants;
+import com.game.b1ingservice.exception.ErrorMessageException;
+import com.game.b1ingservice.payload.userinfo.UserWalletResponse;
 import com.game.b1ingservice.payload.wellet.WalletRequest;
 import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.entity.TrueWallet;
@@ -47,5 +50,20 @@ public class WalletServiceImpl implements WalletService {
         }
 
         walletRepository.save(wallet);
+    }
+
+    @Override
+    public UserWalletResponse getUserWallet(String username, String prefix) {
+
+        //TODO get credit from AMB
+       Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
+       if (wallet == null) {
+           throw new ErrorMessageException(Constants.ERROR.ERR_00007);
+       }
+        UserWalletResponse response = new UserWalletResponse();
+        response.setCredit(wallet.getCredit());
+        response.setPoint(wallet.getPoint());
+
+        return null;
     }
 }

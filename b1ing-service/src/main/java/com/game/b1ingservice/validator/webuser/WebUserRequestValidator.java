@@ -20,6 +20,8 @@ public class WebUserRequestValidator extends CommonValidator {
             throw new ErrorMessageException(Constants.ERROR.ERR_01106);
         } else if(!isNumber(req.getTel())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01114);
+
+            //TODO change to check by username
         } else if(webUserRepository.existsByTel(req.getTel())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01107);
         }

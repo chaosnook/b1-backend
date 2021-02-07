@@ -1,9 +1,9 @@
-package com.game.b1ingservice.payload.webuser;
+package com.game.b1ingservice.payload.userinfo;
 
 import lombok.Data;
 
 @Data
-public class WebUserRequest {
+public class UserRegisterRequest {
     private String tel;
     private String password;
     private String bankName;
@@ -13,6 +13,4 @@ public class WebUserRequest {
     private String line;
     private String affiliate;
     private String isBonus;
-
-    private String prefix;
 }
