@@ -2,11 +2,16 @@ package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
+import com.game.b1ingservice.payload.bank.BankAllRequest;
 import com.game.b1ingservice.payload.bank.BankRequest;
 import com.game.b1ingservice.payload.bank.BankResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.wellet.WalletRequest;
 import com.game.b1ingservice.postgres.entity.Bank;
+import com.game.b1ingservice.postgres.entity.TrueWallet;
+import com.game.b1ingservice.postgres.entity.Wallet;
 import com.game.b1ingservice.postgres.repository.BankRepository;
+import com.game.b1ingservice.postgres.repository.WalletRepository;
 import com.game.b1ingservice.service.BankService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +29,9 @@ import java.util.Optional;
 public class BankServiceImpl implements BankService {
     @Autowired
     BankRepository bankRepository;
+
+    @Autowired
+    WalletRepository walletRepository;
 
     @Override
     public void insertBank(BankRequest bankRequest, UserPrincipal principal){
@@ -96,6 +104,22 @@ public class BankServiceImpl implements BankService {
             bank.setNewUserFlag(bankRequest.isNewUserFlag());
             bank.setActive(bankRequest.isActive());
             bankRepository.save(bank);
+
+            int bankGroupFrom = bank.getBankGroup();
+            int bankOrderFrom = bank.getBankOrder();
+            Optional<Bank> opt2 = bankRepository.findFirstByActiveAndBankGroupAndBankOrderGreaterThanOrderByBankOrderAsc(true, bankGroupFrom, bankOrderFrom);
+            Optional<Bank> opt3 = bankRepository.findFirstByActiveAndBankGroupGreaterThanOrderByBankGroupAsc(true, bankGroupFrom);
+            if(opt2.isPresent()) {
+                Bank bankCurrent = opt2.get();
+                walletRepository.updateAllBankDeposit(bankCurrent.getId(), bank.getId());
+            } else if(!opt2.isPresent() && opt3.isPresent()) {
+                Bank bankCurrent = opt3.get();
+                walletRepository.updateAllBankDeposit(bankCurrent.getId(), bank.getId());
+            } else if(!opt3.isPresent()){
+                walletRepository.updateAllBankDeposit(null, bank.getId());
+            }
+
+
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_02011);
         }
@@ -106,8 +130,30 @@ public class BankServiceImpl implements BankService {
         Optional<Bank> opt = bankRepository.findById(id);
         if(opt.isPresent()){
             Bank bank = opt.get();
-            bank.setDeleteFlag(1);
-            bankRepository.save(bank);
+//            bank.setDeleteFlag(1);
+//            bankRepository.save(bank);
+
+            int bankGroupFrom = bank.getBankGroup();
+            int bankOrderFrom = bank.getBankOrder();
+            Optional<Bank> opt2 = bankRepository.findFirstByActiveAndBankGroupAndBankOrderGreaterThanOrderByBankOrderAsc(true, bankGroupFrom, bankOrderFrom);
+            Optional<Bank> opt3 = bankRepository.findFirstByActiveAndBankGroupGreaterThanOrderByBankGroupAsc(true, bankGroupFrom);
+            if(opt2.isPresent()) {
+                Bank bankCurrent = opt2.get();
+                walletRepository.updateAllBankDeposit(bankCurrent.getId(), bank.getId());
+                bank.setDeleteFlag(1);
+                bankRepository.save(bank);
+            } else if(!opt2.isPresent()) {
+                Bank bankCurrent = opt3.get();
+                walletRepository.updateAllBankDeposit(bankCurrent.getId(), bank.getId());
+                bank.setDeleteFlag(1);
+                bankRepository.save(bank);
+            } else if(!opt3.isPresent()){
+                walletRepository.updateAllBankDeposit(null, bank.getId());
+                bank.setDeleteFlag(1);
+                bankRepository.save(bank);
+            }
+
+
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_02011);
         }
