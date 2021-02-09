@@ -2,13 +2,18 @@ package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.thieve.ThieveRequest;
+import com.game.b1ingservice.payload.thieve.ThieveResponse;
+import com.game.b1ingservice.payload.thieve.ThieveSearchRequest;
 import com.game.b1ingservice.payload.thieve.ThieveUpdateRequest;
 import com.game.b1ingservice.service.ThieveService;
+import com.game.b1ingservice.specification.SearchThieveSpecification;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.thieve.ThieveValidator;
 import com.game.b1ingservice.validator.thieve.ThieveUpdateValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -60,6 +65,13 @@ public class ThieveController {
     public ResponseEntity<?> deleteThieve(@RequestParam("id") Long id) {
         thieveService.deleteThieve(id);
         return ResponseHelper.success(Constants.MESSAGE.MSG_01003.msg);
+    }
+
+    @PostMapping(value = "/searchthieve", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> searchThieve(@RequestBody ThieveSearchRequest request){
+        SearchThieveSpecification specification = new SearchThieveSpecification(request);
+        Page<ThieveResponse> thieve = thieveService.findByCriteria(specification,specification.getPageable());
+        return  ResponseHelper.successPage(thieve, "datas",Constants.MESSAGE.MSG_00000.msg);
     }
 
 }

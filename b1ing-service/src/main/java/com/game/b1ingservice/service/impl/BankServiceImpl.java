@@ -121,6 +121,7 @@ public class BankServiceImpl implements BankService {
             bank.setDeleteFlag(1);
            bankRepository.save(bank);
            List<Wallet> listdelete = walletRepository.findByBankIsNull();
+            System.out.println();
            for(Wallet wallet: listdelete){
                wallet.setBank(null);
                walletRepository.save(wallet);

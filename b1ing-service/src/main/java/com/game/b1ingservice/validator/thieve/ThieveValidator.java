@@ -33,9 +33,9 @@ public class ThieveValidator extends CommonValidator{
 //            throw new ErrorMessageException(Constants.ERROR.ERR_01000);
         if(StringUtils.isEmpty(req.getName()))
             throw new ErrorMessageException(Constants.ERROR.ERR_01001);
-        if(StringUtils.isEmpty(req.getBank_name()))
+        if(StringUtils.isEmpty(req.getBankName()))
             throw new ErrorMessageException(Constants.ERROR.ERR_01002);
-        if(StringUtils.isEmpty(req.getBank_account()))
+        if(StringUtils.isEmpty(req.getBankAccount()))
             throw new ErrorMessageException(Constants.ERROR.ERR_01003);
     }
 }
