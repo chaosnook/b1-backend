@@ -39,9 +39,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-//                .antMatchers("/api/admin/auth",
-//                        "/api/admin/register"
-//                ).permitAll()
+                .antMatchers(
+                        "/api/master/**",
+                        "/api/user/prefix",
+                        "/api/user/register",
+                        "/api/user/auth"
+                ).permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -63,14 +66,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         web.ignoring().antMatchers(
                 "/api/test/**",
                 "/api/admin/auth",
-
-                "/api/*/master/*",
-                "/v1/api-docs/**",
-                "/swagger-ui.html",
-                "/swagger-ui/**",
-                "/api/*/testSend",
-                "/api/simulator/v1/payment",
-                "/adminoperationservice/**"
+                "/api/*/master/*"
         );
     }
 

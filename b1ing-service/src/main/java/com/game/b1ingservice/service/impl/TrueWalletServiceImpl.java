@@ -7,7 +7,6 @@ import com.game.b1ingservice.payload.truewallet.TrueWalletRequest;
 import com.game.b1ingservice.payload.truewallet.TrueWalletResponse;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.TrueWallet;
-import com.game.b1ingservice.postgres.entity.Wallet;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.TrueWalletRepository;
 import com.game.b1ingservice.postgres.repository.WalletRepository;
@@ -26,11 +25,12 @@ public class TrueWalletServiceImpl implements TrueWalletService {
 
     @Autowired
     private TrueWalletRepository trueWalletRepository;
-    @Autowired
-    private WalletRepository walletRepository;
 
     @Autowired
     private AgentRepository agentRepository;
+
+    @Autowired
+    private WalletRepository walletRepository;
 
     @Override
     public void insertTrueWallet(TrueWalletRequest req, UserPrincipal principal) {
@@ -50,16 +50,8 @@ public class TrueWalletServiceImpl implements TrueWalletService {
         truewallet.setActive(req.isActive());
         truewallet.setPrefix(principal.getPrefix());
         truewallet.setAgent(agent.get());
-       // trueWalletRepository.save(truewallet);
-        TrueWallet entity = trueWalletRepository.save(truewallet);
-        List<Wallet> list = walletRepository.findByTrueWalletIsNull();
-        for (Wallet wallet: list){
-           wallet.setTrueWallet(entity);
-           walletRepository.save(wallet);
-        }
 
-
-
+        trueWalletRepository.save(truewallet);
     }
 
     @Override
@@ -103,6 +95,11 @@ public class TrueWalletServiceImpl implements TrueWalletService {
             trueWallet.setNewUserFlag(req.isNewUserFlag());
             trueWallet.setActive(req.isActive());
             trueWalletRepository.save(trueWallet);
+
+            if(!req.isActive()) {
+                updateDepositTruewalletId(trueWallet);
+            }
+
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_01104);
         }
@@ -115,13 +112,22 @@ public class TrueWalletServiceImpl implements TrueWalletService {
             TrueWallet trueWallet = opt.get();
             trueWallet.setDeleteFlag(1);
             trueWalletRepository.save(trueWallet);
-            List<Wallet> listdelete = walletRepository.findByTrueWalletIsNull();
-            for(Wallet wallet: listdelete){
-                wallet.setTrueWallet(null);
-                walletRepository.save(wallet);
-            }
+
+            updateDepositTruewalletId(trueWallet);
+
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_01104);
+        }
+    }
+
+    public void updateDepositTruewalletId(TrueWallet trueWallet) {
+        int bankGroupFrom = trueWallet.getBankGroup();
+        Optional<TrueWallet> opt2 = trueWalletRepository.findFirstByActiveAndBankGroupGreaterThanOrderByBankGroupAsc(true, bankGroupFrom);
+        if(opt2.isPresent()) {
+            TrueWallet trueWalletCurrent = opt2.get();
+            walletRepository.updateAllTrueWalletDeposit(trueWalletCurrent.getId(), trueWallet.getId());
+        } else {
+            walletRepository.updateAllTrueWalletDeposit(null, trueWallet.getId());
         }
     }
 }

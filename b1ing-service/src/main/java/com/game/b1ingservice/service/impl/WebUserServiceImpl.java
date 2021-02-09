@@ -1,20 +1,33 @@
 package com.game.b1ingservice.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
+import com.game.b1ingservice.payload.admin.LoginRequest;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.userinfo.UserInfoResponse;
+import com.game.b1ingservice.payload.userinfo.UserProfile;
 import com.game.b1ingservice.payload.webuser.WebUserRequest;
 import com.game.b1ingservice.payload.webuser.WebUserResponse;
 import com.game.b1ingservice.payload.webuser.WebUserUpdate;
+import com.game.b1ingservice.payload.webuser.*;
 import com.game.b1ingservice.payload.wellet.WalletRequest;
+import com.game.b1ingservice.postgres.entity.AdminUser;
+import com.game.b1ingservice.postgres.entity.AffiliateHistory;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.WebUser;
+import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
+import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
+import com.game.b1ingservice.postgres.repository.AffiliateHistoryRepository;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.WalletService;
 import com.game.b1ingservice.service.WebUserService;
+import com.game.b1ingservice.utils.AESUtils;
+import com.game.b1ingservice.utils.JwtTokenUtil;
 import com.game.b1ingservice.utils.PasswordGenerator;
 import com.game.b1ingservice.utils.ResponseHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,9 +38,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
@@ -48,27 +59,46 @@ public class WebUserServiceImpl implements WebUserService {
     @Autowired
     private WalletService walletService;
 
+    @Autowired
+    private AffiliateHistoryRepository affiliateHistoryRepository;
+
+    @Autowired
+    private WebUserJdbcRepository webUserJdbcRepository;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    private ObjectMapper mapper = new ObjectMapper();
+
     @Override
-    public WebUserResponse createUser(WebUserRequest req, UserPrincipal principal) {
+    public UserInfoResponse createUser(WebUserRequest req, String prefix) {
+
+        Optional<Agent> opt = agentRepository.findByPrefix(prefix);
+        if (!opt.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
         String tel = req.getTel();
-        String prefix = principal.getPrefix();
-        String username = prefix + tel.substring(3, tel.length()-1);
+        String username = prefix + tel.substring(3, tel.length() - 1);
 
         WebUser user = new WebUser();
+        user.setAgent(opt.get());
+
         user.setUsername(username);
         user.setTel(req.getTel());
-        user.setPassword(bCryptPasswordEncoder.encode(req.getPassword()));
+        user.setPassword(AESUtils.encrypt(req.getPassword()));
         user.setBankName(req.getBankName());
         user.setAccountNumber(req.getAccountNumber());
         user.setFirstName(req.getFirstName());
         user.setLastName(req.getLastName());
         user.setLine(req.getLine());
         user.setIsBonus(req.getIsBonus());
-        Optional<Agent> opt = agentRepository.findByPrefix(principal.getPrefix());
-        if (opt.isPresent()) {
-            user.setAgent(opt.get());
-        }
+
         WebUser userResp = webUserRepository.save(user);
+
+        if (!StringUtils.isEmpty(req.getAffiliate())) {
+            insertAffiliateHistory(req.getAffiliate(), userResp);
+        }
 
         WalletRequest walletRequest = new WalletRequest();
         walletRequest.setCredit(BigDecimal.valueOf(0));
@@ -79,13 +109,28 @@ public class WebUserServiceImpl implements WebUserService {
         resp.setUsername(username);
         resp.setPassword(req.getPassword());
 
-        return resp;
+        return convert(userResp, opt.get());
+    }
+
+    private void insertAffiliateHistory(String affiliate, WebUser userResp) {
+
+        AffiliateHistory affiliateHistory = new AffiliateHistory();
+        Optional<WebUser> opt = webUserRepository.findByUsernameOrTel(affiliate, affiliate);
+        if (opt.isPresent()) {
+            WebUser affiliateUser = opt.get();
+            affiliateHistory.setAffiliateUserTd(affiliateUser.getId());
+        }
+        affiliateHistory.setAffiliate(affiliate);
+        affiliateHistory.setUser(userResp);
+        affiliateHistory.setPoint(BigDecimal.valueOf(0L));
+
+        affiliateHistoryRepository.save(affiliateHistory);
     }
 
     @Override
     public void updateUser(Long id, WebUserUpdate req) {
         Optional<WebUser> opt = webUserRepository.findById(id);
-        if(opt.isPresent()) {
+        if (opt.isPresent()) {
             WebUser user = opt.get();
             user.setBankName(req.getBankName());
             user.setAccountNumber(req.getAccountNumber());
@@ -101,7 +146,7 @@ public class WebUserServiceImpl implements WebUserService {
     }
 
     @Override
-            public Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable){
+    public Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable) {
         return webUserRepository.findAll(specification, pageable).map(converter);
     }
 
@@ -133,18 +178,19 @@ public class WebUserServiceImpl implements WebUserService {
     };
 
     @Override
-    public ResponseEntity<?> resetPassword(Long id){
+    public ResponseEntity<?> resetPassword(Long id, WebUserUpdate webUserUpdate) {
 
-        String password =  passwordGenerator.generateStrongPassword();
+        String password = passwordGenerator.generateStrongPassword();
 
         Optional<WebUser> opt = webUserRepository.findById(id);
-        if(opt.isPresent()) {
+        if (opt.isPresent()) {
 
             WebUser user = opt.get();
             user.setPassword(bCryptPasswordEncoder.encode(passwordGenerator.generateStrongPassword()));
             webUserRepository.save(user);
 
-            WebUserResponse resp = new WebUserResponse();
+            WebUserUpdate resp = new WebUserUpdate();
+            resp.setUsername(user.getUsername());
             resp.setPassword(password);
 
             return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
@@ -153,6 +199,84 @@ public class WebUserServiceImpl implements WebUserService {
             throw new ErrorMessageException(Constants.ERROR.ERR_01104);
         }
 
+    }
+
+    @Override
+    public UserInfoResponse authUser(String username, String password, LoginRequest loginRequest) {
+        try {
+            Optional<Agent> agent = agentRepository.findByPrefix(loginRequest.getPrefix());
+
+            if (!agent.isPresent()) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+            }
+
+            Optional<WebUser> opt = webUserRepository.findByUsernameAndAgent(username, agent.get());
+            if (opt.isPresent() && AESUtils.decrypt(opt.get().getPassword()).equals(password)) {
+                return convert(opt.get(), agent.get());
+            }
+            throw new ErrorMessageException(Constants.ERROR.ERR_00007);
+
+        } catch (Exception e) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_00007);
+        }
+    }
+
+    @Override
+    public UserProfile getProfile(String username, String prefix) {
+        Optional<Agent> agent = agentRepository.findByPrefix(prefix);
+
+        if (!agent.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
+        Optional<WebUser> opt = webUserRepository.findByUsernameAndAgent(username, agent.get());
+        return convertProfile(opt.get(), agent.get());
+    }
+
+    UserInfoResponse convert(WebUser webUser, Agent agent) {
+        UserInfoResponse userInfo = new UserInfoResponse();
+        UserProfile profile = convertProfile(webUser, agent);
+        userInfo.setProfile(profile);
+        userInfo.setToken(jwtTokenUtil.generateToken(mapper.convertValue(profile, Map.class), "user"));
+
+        return userInfo;
+    }
+
+    UserProfile convertProfile(WebUser webUser, Agent agent) {
+        UserProfile profile = new UserProfile();
+        profile.setUserId(webUser.getId());
+        profile.setAgentId(agent.getId());
+        profile.setUsername(webUser.getUsername());
+        profile.setBankName(webUser.getBankName());
+        profile.setAccountNumber(webUser.getAccountNumber());
+        profile.setTel(webUser.getTel());
+        profile.setBankName(webUser.getBankName());
+        profile.setFirstName(webUser.getFirstName());
+        profile.setLastName(webUser.getLastName());
+        profile.setVersion(webUser.getVersion());
+        profile.setPrefix(agent.getPrefix());
+        profile.setIsBonus(webUser.getIsBonus());
+        return profile;
+    }
+
+    @Override
+    public WebUserHistoryResponse registerHistory(WebUserHistoryRequest webUserHistoryRequest) {
+//        List<WebUserHistoryResponse> resp= new ArrayList<>();
+        WebUserHistoryResponse resObj = new WebUserHistoryResponse();
+
+        // byDay
+        for (int i = 0; i < 24; i++) {
+            resObj.getLabels().add(i);
+            resObj.getData().add(0);
+        }
+
+        List<SummaryRegisterUser> listRegister = webUserJdbcRepository.summaryRegisterUsersByDay(webUserHistoryRequest);
+
+        for (SummaryRegisterUser summaryRegisterUser : listRegister) {
+            resObj.getData().set(summaryRegisterUser.getLabels(), summaryRegisterUser.getData());
+        }
+
+        return resObj;
     }
 
 }

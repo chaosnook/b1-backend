@@ -17,9 +17,13 @@ public interface TrueWalletRepository extends JpaRepository<TrueWallet, Long>, J
 
     Optional<TrueWallet> findFirstByActiveOrderByBankGroupAsc(boolean active);
 
-    Optional<TrueWallet> findFirstByBankGroupAndPrefixAndActive(int bankGroup, String prefix, boolean active);
+    Optional<TrueWallet> findFirstByIdAndPrefixAndActive(Long id, String prefix, boolean active);
 
     Optional<TrueWallet> findFirstByIdAndPrefix(Long id, String prefix);
 
     List<TrueWallet> findAllByPrefix(String prefix, Sort sort);
+
+    List<TrueWallet> findAllByPrefixAndActiveOrderByBankGroupAsc(String prefix, boolean active);
+
+    Optional<TrueWallet> findFirstByActiveAndBankGroupGreaterThanOrderByBankGroupAsc(boolean active, int bankGroupFrom);
 }

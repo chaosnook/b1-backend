@@ -3,9 +3,10 @@ package com.game.b1ingservice.payload.walletdeposit;
 import lombok.Data;
 
 @Data
-public class WalletDepositResponse {
+public class WalletDepositList {
     private Long id;
-    private String username;
+    private String name;
     private Integer bankGroup;
-    private Long trueWalletId;
+    private String phoneNumber;
+    private String prefix;
 }

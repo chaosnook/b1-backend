@@ -12,5 +12,7 @@ public class BankDepositRequest extends SearchPageable {
     String username;
     String bankCode;
     Integer bankGroup;
+    Integer bankOrder;
     String prefix;
+    Long bankId;
 }

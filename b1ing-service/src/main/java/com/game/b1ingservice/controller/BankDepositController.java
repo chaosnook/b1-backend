@@ -1,6 +1,7 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
+import com.game.b1ingservice.payload.bankdeposit.BankDepositAllRequest;
 import com.game.b1ingservice.payload.bankdeposit.BankDepositList;
 import com.game.b1ingservice.payload.bankdeposit.BankDepositRequest;
 import com.game.b1ingservice.payload.bankdeposit.BankDepositResponse;
@@ -27,9 +28,15 @@ public class BankDepositController {
 
     private final BankDepositService bankDepositService;
 
-    @GetMapping(value = "/list-bank-wallet-deposit")
-    public ResponseEntity<?> listBankDeposit(@AuthenticationPrincipal UserPrincipal principal){
+    @GetMapping(value = "/list-active-bank-deposit")
+    public ResponseEntity<?> listActiveBankDeposit(@AuthenticationPrincipal UserPrincipal principal){
         List<BankDepositList> res = bankDepositService.listActiveBank();
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg,res);
+    }
+
+    @GetMapping(value = "/list-usage-bank-deposit")
+    public ResponseEntity<?> listUsageBankDeposit(@AuthenticationPrincipal UserPrincipal principal){
+        List<BankDepositList> res = bankDepositService.listUsageBank();
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg,res);
     }
 
@@ -49,12 +56,12 @@ public class BankDepositController {
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
-//
-//    @PutMapping(value = "/update-all-bank-wallet-deposit")
-//    public ResponseEntity<?> updateAllBankDeposit(@RequestBody WalletDepositAllRequest request, @AuthenticationPrincipal UserPrincipal principal) {
-//        request.setPrefix(principal.getPrefix());
-//        walletDepositService.updateAllTrueBankDeposit(request);
-//        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
-//    }
+
+    @PutMapping(value = "/update-all-bank-wallet-deposit")
+    public ResponseEntity<?> updateAllBankDeposit(@RequestBody BankDepositAllRequest request, @AuthenticationPrincipal UserPrincipal principal) {
+        request.setPrefix(principal.getPrefix());
+        bankDepositService.updateAllBankDeposit(request);
+        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+    }
 
 }

@@ -3,13 +3,11 @@ package com.game.b1ingservice.controller;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.agent.AgentResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
-import com.game.b1ingservice.payload.webuser.WebUserRequest;
-import com.game.b1ingservice.payload.webuser.WebUserResponse;
-import com.game.b1ingservice.payload.webuser.WebUserSearchRequest;
-import com.game.b1ingservice.payload.webuser.WebUserUpdate;
+import com.game.b1ingservice.payload.userinfo.UserInfoResponse;
+import com.game.b1ingservice.payload.webuser.*;
+import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
 import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.specification.SearchWebUserSpecification;
-//import com.game.b1ingservice.utils.PasswordGenerator;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.webuser.WebUserRequestValidator;
 import com.game.b1ingservice.validator.webuser.WebUserUpdateValidator;
@@ -34,10 +32,13 @@ public class WebUserController {
     @Autowired
     private WebUserUpdateValidator webUserUpdateValidator;
 
+    @Autowired
+    private WebUserJdbcRepository webUserJdbcRepository;
+
     @PostMapping(value = "/webuser")
     public ResponseEntity<?> createWebUser(@RequestBody WebUserRequest req, @AuthenticationPrincipal UserPrincipal principal){
         webUserRequestValidator.validate(req);
-        WebUserResponse resp = webUserService.createUser(req, principal);
+        UserInfoResponse resp = webUserService.createUser(req, principal.getPrefix());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
     }
 
@@ -57,8 +58,17 @@ public class WebUserController {
 
     @PutMapping(value = "webuser/reset/{id}",
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> resetPassword(@PathVariable Long id){
-        webUserService.resetPassword(id);
-        return webUserService.resetPassword(id);
+    public ResponseEntity<?> resetPassword(@PathVariable Long id, @RequestBody WebUserUpdate webUserUpdate){
+        webUserService.resetPassword(id, webUserUpdate);
+        return webUserService.resetPassword(id, webUserUpdate);
     }
+
+    @GetMapping("/webuser/reghistory")
+    @ResponseBody
+    public ResponseEntity<?> registerHistoryReport(@RequestBody WebUserHistoryRequest webUserHistoryRequest) {
+        WebUserHistoryResponse obj = webUserService.registerHistory(webUserHistoryRequest);
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, obj);
+    }
+
+
 }
