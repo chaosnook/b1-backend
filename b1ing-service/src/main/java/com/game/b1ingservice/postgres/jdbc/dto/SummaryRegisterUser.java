@@ -6,9 +6,9 @@ import java.io.Serializable;
 
 @Data
 public class SummaryRegisterUser implements Serializable {
-    private Integer hourOfDay;
-    private Integer dayOfMonth;
-    private Integer monthOfYear;
-    private Integer count;
-    private Long agentId;
+    private Integer labels;
+//    private Integer dayOfMonth;
+//    private Integer monthOfYear;
+    private Integer data;
+//    private Long agentId;
 }

@@ -3,13 +3,13 @@ package com.game.b1ingservice.service.impl;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
-import com.game.b1ingservice.payload.webuser.WebUserRequest;
-import com.game.b1ingservice.payload.webuser.WebUserResponse;
-import com.game.b1ingservice.payload.webuser.WebUserUpdate;
+import com.game.b1ingservice.payload.webuser.*;
 import com.game.b1ingservice.payload.wellet.WalletRequest;
 import com.game.b1ingservice.postgres.entity.AffiliateHistory;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.WebUser;
+import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
+import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
 import com.game.b1ingservice.postgres.repository.AffiliateHistoryRepository;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.WebUserRepository;
@@ -28,9 +28,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
@@ -54,11 +52,14 @@ public class WebUserServiceImpl implements WebUserService {
     @Autowired
     private AffiliateHistoryRepository affiliateHistoryRepository;
 
+    @Autowired
+    private WebUserJdbcRepository webUserJdbcRepository;
+
     @Override
     public WebUserResponse createUser(WebUserRequest req, UserPrincipal principal) {
         String tel = req.getTel();
         String prefix = principal.getPrefix();
-        String username = prefix + tel.substring(3, tel.length()-1);
+        String username = prefix + tel.substring(3, tel.length() - 1);
 
         WebUser user = new WebUser();
         user.setUsername(username);
@@ -76,7 +77,7 @@ public class WebUserServiceImpl implements WebUserService {
         }
         WebUser userResp = webUserRepository.save(user);
 
-        if(!StringUtils.isEmpty(req.getAffiliate())) {
+        if (!StringUtils.isEmpty(req.getAffiliate())) {
             insertAffiliateHistory(req.getAffiliate(), userResp);
         }
 
@@ -96,7 +97,7 @@ public class WebUserServiceImpl implements WebUserService {
 
         AffiliateHistory affiliateHistory = new AffiliateHistory();
         Optional<WebUser> opt = webUserRepository.findByUsernameOrTel(affiliate, affiliate);
-        if(opt.isPresent()) {
+        if (opt.isPresent()) {
             WebUser affiliateUser = opt.get();
             affiliateHistory.setAffiliateUserTd(affiliateUser.getId());
         }
@@ -110,7 +111,7 @@ public class WebUserServiceImpl implements WebUserService {
     @Override
     public void updateUser(Long id, WebUserUpdate req) {
         Optional<WebUser> opt = webUserRepository.findById(id);
-        if(opt.isPresent()) {
+        if (opt.isPresent()) {
             WebUser user = opt.get();
             user.setBankName(req.getBankName());
             user.setAccountNumber(req.getAccountNumber());
@@ -126,7 +127,7 @@ public class WebUserServiceImpl implements WebUserService {
     }
 
     @Override
-            public Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable){
+    public Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable) {
         return webUserRepository.findAll(specification, pageable).map(converter);
     }
 
@@ -160,10 +161,10 @@ public class WebUserServiceImpl implements WebUserService {
     @Override
     public ResponseEntity<?> resetPassword(Long id, WebUserUpdate webUserUpdate) {
 
-        String password =  passwordGenerator.generateStrongPassword();
+        String password = passwordGenerator.generateStrongPassword();
 
         Optional<WebUser> opt = webUserRepository.findById(id);
-        if(opt.isPresent()) {
+        if (opt.isPresent()) {
 
             WebUser user = opt.get();
             user.setPassword(bCryptPasswordEncoder.encode(passwordGenerator.generateStrongPassword()));
@@ -179,6 +180,26 @@ public class WebUserServiceImpl implements WebUserService {
             throw new ErrorMessageException(Constants.ERROR.ERR_01104);
         }
 
+    }
+
+    @Override
+    public WebUserHistoryResponse registerHistory(WebUserHistoryRequest webUserHistoryRequest) {
+//        List<WebUserHistoryResponse> resp= new ArrayList<>();
+        WebUserHistoryResponse resObj = new WebUserHistoryResponse();
+
+        // byDay
+        for (int i = 0; i < 24; i++) {
+            resObj.getLabels().add(i);
+            resObj.getData().add(0);
+        }
+
+        List<SummaryRegisterUser> listRegister = webUserJdbcRepository.summaryRegisterUsersByDay(webUserHistoryRequest);
+
+        for (SummaryRegisterUser summaryRegisterUser : listRegister) {
+            resObj.getData().set(summaryRegisterUser.getLabels(), summaryRegisterUser.getData());
+        }
+
+        return resObj;
     }
 
 }
