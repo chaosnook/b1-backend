@@ -12,7 +12,6 @@ import com.game.b1ingservice.payload.webuser.WebUserResponse;
 import com.game.b1ingservice.payload.webuser.WebUserUpdate;
 import com.game.b1ingservice.payload.webuser.*;
 import com.game.b1ingservice.payload.wellet.WalletRequest;
-import com.game.b1ingservice.postgres.entity.AdminUser;
 import com.game.b1ingservice.postgres.entity.AffiliateHistory;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.WebUser;
@@ -38,6 +37,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.math.BigDecimal;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.function.Function;
 
@@ -260,23 +260,75 @@ public class WebUserServiceImpl implements WebUserService {
     }
 
     @Override
-    public WebUserHistoryResponse registerHistory(WebUserHistoryRequest webUserHistoryRequest) {
-//        List<WebUserHistoryResponse> resp= new ArrayList<>();
-        WebUserHistoryResponse resObj = new WebUserHistoryResponse();
+    public WebUserHistoryResponse registerHistory(WebUserHistoryRequest webUserHistoryRequest, UserPrincipal principal) {
+        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
 
-        // byDay
-        for (int i = 0; i < 24; i++) {
-            resObj.getLabels().add(i);
-            resObj.getData().add(0);
+        if (!agent.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
         }
 
-        List<SummaryRegisterUser> listRegister = webUserJdbcRepository.summaryRegisterUsersByDay(webUserHistoryRequest);
+        WebUserHistoryResponse resObj = new WebUserHistoryResponse();
+        String type = webUserHistoryRequest.getType();
+        String value = webUserHistoryRequest.getValue();
 
-        for (SummaryRegisterUser summaryRegisterUser : listRegister) {
-            resObj.getData().set(summaryRegisterUser.getLabels(), summaryRegisterUser.getData());
+        if (type.equals("day")) {
+
+//            //// byDay
+            for (int i = 0; i < 24; i++) {
+                resObj.getLabels().add(i);
+                resObj.getData().add(0);
+            }
+
+            List<SummaryRegisterUser> listRegisterDay = webUserJdbcRepository.summaryRegisterUsersByDay(webUserHistoryRequest, principal);
+
+            for (SummaryRegisterUser summaryRegisterUser : listRegisterDay) {
+                resObj.getData().set(summaryRegisterUser.getLabels(), summaryRegisterUser.getData());
+            }
+
+
+        } else if (type.equals("month")) {
+
+            //// byMonth
+            String date = value;
+            String[] dateParts = date.split("-");
+            String yyyy = dateParts[0];
+            String mm = dateParts[1];
+            int year = Integer.parseInt(yyyy);
+            int month = Integer.parseInt(mm);
+
+            YearMonth yearMonthObject = YearMonth.of(year, month);
+            int daysInMonth = yearMonthObject.lengthOfMonth();
+
+            for (int i = 1; i <= daysInMonth ; i++) {
+                resObj.getLabels().add(i);
+                resObj.getData().add(0);
+            }
+
+            List<SummaryRegisterUser> listRegisterMonth = webUserJdbcRepository.summaryRegisterUsersByMonth(webUserHistoryRequest, principal);
+
+            for (SummaryRegisterUser summaryRegisterUser : listRegisterMonth) {
+                resObj.getData().set(summaryRegisterUser.getLabels(), summaryRegisterUser.getData());
+            }
+
+
+        } else if (type.equals("year")) {
+
+            //// byYear
+            for (int i = 1; i < 13; i++) {
+                resObj.getLabels().add(i);
+                resObj.getData().add(0);
+            }
+
+            List<SummaryRegisterUser> listRegisterYear = webUserJdbcRepository.summaryRegisterUsersByYear(webUserHistoryRequest, principal);
+
+            for (SummaryRegisterUser summaryRegisterUser : listRegisterYear) {
+                resObj.getData().set(summaryRegisterUser.getLabels(), summaryRegisterUser.getData());
+            }
+
         }
 
         return resObj;
+
     }
 
 }

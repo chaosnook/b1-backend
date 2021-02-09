@@ -63,10 +63,10 @@ public class WebUserController {
         return webUserService.resetPassword(id, webUserUpdate);
     }
 
-    @GetMapping("/webuser/reghistory")
+    @PostMapping("/webuser/reghistory")
     @ResponseBody
-    public ResponseEntity<?> registerHistoryReport(@RequestBody WebUserHistoryRequest webUserHistoryRequest) {
-        WebUserHistoryResponse obj = webUserService.registerHistory(webUserHistoryRequest);
+    public ResponseEntity<?> registerHistoryReport(@RequestBody WebUserHistoryRequest webUserHistoryRequest, @AuthenticationPrincipal UserPrincipal principal) {
+        WebUserHistoryResponse obj = webUserService.registerHistory(webUserHistoryRequest, principal);
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, obj);
     }
 
