@@ -3,6 +3,7 @@ package com.game.b1ingservice.controller;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.agent.AgentResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.userinfo.UserInfoResponse;
 import com.game.b1ingservice.payload.webuser.*;
 import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
 import com.game.b1ingservice.service.WebUserService;
@@ -37,7 +38,7 @@ public class WebUserController {
     @PostMapping(value = "/webuser")
     public ResponseEntity<?> createWebUser(@RequestBody WebUserRequest req, @AuthenticationPrincipal UserPrincipal principal){
         webUserRequestValidator.validate(req);
-        WebUserResponse resp = webUserService.createUser(req, principal);
+        UserInfoResponse resp = webUserService.createUser(req, principal.getPrefix());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
     }
 

@@ -1,18 +1,20 @@
-package com.game.b1ingservice.payload.webuser;
+package com.game.b1ingservice.payload.userinfo;
 
 import lombok.Data;
 
 @Data
-public class WebUserRequest {
+public class UserProfile {
+    private String username;
     private String tel;
-    private String password;
     private String bankName;
     private String accountNumber;
     private String firstName;
     private String lastName;
-    private String line;
-    private String affiliate;
     private String isBonus;
-
     private String prefix;
+
+    private Long userId;
+    private Long agentId;
+
+    private int version;
 }

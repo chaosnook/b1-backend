@@ -33,7 +33,9 @@ public class JwtAuthorizationTokenFilter extends OncePerRequestFilter {
 
     private final Collection<String> excludeUrlPatterns = new ArrayList<>(
             Arrays.asList(
-                    "/api/admin/auth"
+                    "/api/admin/auth",
+                    "/api/user/auth",
+                    "/api/user/register"
 //                    "/api/admin/register"
             ));
 
