@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
@@ -45,4 +47,6 @@ public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecif
     int deleteAllBankDeposit(Long bankIdFrom);
 
 
+    List<Wallet> findByBankIsNull();
+    List<Wallet> findByTrueWalletIsNull();
 }

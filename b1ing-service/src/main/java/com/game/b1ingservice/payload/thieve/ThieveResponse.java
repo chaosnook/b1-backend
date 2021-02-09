@@ -6,6 +6,6 @@ import lombok.Data;
 public class ThieveResponse {
     private Long id;
     private String name;
-    private String bank_name;
-    private String bank_account;
+    private String bankName;
+    private String bankAccount;
 }
