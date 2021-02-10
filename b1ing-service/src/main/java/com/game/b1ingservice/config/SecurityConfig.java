@@ -64,9 +64,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) {
         web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**");
         web.ignoring().antMatchers(
+                "/api/master/**",
                 "/api/test/**",
-                "/api/admin/auth",
-                "/api/*/master/*"
+                "/api/admin/auth"
         );
     }
 
