@@ -210,10 +210,10 @@ public class AdminServiceImpl implements AdminService {
                 withdrawHistoryRepository.save(withdrawHistory);
 
             } else {
-
+                throw new ErrorMessageException(Constants.ERROR.ERR_01132);
             }
         } else {
-
+            throw new ErrorMessageException(Constants.ERROR.ERR_01127);
         }
     }
 
