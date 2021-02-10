@@ -1,15 +1,13 @@
 package com.game.b1ingservice.service.impl;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.admin.*;
 import com.game.b1ingservice.payload.agent.AgentResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
-import com.game.b1ingservice.postgres.entity.AdminUser;
-import com.game.b1ingservice.postgres.entity.Agent;
-import com.game.b1ingservice.postgres.entity.Role;
-import com.game.b1ingservice.postgres.repository.AdminUserRepository;
-import com.game.b1ingservice.postgres.repository.RoleRepository;
+import com.game.b1ingservice.postgres.entity.*;
+import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AdminService;
 import com.game.b1ingservice.utils.JwtTokenUtil;
 import com.game.b1ingservice.utils.ResponseHelper;
@@ -21,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +36,12 @@ public class AdminServiceImpl implements AdminService {
     BCryptPasswordEncoder bCryptPasswordEncoder;
     @Autowired
     JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    WebUserRepository webUserRepository;
+    @Autowired
+    WalletRepository walletRepository;
+    @Autowired
+    DepositHistoryRepository depositHistoryRepository;
 
 
     @Autowired
@@ -130,6 +135,43 @@ public class AdminServiceImpl implements AdminService {
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_00009);
         }
+    }
+
+    @Override
+    public void addCredit(AddCreditRequest req, UserPrincipal principal) {
+        Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Prefix(req.getUsername(), principal.getPrefix());
+        if(opt.isPresent()) {
+            WebUser webUser = opt.get();
+            Optional<Wallet> opt2 = walletRepository.findByUser_Id(webUser.getId());
+            if(opt2.isPresent()) {
+                Wallet wallet =  opt2.get();
+                BigDecimal beforAmount = wallet.getCredit();
+                Bank bank = wallet.getBank();
+                BigDecimal afterAmount = beforAmount.add(req.getCredit());
+                wallet.setCredit(afterAmount);
+                walletRepository.save(wallet);
+
+                DepositHistory depositHistory = new DepositHistory();
+                depositHistory.setAmount(req.getCredit());
+                depositHistory.setBeforeAmount(beforAmount);
+                depositHistory.setAfterAmount(afterAmount);
+                depositHistory.setUser(webUser);
+                depositHistory.setBank(bank);
+
+                Optional<AdminUser> adminOpt = adminUserRepository.findById(principal.getId());
+                if(adminOpt.isPresent()) {
+                    depositHistory.setAdmin(adminOpt.get());
+                }
+
+                depositHistoryRepository.save(depositHistory);
+
+            } else {
+                throw new ErrorMessageException(Constants.ERROR.ERR_01132);
+            }
+        } else {
+            throw new ErrorMessageException(Constants.ERROR.ERR_01127);
+        }
+
     }
 
 

@@ -75,6 +75,9 @@ public class Constants {
         ERR_01127("username นี้ไม่มีอยูในระบบ"),
         ERR_01128("credit ห้ามว่าง"),
         ERR_01129("point ห้ามว่าง"),
+        ERR_01130("prefix ห้ามว่าง"),
+        ERR_01131("credit ไม่ถูกต้อง"),
+        ERR_01132("ไม่พบ wallet ของ username นี้"),
 
         ERR_03000("IP ห้ามว่าง"),
         ERR_03001("ไม่พบข้อมูล"),

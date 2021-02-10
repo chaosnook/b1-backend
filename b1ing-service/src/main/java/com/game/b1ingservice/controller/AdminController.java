@@ -1,12 +1,14 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
+import com.game.b1ingservice.payload.admin.AddCreditRequest;
 import com.game.b1ingservice.payload.admin.AdminUpdateRequest;
 import com.game.b1ingservice.payload.admin.LoginRequest;
 import com.game.b1ingservice.payload.admin.RegisterRequest;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.service.AdminService;
 import com.game.b1ingservice.utils.ResponseHelper;
+import com.game.b1ingservice.validator.admin.AddCreditValidator;
 import com.game.b1ingservice.validator.admin.PrefixValidator;
 import com.game.b1ingservice.validator.admin.RegisterValidator;
 import com.game.b1ingservice.validator.admin.UpdateValidator;
@@ -35,6 +37,8 @@ public class AdminController {
     PrefixValidator prefixValidator;
     @Autowired
     AdminService adminService;
+    @Autowired
+    AddCreditValidator addCreditValidator;
 
     @PostMapping(value = "/auth",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
@@ -83,6 +87,13 @@ public class AdminController {
                                      @AuthenticationPrincipal UserPrincipal principal) {
 
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, adminService.findAdminByUsernamePrefix(username, principal.getPrefix()));
+    }
+
+    @PostMapping(value = "/addCredit", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> addCredit(@RequestBody AddCreditRequest req, @AuthenticationPrincipal UserPrincipal principal) {
+        addCreditValidator.validate(req);
+        adminService.addCredit(req, principal);
+        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
 }

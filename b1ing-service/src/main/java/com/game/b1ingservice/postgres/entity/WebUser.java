@@ -56,4 +56,7 @@ public class WebUser extends DateAudit<String> implements Serializable {
     @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
     private List<AffiliateHistory> affiliateHistory;
 
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
+    private List<DepositHistory> depositHistory;
+
 }

@@ -57,4 +57,9 @@ public class Bank extends DateAudit<String> implements Serializable {
 
     @OneToMany(mappedBy = "bank", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     private List<Wallet> wallet;
+
+    @OneToMany(mappedBy = "bank", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    private List<DepositHistory> depositHistory;
+
+
 }
