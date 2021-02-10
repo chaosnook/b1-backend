@@ -22,14 +22,28 @@ public class MasterbankSeviceImpl implements MasterBankService {
     MasterBankRepository masterBankRepository;
 
     @Override
-    public ResponseEntity<?> getMasterBank() {
+    public ResponseEntity<?> getMasterBankDeposit() {
         List<MasterBankResponse> res = new ArrayList<>();
-        List<MasterBank> listMasterBank = masterBankRepository.findAll();
+        List<MasterBank> listMasterBank = masterBankRepository.findAllByIsDeposit(true);
 
         for (MasterBank masterBank : listMasterBank) {
             MasterBankResponse masterBankResponse = new MasterBankResponse();
+            masterBankResponse.setBankName(masterBank.getBankName());
+            masterBankResponse.setBankCode(masterBank.getBankCode());
+            res.add(masterBankResponse);
 
+        }
 
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, res);
+
+    }
+    @Override
+    public ResponseEntity<?> getMasterBankWithdraw() {
+        List<MasterBankResponse> res = new ArrayList<>();
+        List<MasterBank> listMasterBank = masterBankRepository.findAllByIsWithdraw(true);
+
+        for (MasterBank masterBank : listMasterBank) {
+            MasterBankResponse masterBankResponse = new MasterBankResponse();
             masterBankResponse.setBankName(masterBank.getBankName());
             masterBankResponse.setBankCode(masterBank.getBankCode());
             res.add(masterBankResponse);
