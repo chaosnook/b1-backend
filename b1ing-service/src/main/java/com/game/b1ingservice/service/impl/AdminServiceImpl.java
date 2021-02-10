@@ -151,7 +151,6 @@ public class AdminServiceImpl implements AdminService {
                 Bank bank = wallet.getBank();
                 BigDecimal afterAmount = beforAmount.add(req.getCredit());
                 wallet.setCredit(afterAmount);
-                walletRepository.save(wallet);
 
                 DepositHistory depositHistory = new DepositHistory();
                 depositHistory.setAmount(req.getCredit());
@@ -159,10 +158,28 @@ public class AdminServiceImpl implements AdminService {
                 depositHistory.setAfterAmount(afterAmount);
                 depositHistory.setUser(webUser);
                 depositHistory.setBank(bank);
+                depositHistory.setStatus(Constants.DEPOSIT_STATUS.PENDING);
 
                 Optional<AdminUser> adminOpt = adminUserRepository.findById(principal.getId());
+
                 if(adminOpt.isPresent()) {
                     depositHistory.setAdmin(adminOpt.get());
+                }
+
+                depositHistoryRepository.save(depositHistory);
+
+                //TODO Call api AMB add credit
+                // success status from api add credit
+                boolean success = true;
+                // error message from api add credit
+                String errorMessage = "...";
+                if (success) {
+                    walletRepository.save(wallet);
+                    depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
+                } else {
+                    //if error
+                    depositHistory.setReason(errorMessage);
+                    depositHistory.setStatus(Constants.DEPOSIT_STATUS.ERROR);
                 }
 
                 depositHistoryRepository.save(depositHistory);
