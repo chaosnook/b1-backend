@@ -16,11 +16,18 @@ public class MasterBankController {
     @Autowired
     MasterBankService masterBankService;
 
-    @GetMapping(value = "/masterbank",
+    @GetMapping(value = "/masterbankdeposit",
             consumes = { MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<?> getMasterBank() {
-        return masterBankService.getMasterBank();
+    public ResponseEntity<?> getMasterBankDeposit() {
+        return masterBankService.getMasterBankDeposit();
+    }
+
+    @GetMapping(value = "/masterbankwithdraw",
+            consumes = { MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+    public ResponseEntity<?> getMasterBankWithdraw() {
+        return masterBankService.getMasterBankWithdraw();
     }
 
 

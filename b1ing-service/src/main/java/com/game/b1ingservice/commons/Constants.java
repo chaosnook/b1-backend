@@ -138,4 +138,10 @@ public class Constants {
         public static final String DESC = "D";
     }
 
+    public static class DEPOSIT_STATUS {
+        public static final String PENDING = "PENDING";
+        public static final String SUCCESS = "SUCCESS";
+        public static final String ERROR = "ERROR";
+    }
+
 }
