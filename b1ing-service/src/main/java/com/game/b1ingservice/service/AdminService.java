@@ -17,5 +17,6 @@ public interface AdminService {
     AdminUserResponse findAdminByUsernamePrefix(String username, String prefix);
 
     void addCredit(AddCreditRequest req, UserPrincipal principal);
+    void withdrawCredit(WithdrawRequest req, UserPrincipal principal);
 
 }
