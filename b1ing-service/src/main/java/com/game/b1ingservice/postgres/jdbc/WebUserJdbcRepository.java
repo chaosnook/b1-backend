@@ -1,5 +1,7 @@
 package com.game.b1ingservice.postgres.jdbc;
 
+import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.webuser.WebUserHistoryRequest;
 import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,57 +22,57 @@ public class WebUserJdbcRepository {
     @Qualifier("postgresJdbcTemplate")
     JdbcTemplate jdbcTemplate;
 
-    public List<SummaryRegisterUser> summaryRegisterUsersByDay(String day) {
+    public List<SummaryRegisterUser> summaryRegisterUsersByDay(WebUserHistoryRequest webUserHistoryRequest, UserPrincipal principal) {
         List<SummaryRegisterUser> result = new ArrayList<>();
         try {
             String sql = "select   " +
-                    "    extract(hour from created_date) as hourOfDay ,  " +
-                    "    count(created_by), " +
+                    "    extract(hour from created_date) as labels ,  " +
+                    "    count(created_by) as data, " +
                     "    agent_id as agentId " +
                     "from users  " +
                     "    where created_date::date = ? " +
-                    "    and agent_id = 1 " +
+                    "    and agent_id = ? " +
                     "group by extract(hour from created_date),agent_id  " +
-                    "order by hourOfDay asc";
-            result = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(SummaryRegisterUser.class), day);
+                    "order by labels asc";
+            result = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(SummaryRegisterUser.class), webUserHistoryRequest.getValue(), principal.getAgentId());
         } catch (Exception e) {
             log.error("summaryRegisterUsers", e);
         }
         return result;
     }
 
-    public List<SummaryRegisterUser> summaryRegisterUsersByMonth(String month){
+    public List<SummaryRegisterUser> summaryRegisterUsersByMonth(WebUserHistoryRequest webUserHistoryRequest, UserPrincipal principal){
         List<SummaryRegisterUser> result = new ArrayList<>();
         try{
-            String sql = "select   " +
-                    "    extract(hour from created_date) as hourOfDay ,  " +
-                    "    count(created_by), " +
+            String sql = "select " +
+                    "    extract(day from created_date) as labels , " +
+                    "    count(created_by) as data, " +
                     "    agent_id as agentId " +
-                    "from users  " +
-                    "    where created_date::date = '2021-02-01' " +
-                    "    and agent_id = 1 " +
-                    "group by extract(hour from created_date),agent_id  " +
-                    "order by hourOfDay asc";
-            result = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(SummaryRegisterUser.class), month);
+                    "from users " +
+                    "where to_char(created_date, 'YYYY-MM') = ? " +
+                    "and agent_id = ? " +
+                    "group by extract(day from created_date), agent_id  " +
+                    "order by labels asc";
+            result = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(SummaryRegisterUser.class), webUserHistoryRequest.getValue(), principal.getAgentId());
         }catch (Exception e) {
             log.error("summaryRegisterUsers", e);
         }
         return result;
     }
 
-    public List<SummaryRegisterUser> summaryRegisterUsersByYear(String year){
+    public List<SummaryRegisterUser> summaryRegisterUsersByYear(WebUserHistoryRequest webUserHistoryRequest, UserPrincipal principal){
         List<SummaryRegisterUser> result = new ArrayList<>();
         try{
-            String sql = "select   " +
-                    "    extract(hour from created_date) as hourOfDay ,  " +
-                    "    count(created_by), " +
+            String sql = "select " +
+                    "    extract(month from created_date) as labels , " +
+                    "    count(created_by) as data, " +
                     "    agent_id as agentId " +
-                    "from users  " +
-                    "    where created_date::date = '2021-02-01' " +
-                    "    and agent_id = 1 " +
-                    "group by extract(hour from created_date),agent_id  " +
-                    "order by hourOfDay asc";
-            result = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(SummaryRegisterUser.class), year);
+                    "from users " +
+                    "where to_char(created_date, 'YYYY') = ? " +
+                    "and agent_id = ? " +
+                    "group by extract(month from created_date), agent_id  " +
+                    "order by labels asc";
+            result = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(SummaryRegisterUser.class), webUserHistoryRequest.getValue(), principal.getAgentId());
         }catch (Exception e) {
             log.error("summaryRegisterUsers", e);
         }

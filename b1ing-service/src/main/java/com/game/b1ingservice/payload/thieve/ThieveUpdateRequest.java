@@ -8,6 +8,6 @@ import java.io.Serializable;
 public class ThieveUpdateRequest implements Serializable {
     private Long id;
     private String name;
-    private String bank_name;
-    private String bank_account;
+    private String bankName;
+    private String bankAccount;
 }

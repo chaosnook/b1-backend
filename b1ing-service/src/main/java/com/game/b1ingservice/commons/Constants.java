@@ -84,6 +84,8 @@ public class Constants {
 
         ERR_04000("ไม่พบข้อมูล true wallet"),
         ERR_04001("ไม่สามารถแก้ไขฝาก true wallet"),
+
+        ERR_05001("กรุณาเลือกช่วงเวลาที่ต้องการค้นหา")
         ;
 
         public String msg;

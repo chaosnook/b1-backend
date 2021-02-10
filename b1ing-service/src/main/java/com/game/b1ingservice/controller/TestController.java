@@ -17,11 +17,11 @@ public class TestController {
 
     private static final Logger logger = LoggerFactory.getLogger(TestController.class);
 
-    @GetMapping("/test/hello")
-    @ResponseBody
-    public Object testSendToSource() {
-        return webUserJdbcRepository.summaryRegisterUsersByDay("2021-02-01");
-    }
+//    @GetMapping("/test/hello")
+//    @ResponseBody
+//    public Object testSendToSource() {
+//        return webUserJdbcRepository.summaryRegisterUsersByDay("2021-02-01");
+//    }
 
     @GetMapping("/testtoken")
     @ResponseBody

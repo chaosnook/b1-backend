@@ -10,11 +10,13 @@ import com.game.b1ingservice.payload.userinfo.UserProfile;
 import com.game.b1ingservice.payload.webuser.WebUserRequest;
 import com.game.b1ingservice.payload.webuser.WebUserResponse;
 import com.game.b1ingservice.payload.webuser.WebUserUpdate;
+import com.game.b1ingservice.payload.webuser.*;
 import com.game.b1ingservice.payload.wellet.WalletRequest;
-import com.game.b1ingservice.postgres.entity.AdminUser;
 import com.game.b1ingservice.postgres.entity.AffiliateHistory;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.WebUser;
+import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
+import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
 import com.game.b1ingservice.postgres.repository.AffiliateHistoryRepository;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.WebUserRepository;
@@ -35,9 +37,8 @@ import org.springframework.stereotype.Service;
 
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.time.YearMonth;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
@@ -60,6 +61,9 @@ public class WebUserServiceImpl implements WebUserService {
 
     @Autowired
     private AffiliateHistoryRepository affiliateHistoryRepository;
+
+    @Autowired
+    private WebUserJdbcRepository webUserJdbcRepository;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -253,6 +257,78 @@ public class WebUserServiceImpl implements WebUserService {
         profile.setPrefix(agent.getPrefix());
         profile.setIsBonus(webUser.getIsBonus());
         return profile;
+    }
+
+    @Override
+    public WebUserHistoryResponse registerHistory(WebUserHistoryRequest webUserHistoryRequest, UserPrincipal principal) {
+        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
+
+        if (!agent.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
+        WebUserHistoryResponse resObj = new WebUserHistoryResponse();
+        String type = webUserHistoryRequest.getType();
+        String value = webUserHistoryRequest.getValue();
+
+        if (type.equals("day")) {
+
+//            //// byDay
+            for (int i = 0; i < 24; i++) {
+                resObj.getLabels().add(i);
+                resObj.getData().add(0);
+            }
+
+            List<SummaryRegisterUser> listRegisterDay = webUserJdbcRepository.summaryRegisterUsersByDay(webUserHistoryRequest, principal);
+
+            for (SummaryRegisterUser summaryRegisterUser : listRegisterDay) {
+                resObj.getData().set(summaryRegisterUser.getLabels(), summaryRegisterUser.getData());
+            }
+
+
+        } else if (type.equals("month")) {
+
+            //// byMonth
+            String date = value;
+            String[] dateParts = date.split("-");
+            String yyyy = dateParts[0];
+            String mm = dateParts[1];
+            int year = Integer.parseInt(yyyy);
+            int month = Integer.parseInt(mm);
+
+            YearMonth yearMonthObject = YearMonth.of(year, month);
+            int daysInMonth = yearMonthObject.lengthOfMonth();
+
+            for (int i = 1; i <= daysInMonth ; i++) {
+                resObj.getLabels().add(i);
+                resObj.getData().add(0);
+            }
+
+            List<SummaryRegisterUser> listRegisterMonth = webUserJdbcRepository.summaryRegisterUsersByMonth(webUserHistoryRequest, principal);
+
+            for (SummaryRegisterUser summaryRegisterUser : listRegisterMonth) {
+                resObj.getData().set(summaryRegisterUser.getLabels(), summaryRegisterUser.getData());
+            }
+
+
+        } else if (type.equals("year")) {
+
+            //// byYear
+            for (int i = 1; i < 13; i++) {
+                resObj.getLabels().add(i);
+                resObj.getData().add(0);
+            }
+
+            List<SummaryRegisterUser> listRegisterYear = webUserJdbcRepository.summaryRegisterUsersByYear(webUserHistoryRequest, principal);
+
+            for (SummaryRegisterUser summaryRegisterUser : listRegisterYear) {
+                resObj.getData().set(summaryRegisterUser.getLabels(), summaryRegisterUser.getData());
+            }
+
+        }
+
+        return resObj;
+
     }
 
 }

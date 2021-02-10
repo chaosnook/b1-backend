@@ -63,17 +63,11 @@ public class WebUserController {
         return webUserService.resetPassword(id, webUserUpdate);
     }
 
-//    @PostMapping(value = "/webuser/reghistory" ,
-//            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-//    public ResponseEntity<?> registerHistory(@RequestBody WebUserHistoryRequest webUserHistoryRequest){
-////        webUserService.registerHistory(webUserHistoryRequest);
-//        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
-//    }
-
-    @GetMapping("/webuser/reghistory")
+    @PostMapping("/webuser/reghistory")
     @ResponseBody
-    public Object testSendToSource() {
-        return webUserJdbcRepository.summaryRegisterUsersByDay("2021-02-01");
+    public ResponseEntity<?> registerHistoryReport(@RequestBody WebUserHistoryRequest webUserHistoryRequest, @AuthenticationPrincipal UserPrincipal principal) {
+        WebUserHistoryResponse obj = webUserService.registerHistory(webUserHistoryRequest, principal);
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, obj);
     }
 
 
