@@ -42,6 +42,8 @@ public class AdminServiceImpl implements AdminService {
     WalletRepository walletRepository;
     @Autowired
     DepositHistoryRepository depositHistoryRepository;
+    @Autowired
+    WithdrawHistoryRepository withdrawHistoryRepository;
 
 
     @Autowired
@@ -172,6 +174,47 @@ public class AdminServiceImpl implements AdminService {
             throw new ErrorMessageException(Constants.ERROR.ERR_01127);
         }
 
+    }
+
+    @Override
+    public void withdrawCredit(WithdrawRequest req, UserPrincipal principal) {
+        Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Prefix(req.getUsername(), principal.getPrefix());
+        if(opt.isPresent()) {
+            WebUser webUser = opt.get();
+            Optional<Wallet> opt2 = walletRepository.findByUser_Id(webUser.getId());
+            if(opt2.isPresent()) {
+                Wallet wallet =  opt2.get();
+
+                if(wallet.getCredit().compareTo(req.getCredit()) == -1) {
+                    throw new ErrorMessageException(Constants.ERROR.ERR_01133);
+                }
+
+                BigDecimal beforAmount = wallet.getCredit();
+                Bank bank = wallet.getBank();
+                BigDecimal afterAmount = beforAmount.subtract(req.getCredit());
+                wallet.setCredit(afterAmount);
+                walletRepository.save(wallet);
+
+                WithdrawHistory withdrawHistory = new WithdrawHistory();
+                withdrawHistory.setAmount(req.getCredit());
+                withdrawHistory.setBeforeAmount(beforAmount);
+                withdrawHistory.setAfterAmount(afterAmount);
+                withdrawHistory.setUser(webUser);
+                withdrawHistory.setBank(bank);
+
+                Optional<AdminUser> adminOpt = adminUserRepository.findById(principal.getId());
+                if(adminOpt.isPresent()) {
+                    withdrawHistory.setAdmin(adminOpt.get());
+                }
+
+                withdrawHistoryRepository.save(withdrawHistory);
+
+            } else {
+
+            }
+        } else {
+
+        }
     }
 
 

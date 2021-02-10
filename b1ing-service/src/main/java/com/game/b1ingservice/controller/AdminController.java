@@ -1,17 +1,11 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
-import com.game.b1ingservice.payload.admin.AddCreditRequest;
-import com.game.b1ingservice.payload.admin.AdminUpdateRequest;
-import com.game.b1ingservice.payload.admin.LoginRequest;
-import com.game.b1ingservice.payload.admin.RegisterRequest;
+import com.game.b1ingservice.payload.admin.*;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.service.AdminService;
 import com.game.b1ingservice.utils.ResponseHelper;
-import com.game.b1ingservice.validator.admin.AddCreditValidator;
-import com.game.b1ingservice.validator.admin.PrefixValidator;
-import com.game.b1ingservice.validator.admin.RegisterValidator;
-import com.game.b1ingservice.validator.admin.UpdateValidator;
+import com.game.b1ingservice.validator.admin.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +33,8 @@ public class AdminController {
     AdminService adminService;
     @Autowired
     AddCreditValidator addCreditValidator;
+    @Autowired
+    WithdrawValidator withdrawValidator;
 
     @PostMapping(value = "/auth",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
@@ -89,10 +85,17 @@ public class AdminController {
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, adminService.findAdminByUsernamePrefix(username, principal.getPrefix()));
     }
 
-    @PostMapping(value = "/addCredit", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> addCredit(@RequestBody AddCreditRequest req, @AuthenticationPrincipal UserPrincipal principal) {
+    @PostMapping(value = "/deposit", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> deposit(@RequestBody AddCreditRequest req, @AuthenticationPrincipal UserPrincipal principal) {
         addCreditValidator.validate(req);
         adminService.addCredit(req, principal);
+        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+    }
+
+    @PostMapping(value = "/withdraw", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> withdraw(@RequestBody WithdrawRequest req, @AuthenticationPrincipal UserPrincipal principal) {
+        withdrawValidator.validate(req);
+        adminService.withdrawCredit(req, principal);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
