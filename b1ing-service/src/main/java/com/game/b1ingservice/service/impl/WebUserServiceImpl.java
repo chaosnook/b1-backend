@@ -79,7 +79,7 @@ public class WebUserServiceImpl implements WebUserService {
         }
 
         String tel = req.getTel();
-        String username = prefix + tel.substring(3, tel.length() - 1);
+        String username = prefix + tel.substring(1, tel.length() - 1);
 
         WebUser user = new WebUser();
         user.setAgent(opt.get());
@@ -233,6 +233,12 @@ public class WebUserServiceImpl implements WebUserService {
         return convertProfile(opt.get(), agent.get());
     }
 
+    @Override
+    public boolean verifyTel(String tel, String prefix) {
+        Optional<WebUser> webUser = webUserRepository.findByTelAndAgent_Prefix(tel, prefix);
+        return webUser.isPresent();
+    }
+
     UserInfoResponse convert(WebUser webUser, Agent agent) {
         UserInfoResponse userInfo = new UserInfoResponse();
         UserProfile profile = convertProfile(webUser, agent);
@@ -299,7 +305,7 @@ public class WebUserServiceImpl implements WebUserService {
             YearMonth yearMonthObject = YearMonth.of(year, month);
             int daysInMonth = yearMonthObject.lengthOfMonth();
 
-            for (int i = 1; i <= daysInMonth ; i++) {
+            for (int i = 1; i <= daysInMonth; i++) {
                 resObj.getLabels().add(i);
                 resObj.getData().add(0);
             }

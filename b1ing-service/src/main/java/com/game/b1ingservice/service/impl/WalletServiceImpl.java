@@ -63,7 +63,9 @@ public class WalletServiceImpl implements WalletService {
         UserWalletResponse response = new UserWalletResponse();
         response.setCredit(wallet.getCredit());
         response.setPoint(wallet.getPoint());
+        response.setHasTrueWallet(wallet.getTrueWallet() != null);
+        response.setHasBank(wallet.getBank() != null);
 
-        return null;
+        return response;
     }
 }
