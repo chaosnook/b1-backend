@@ -14,6 +14,7 @@ import com.game.b1ingservice.payload.webuser.*;
 import com.game.b1ingservice.payload.wellet.WalletRequest;
 import com.game.b1ingservice.postgres.entity.AffiliateHistory;
 import com.game.b1ingservice.postgres.entity.Agent;
+import com.game.b1ingservice.postgres.entity.Wallet;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
@@ -40,6 +41,9 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.function.Function;
+
+import static com.game.b1ingservice.commons.Constants.ERROR.ERR_04003;
+import static com.game.b1ingservice.commons.Constants.ERROR.ERR_04004;
 
 @Service
 public class WebUserServiceImpl implements WebUserService {
@@ -230,7 +234,7 @@ public class WebUserServiceImpl implements WebUserService {
         }
 
         Optional<WebUser> opt = webUserRepository.findByUsernameAndAgent(username, agent.get());
-        return convertProfile(opt.get(), agent.get());
+        return convertProfile(opt.get(), agent.get(), true);
     }
 
     @Override
@@ -241,14 +245,14 @@ public class WebUserServiceImpl implements WebUserService {
 
     UserInfoResponse convert(WebUser webUser, Agent agent) {
         UserInfoResponse userInfo = new UserInfoResponse();
-        UserProfile profile = convertProfile(webUser, agent);
+        UserProfile profile = convertProfile(webUser, agent , false);
         userInfo.setProfile(profile);
         userInfo.setToken(jwtTokenUtil.generateToken(mapper.convertValue(profile, Map.class), "user"));
 
         return userInfo;
     }
 
-    UserProfile convertProfile(WebUser webUser, Agent agent) {
+    UserProfile convertProfile(WebUser webUser, Agent agent, boolean userCheck) {
         UserProfile profile = new UserProfile();
         profile.setUserId(webUser.getId());
         profile.setAgentId(agent.getId());
@@ -262,6 +266,20 @@ public class WebUserServiceImpl implements WebUserService {
         profile.setVersion(webUser.getVersion());
         profile.setPrefix(agent.getPrefix());
         profile.setIsBonus(webUser.getIsBonus());
+
+        if (userCheck) {
+            //TODO Check user can canWithDraw from turn over
+            profile.setCanWithDraw(true);
+            Wallet wallet = webUser.getWallet();
+            if (wallet.getCredit().compareTo(BigDecimal.ZERO) == 0) {
+                profile.setCanWithDraw(false);
+                profile.setWithDrawMessage(ERR_04003.msg);
+            } else if (wallet.getTurnOver() == null || wallet.getTurnOver().compareTo(BigDecimal.ZERO) > 0) {
+                profile.setCanWithDraw(false);
+                profile.setWithDrawMessage(String.format(ERR_04004.msg , wallet.getTurnOver() == null ? "0.00" : wallet.getTurnOver()));
+            }
+        }
+
         return profile;
     }
 

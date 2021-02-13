@@ -16,5 +16,8 @@ public class UserProfile {
     private Long userId;
     private Long agentId;
 
+    private Boolean canWithDraw;
+    private String withDrawMessage;
+
     private int version;
 }
