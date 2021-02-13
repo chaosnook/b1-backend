@@ -22,7 +22,7 @@ public class DepositHistoryController {
     @Autowired
     private DepositHistoryService depositHistoryService;
 
-    @PostMapping(value = "search/depositoryHistory", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    @PostMapping(value = "search/depositHistory", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> searchDepositHistory(@RequestBody DepositHistorySearchRequest req){
         SearchDepositHistorySpecification specification = new SearchDepositHistorySpecification(req);
         Page<DepositHistorySearchResponse> searchResponses = depositHistoryService.findByCriteria(specification, specification.getPageable());
