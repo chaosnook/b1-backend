@@ -91,6 +91,15 @@ public class Constants {
         ERR_04003("คุณมี Credit ไม่เพียงพอ กรุณาเติมเงิน"),
         ERR_04004("คุณมี Turn over อีก %s บาท"),
         ERR_04005("คุณมี Credit ไม่เพียงพอ"),
+        ERR_09001("BotType ห้ามว่าง"),
+        ERR_09002("TransactionId ห้ามว่าง"),
+        ERR_09003("BankId ห้ามว่าง"),
+        ERR_09004("BankCode ห้ามว่าง"),
+        ERR_09005("BankAccountNo ห้ามว่าง"),
+        ERR_09006("AccountNo ห้ามว่าง"),
+        ERR_09007("Amount ห้ามว่าง"),
+        ERR_09008("TransactionDate ห้ามว่าง"),
+        ERR_09009("Type ห้ามว่าง"),
 
         ERR_05001("กรุณาเลือกช่วงเวลาที่ต้องการค้นหา")
         ;
