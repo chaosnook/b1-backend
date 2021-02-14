@@ -36,6 +36,7 @@ public class PointServiceImpl implements PointService {
         WebUser webUser = wallet.getUser();
         BigDecimal point = transRequest.getPoint();
 
+        // Create point history
         PointHistoryDTO historyDTO = new PointHistoryDTO();
         historyDTO.setStatus(Constants.POINT_TRANS_STATUS.PENDING);
         historyDTO.setType(Constants.POINT_TYPE.TRANS_CREDIT);
@@ -57,7 +58,6 @@ public class PointServiceImpl implements PointService {
         if (updated > 0) {
             historyDTO.setAfterAmount(wallet.getPoint().subtract(point));
             historyDTO.setStatus(Constants.POINT_TRANS_STATUS.SUCCESS);
-            //TODO call add point to AMB
         } else {
             historyDTO.setStatus(Constants.POINT_TRANS_STATUS.ERROR);
         }
@@ -115,6 +115,7 @@ public class PointServiceImpl implements PointService {
 
     private int transferPointToCredit(BigDecimal point, Long userId) {
         try {
+            //TODO call add point to AMB
             return walletRepository.transferPointToCredit(point, point, userId);
         } catch (Exception e) {
             log.error("transferPointToCredit", e);

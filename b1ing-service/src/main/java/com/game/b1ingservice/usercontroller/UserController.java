@@ -53,9 +53,6 @@ public class UserController {
     @Autowired
     private AgentService agentService;
 
-    @Autowired
-    private PointService pointService;
-
     @PostMapping(value = "/prefix")
     public ResponseEntity<?> prefixInfo(@RequestBody AgentInfoRequest req) {
         AgentResponse agentResponse = agentService.getAgentByPrefix(req.getPrefix());
@@ -108,8 +105,4 @@ public class UserController {
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, response);
     }
 
-    @PostMapping(value = "/point-transfer")
-    public ResponseEntity<?> pointTransfer(@AuthenticationPrincipal UserPrincipal principal, @RequestBody PointTransRequest transRequest) {
-        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, pointService.pointTransfer(transRequest, principal.getUsername(), principal.getPrefix()));
-    }
 }
