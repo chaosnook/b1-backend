@@ -48,7 +48,7 @@ public class WithDrawServiceImpl implements WithDrawService {
    private int withDrawCredit(BigDecimal credit, Long userId) {
        try {
            //TODO call withdraw credit to AMB
-           return walletRepository.transferPointToCredit(point, point, userId);
+//           return walletRepository.transferPointToCredit(point, point, userId);
        } catch (Exception e) {
            log.error("transferPointToCredit", e);
        }
