@@ -12,14 +12,12 @@ import com.game.b1ingservice.payload.webuser.WebUserResponse;
 import com.game.b1ingservice.payload.webuser.WebUserUpdate;
 import com.game.b1ingservice.payload.webuser.*;
 import com.game.b1ingservice.payload.wellet.WalletRequest;
-import com.game.b1ingservice.postgres.entity.AffiliateHistory;
-import com.game.b1ingservice.postgres.entity.Agent;
-import com.game.b1ingservice.postgres.entity.Wallet;
-import com.game.b1ingservice.postgres.entity.WebUser;
+import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
 import com.game.b1ingservice.postgres.repository.AffiliateHistoryRepository;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
+import com.game.b1ingservice.postgres.repository.ConfigRepository;
 import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.WalletService;
 import com.game.b1ingservice.service.WebUserService;
@@ -42,6 +40,7 @@ import java.time.YearMonth;
 import java.util.*;
 import java.util.function.Function;
 
+import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.MIN_WITHDRAW_CREDIT;
 import static com.game.b1ingservice.commons.Constants.ERROR.ERR_04003;
 import static com.game.b1ingservice.commons.Constants.ERROR.ERR_04004;
 
@@ -52,7 +51,7 @@ public class WebUserServiceImpl implements WebUserService {
     private WebUserRepository webUserRepository;
 
     @Autowired
-    BCryptPasswordEncoder bCryptPasswordEncoder;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     private PasswordGenerator passwordGenerator;
@@ -68,6 +67,9 @@ public class WebUserServiceImpl implements WebUserService {
 
     @Autowired
     private WebUserJdbcRepository webUserJdbcRepository;
+
+    @Autowired
+    private ConfigRepository configRepository;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -245,7 +247,7 @@ public class WebUserServiceImpl implements WebUserService {
 
     UserInfoResponse convert(WebUser webUser, Agent agent) {
         UserInfoResponse userInfo = new UserInfoResponse();
-        UserProfile profile = convertProfile(webUser, agent , false);
+        UserProfile profile = convertProfile(webUser, agent, false);
         userInfo.setProfile(profile);
         userInfo.setToken(jwtTokenUtil.generateToken(mapper.convertValue(profile, Map.class), "user"));
 
@@ -269,18 +271,23 @@ public class WebUserServiceImpl implements WebUserService {
 
         if (userCheck) {
             //TODO Check user can canWithDraw from turn over
-            profile.setCanWithDraw(true);
-            Wallet wallet = webUser.getWallet();
-            if (wallet.getCredit().compareTo(BigDecimal.ZERO) == 0) {
-                profile.setCanWithDraw(false);
-                profile.setWithDrawMessage(ERR_04003.msg);
-            } else if (wallet.getTurnOver() == null || wallet.getTurnOver().compareTo(BigDecimal.ZERO) > 0) {
-                profile.setCanWithDraw(false);
-                profile.setWithDrawMessage(String.format(ERR_04004.msg , wallet.getTurnOver() == null ? "0.00" : wallet.getTurnOver()));
-            }
+            this.checkCanWithdraw(profile, webUser, agent);
         }
 
         return profile;
+    }
+
+    private void checkCanWithdraw(UserProfile profile, WebUser webUser, Agent agent) {
+        profile.setCanWithDraw(true);
+        Wallet wallet = webUser.getWallet();
+
+        if (wallet.getCredit().compareTo(BigDecimal.ZERO) == 0) {
+            profile.setCanWithDraw(false);
+            profile.setWithDrawMessage(ERR_04003.msg);
+        } else if (wallet.getTurnOver() == null || wallet.getTurnOver().compareTo(BigDecimal.ZERO) > 0) {
+            profile.setCanWithDraw(false);
+            profile.setWithDrawMessage(String.format(ERR_04004.msg, wallet.getTurnOver() == null ? "0.00" : wallet.getTurnOver()));
+        }
     }
 
     @Override

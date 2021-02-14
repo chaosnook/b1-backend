@@ -5,6 +5,7 @@ import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.point.PointTransRequest;
 import com.game.b1ingservice.payload.withdraw.WithDrawRequest;
 import com.game.b1ingservice.service.PointService;
+import com.game.b1ingservice.service.impl.WithDrawServiceImpl;
 import com.game.b1ingservice.utils.ResponseHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,9 @@ public class TransactionController {
     @Autowired
     private PointService pointService;
 
+    @Autowired
+    private WithDrawServiceImpl withDrawService;
+
     @PostMapping(value = "/point-transfer")
     public ResponseEntity<?> pointTransfer(@AuthenticationPrincipal UserPrincipal principal, @RequestBody PointTransRequest transRequest) {
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, pointService.pointTransfer(transRequest, principal.getUsername(), principal.getPrefix()));
@@ -28,8 +32,7 @@ public class TransactionController {
 
     @PostMapping(value = "/withdraw")
     public ResponseEntity<?> withdraw(@AuthenticationPrincipal UserPrincipal principal, @RequestBody WithDrawRequest withDrawRequest) {
-
-        return null;
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, withDrawService.withdraw(withDrawRequest, principal.getUsername(), principal.getPrefix()));
     }
 
 }
