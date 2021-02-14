@@ -15,6 +15,7 @@ import com.game.b1ingservice.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -35,6 +36,7 @@ public class WalletServiceImpl implements WalletService {
         Wallet wallet = new Wallet();
         wallet.setCredit(req.getCredit());
         wallet.setPoint(req.getPoint());
+        wallet.setTurnOver(BigDecimal.ZERO);
         wallet.setUser(user);
 
         Optional<Bank> optionalBank = bankRepository.findFirstByActiveOrderByBankGroupAscBankOrderAsc(true);
@@ -55,7 +57,7 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public UserWalletResponse getUserWallet(String username, String prefix) {
 
-        //TODO get credit from AMB
+        //TODO call get credit from AMB
        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
        if (wallet == null) {
            throw new ErrorMessageException(Constants.ERROR.ERR_00007);
