@@ -20,4 +20,5 @@ public interface WebUserRepository extends JpaRepository<WebUser, Long>, JpaSpec
     Optional<WebUser> findByTelAndAgent_Prefix(String tel, String prefix);
 
     Optional<WebUser> findByUsernameAndAgent(String username, Agent agent);
+
 }

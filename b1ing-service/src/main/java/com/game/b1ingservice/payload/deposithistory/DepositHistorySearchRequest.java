@@ -15,5 +15,5 @@ public class DepositHistorySearchRequest extends SearchPageable {
     private String createdDateFrom;
     private String createdDateTo;
     private String username;
-    private BigDecimal credit;
+    private BigDecimal amount;
 }

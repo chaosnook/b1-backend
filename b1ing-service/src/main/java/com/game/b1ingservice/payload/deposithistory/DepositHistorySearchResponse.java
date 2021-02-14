@@ -1,16 +1,10 @@
 package com.game.b1ingservice.payload.deposithistory;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.game.b1ingservice.postgres.entity.AdminUser;
 import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import lombok.Data;
-import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -18,8 +12,8 @@ import java.time.Instant;
 public class DepositHistorySearchResponse {
 
     private Long id;
-    private Bank bank;
-    private WebUser user;
+    private String bankCode;
+    private String user;
     private BigDecimal amount;
     private BigDecimal beforeAmount;
     private BigDecimal afterAmount;
@@ -27,7 +21,7 @@ public class DepositHistorySearchResponse {
     private String status;
     private String isAuto;
     private String reason;
-    private AdminUser admin;
+    private String admin;
 
     private int version;
     private Instant createdDate;

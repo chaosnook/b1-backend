@@ -16,16 +16,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/test")
+@RequestMapping("/api/admin")
 public class DepositHistoryController {
 
     @Autowired
     private DepositHistoryService depositHistoryService;
 
-    @PostMapping(value = "search/depositHistory", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    @PostMapping(value = "/search/depositHistory", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> searchDepositHistory(@RequestBody DepositHistorySearchRequest req){
         SearchDepositHistorySpecification specification = new SearchDepositHistorySpecification(req);
-        Page<DepositHistorySearchResponse> searchResponses = depositHistoryService.findByCriteria(specification, specification.getPageable());
-        return ResponseHelper.successPage(searchResponses, "data", Constants.MESSAGE.MSG_00000.msg);
+        Page<DepositHistorySearchResponse> searchResponse = depositHistoryService.findByCriteria(specification, specification.getPageable());
+        return ResponseHelper.successPage(searchResponse, "data", Constants.MESSAGE.MSG_00000.msg);
     }
 }

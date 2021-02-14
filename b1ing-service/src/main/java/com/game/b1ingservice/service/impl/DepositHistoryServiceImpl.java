@@ -8,11 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+@Service
 public class DepositHistoryServiceImpl implements DepositHistoryService {
 
     @Autowired
@@ -26,15 +28,16 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     Function<DepositHistory, DepositHistorySearchResponse> converter = depositHistory -> {
         DepositHistorySearchResponse searchResponse = new DepositHistorySearchResponse();
         searchResponse.setId(depositHistory.getId());
-        searchResponse.setBank(depositHistory.getBank());
-        searchResponse.setUser(depositHistory.getUser());
+        searchResponse.setBankCode(depositHistory.getBank().getBankCode());
+        searchResponse.setUser(depositHistory.getUser().getUsername());
         searchResponse.setAmount(depositHistory.getAmount());
         searchResponse.setBeforeAmount(depositHistory.getBeforeAmount());
         searchResponse.setAfterAmount(depositHistory.getAfterAmount());
         searchResponse.setType(depositHistory.getType());
+        searchResponse.setStatus(depositHistory.getStatus());
         searchResponse.setIsAuto(depositHistory.getIsAuto());
         searchResponse.setReason(depositHistory.getReason());
-        searchResponse.setAdmin(depositHistory.getAdmin());
+        searchResponse.setAdmin(depositHistory.getAdmin().getUsername());
 
         searchResponse.setCreatedDate(depositHistory.getCreatedDate());
         searchResponse.setUpdatedDate(depositHistory.getUpdatedDate());
