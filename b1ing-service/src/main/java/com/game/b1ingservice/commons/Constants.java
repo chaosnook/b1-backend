@@ -171,6 +171,11 @@ public class Constants {
         public static final String ERROR = "ERROR";
     }
 
+    public static class DEPOSIT_TYPE {
+        public static final String BANK = "BANK";
+        public static final String TRUEWALLET = "TRUEWALLET";
+    }
+
     public static class POINT_TRANS_STATUS {
         public static final String PENDING = "PENDING";
         public static final String SUCCESS = "SUCCESS";
