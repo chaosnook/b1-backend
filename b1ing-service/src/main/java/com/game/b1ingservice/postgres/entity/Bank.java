@@ -1,6 +1,5 @@
 package com.game.b1ingservice.postgres.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.game.b1ingservice.postgres.entity.audit.DateAudit;
 import com.game.b1ingservice.postgres.entity.audit.UserAuditEmbeddable;
 import lombok.Data;
@@ -57,5 +56,11 @@ public class Bank extends DateAudit<String> implements Serializable {
 
     @OneToMany(mappedBy = "bank", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     private List<Wallet> wallet;
+
+
+    @OneToMany(mappedBy = "bank", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    private List<DepositHistory> depositHistory;
+
+
 
 }

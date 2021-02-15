@@ -29,9 +29,11 @@ public class MasterBank extends DateAudit<String> implements Serializable {
   @Column(name = "is_user_bank", columnDefinition = "boolean")
   private boolean isUserBank;
 
-  @Column(name = "is_deposit_withdraw", columnDefinition = "boolean")
-  private boolean isDepositWithdraw;
+  @Column(name = "is_deposit", columnDefinition = "boolean")
+  private boolean isDeposit;
 
+  @Column(name = "is_withdraw", columnDefinition = "boolean")
+  private boolean isWithdraw;
 
 
 

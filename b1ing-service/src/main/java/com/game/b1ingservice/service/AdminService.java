@@ -1,9 +1,6 @@
 package com.game.b1ingservice.service;
 
-import com.game.b1ingservice.payload.admin.AdminUpdateRequest;
-import com.game.b1ingservice.payload.admin.AdminUserResponse;
-import com.game.b1ingservice.payload.admin.LoginRequest;
-import com.game.b1ingservice.payload.admin.RegisterRequest;
+import com.game.b1ingservice.payload.admin.*;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,4 +15,8 @@ public interface AdminService {
     List<AdminUserResponse> listByPrefix(String prefix);
 
     AdminUserResponse findAdminByUsernamePrefix(String username, String prefix);
+
+    void addCredit(AddCreditRequest req, UserPrincipal principal);
+    void withdrawCredit(WithdrawRequest req, UserPrincipal principal);
+
 }

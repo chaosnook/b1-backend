@@ -40,14 +40,14 @@ public class Agent extends DateAudit<String> implements Serializable {
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
 
-    @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
     private List<WebUser> webUsers;
 
-    @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private List<AdminUser> adminUsers;
 
     @Where(clause = "type = 'AGENT-CONFIG'")
-    @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private List<Config> configs;
 
 }

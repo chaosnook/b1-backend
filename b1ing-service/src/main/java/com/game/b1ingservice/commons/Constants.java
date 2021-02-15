@@ -19,6 +19,7 @@ public class Constants {
         ERR_00008("ไม่พบข้อมูล agent นี้"),
         ERR_00009("ไม่พบข้อมูล user,admin นี้"),
         ERR_00010("id ห้ามว่าง"),
+        ERR_00011("ไม่พบข้อมูล"),
 
 
         ERR_01000("id ห้ามว่าง"),
@@ -75,6 +76,10 @@ public class Constants {
         ERR_01127("username นี้ไม่มีอยูในระบบ"),
         ERR_01128("credit ห้ามว่าง"),
         ERR_01129("point ห้ามว่าง"),
+        ERR_01130("prefix ห้ามว่าง"),
+        ERR_01131("credit ไม่ถูกต้อง"),
+        ERR_01132("ไม่พบ wallet ของ username นี้"),
+        ERR_01133("มี credit ไม่พอ"),
 
         ERR_03000("IP ห้ามว่าง"),
         ERR_03001("ไม่พบข้อมูล"),
@@ -92,6 +97,21 @@ public class Constants {
         ERR_06006("max topup ห้ามว่าง"),
         ERR_06007("turn over ห้ามว่าง"),
         ERR_06008("max withdraw ห้ามว่าง"),
+        ERR_04002("คุณมี Point ไม่เพียงพอ"),
+        ERR_04003("คุณมี Credit ไม่เพียงพอ กรุณาเติมเงิน"),
+        ERR_04004("คุณมี Turn over อีก %s บาท"),
+        ERR_04005("คุณมี Credit ไม่เพียงพอ"),
+        ERR_09001("BotType ห้ามว่าง"),
+        ERR_09002("TransactionId ห้ามว่าง"),
+        ERR_09003("BankId ห้ามว่าง"),
+        ERR_09004("BankCode ห้ามว่าง"),
+        ERR_09005("BankAccountNo ห้ามว่าง"),
+        ERR_09006("AccountNo ห้ามว่าง"),
+        ERR_09007("Amount ห้ามว่าง"),
+        ERR_09008("TransactionDate ห้ามว่าง"),
+        ERR_09009("Type ห้ามว่าง"),
+
+        ERR_05001("กรุณาเลือกช่วงเวลาที่ต้องการค้นหา")
         ;
 
         public String msg;
@@ -141,6 +161,42 @@ public class Constants {
     public static class Sort {
         public static final String ASC = "A";
         public static final String DESC = "D";
+    }
+
+    public static class AGENT_CONFIG  {
+        public static final String MAX_AUTO_WITHDRAW = "maxAutoWithdraw";
+        public static final String MIN_WITHDRAW_CREDIT = "minWithdrawCredit";
+        public static final String COUNT_WITHDRAW = "countWithDraw";
+        public static final String LIMIT_WITHDRAW = "limitWithDraw";
+        public static final String APPROVE_WITHDRAW_AUTO = "approveWithdrawAuto";
+        public static final String APPROVE_WITHDRAW_AUTO_NEW = "approveWithdrawAutoNew";
+        public static final String ON_OFF_WEBSITE = "onOffWebsite";
+        public static final String ALLOW_OUTSTANDING_BET = "allowOutstandingBet";
+        public static final String TRANS_CREDIT = "TRANS_CREDIT";
+    }
+
+    public static class DEPOSIT_STATUS {
+        public static final String PENDING = "PENDING";
+        public static final String SUCCESS = "SUCCESS";
+        public static final String ERROR = "ERROR";
+    }
+
+    public static class POINT_TRANS_STATUS {
+        public static final String PENDING = "PENDING";
+        public static final String SUCCESS = "SUCCESS";
+        public static final String ERROR = "ERROR";
+    }
+
+    public static class WITHDRAW_STATUS {
+        public static final String PENDING = "PENDING";
+        public static final String PENDING_APPROVE = "PENDING_APPROVE";
+        public static final String SUCCESS = "SUCCESS";
+        public static final String ERROR = "ERROR";
+    }
+
+    public static class POINT_TYPE {
+        public static final String EARN_POINT = "EARN_POINT";
+        public static final String TRANS_CREDIT = "TRANS_CREDIT";
     }
 
 }

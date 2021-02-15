@@ -8,4 +8,6 @@ import java.math.BigDecimal;
 public class UserWalletResponse {
     private BigDecimal point;
     private BigDecimal credit;
+    private boolean hasBank;
+    private boolean hasTrueWallet;
 }

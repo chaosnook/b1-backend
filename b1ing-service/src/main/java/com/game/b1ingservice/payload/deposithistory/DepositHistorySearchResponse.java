@@ -1,0 +1,32 @@
+package com.game.b1ingservice.payload.deposithistory;
+
+import com.game.b1ingservice.postgres.entity.AdminUser;
+import com.game.b1ingservice.postgres.entity.Bank;
+import com.game.b1ingservice.postgres.entity.WebUser;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+
+@Data
+public class DepositHistorySearchResponse {
+
+    private Long id;
+    private String bankCode;
+    private String user;
+    private BigDecimal amount;
+    private BigDecimal beforeAmount;
+    private BigDecimal afterAmount;
+    private String type;
+    private String status;
+    private String isAuto;
+    private String reason;
+    private String admin;
+
+    private int version;
+    private Instant createdDate;
+    private Instant updatedDate;
+    private String createdBy;
+    private String updatedBy;
+    private Integer deleteFlag;
+}

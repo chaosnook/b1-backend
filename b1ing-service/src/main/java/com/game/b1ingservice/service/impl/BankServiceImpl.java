@@ -5,13 +5,15 @@ import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.bank.BankAllRequest;
 import com.game.b1ingservice.payload.bank.BankRequest;
 import com.game.b1ingservice.payload.bank.BankResponse;
+import com.game.b1ingservice.payload.bankdeposit.UserBankDepositResponse;
+import com.game.b1ingservice.payload.bankdeposit.UserTrueWalletResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.wellet.WalletRequest;
-import com.game.b1ingservice.postgres.entity.Bank;
-import com.game.b1ingservice.postgres.entity.TrueWallet;
-import com.game.b1ingservice.postgres.entity.Wallet;
+import com.game.b1ingservice.postgres.entity.*;
+import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.BankRepository;
 import com.game.b1ingservice.postgres.repository.WalletRepository;
+import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.BankService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,12 @@ public class BankServiceImpl implements BankService {
 
     @Autowired
     WalletRepository walletRepository;
+
+    @Autowired
+    private AgentRepository agentRepository;
+
+    @Autowired
+    private WebUserRepository webUserRepository;
 
     @Override
     public void insertBank(BankRequest bankRequest, UserPrincipal principal){
@@ -131,5 +139,31 @@ public class BankServiceImpl implements BankService {
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_02011);
         }
+    }
+
+    @Override
+    public UserBankDepositResponse getUserBankDeposit(String username, String prefix) {
+        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
+        if (wallet == null || wallet.getBank() == null|| !wallet.getBank().isActive()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_00007);
+        }
+        UserBankDepositResponse response = new UserBankDepositResponse();
+        Bank bank = wallet.getBank();
+        response.setBankName(bank.getBankName());
+        response.setBankCode(bank.getBankCode());
+        response.setBankAccountNo(bank.getBankAccountNo());
+        response.setBankAccountName(bank.getBankAccountName());
+        return response;
+    }
+
+    @Override
+    public UserTrueWalletResponse getUserTrueWallet(String username, String prefix) {
+        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
+        if (wallet == null || wallet.getTrueWallet() == null|| !wallet.getTrueWallet().isActive()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_00007);
+        }
+        UserTrueWalletResponse response = new UserTrueWalletResponse();
+        response.setPhoneNumber(wallet.getTrueWallet().getPhoneNumber());
+        return response;
     }
 }

@@ -48,6 +48,9 @@ public class AdminUser extends DateAudit<String> implements Serializable {
     @JoinColumn(name = "role_id", referencedColumnName = "id")
     private Role role;
 
+    @OneToMany(mappedBy = "admin", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    private List<DepositHistory> depositHistory;
+
 //    @OneToMany(mappedBy = "admins", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
 //    private List<Bank> banks;
 }

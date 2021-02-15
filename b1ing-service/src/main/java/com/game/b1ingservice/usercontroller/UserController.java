@@ -4,16 +4,18 @@ import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.admin.LoginRequest;
 import com.game.b1ingservice.payload.agent.AgentInfoRequest;
 import com.game.b1ingservice.payload.agent.AgentResponse;
+import com.game.b1ingservice.payload.bankdeposit.UserBankDepositResponse;
+import com.game.b1ingservice.payload.bankdeposit.UserTrueWalletResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.point.PointTransRequest;
 import com.game.b1ingservice.payload.userinfo.UserProfile;
 import com.game.b1ingservice.payload.userinfo.UserWalletResponse;
 import com.game.b1ingservice.payload.webuser.WebUserRequest;
 import com.game.b1ingservice.payload.webuser.WebUserResponse;
 import com.game.b1ingservice.payload.webuser.WebUserSearchRequest;
 import com.game.b1ingservice.payload.webuser.WebUserUpdate;
-import com.game.b1ingservice.service.AgentService;
-import com.game.b1ingservice.service.WalletService;
-import com.game.b1ingservice.service.WebUserService;
+import com.game.b1ingservice.postgres.entity.PointHistory;
+import com.game.b1ingservice.service.*;
 import com.game.b1ingservice.specification.SearchWebUserSpecification;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.webuser.WebUserRequestValidator;
@@ -26,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -45,7 +48,7 @@ public class UserController {
     private WalletService walletService;
 
     @Autowired
-    private WebUserUpdateValidator webUserUpdateValidator;
+    private BankService bankService;
 
     @Autowired
     private AgentService agentService;
@@ -78,7 +81,7 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "/wallet")
+    @GetMapping(value = "/wallet")
     public ResponseEntity<?> walletInfo(@AuthenticationPrincipal UserPrincipal principal) {
         UserWalletResponse response = walletService.getUserWallet(principal.getUsername(), principal.getPrefix());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, response);
@@ -87,6 +90,18 @@ public class UserController {
     @GetMapping(value = "/profile")
     public ResponseEntity<?> profile(@AuthenticationPrincipal UserPrincipal principal) {
         UserProfile response = webUserService.getProfile(principal.getUsername(), principal.getPrefix());
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, response);
+    }
+
+    @GetMapping(value = "/bank-deposit")
+    public ResponseEntity<?> bankDeposit(@AuthenticationPrincipal UserPrincipal principal) {
+        UserBankDepositResponse response = bankService.getUserBankDeposit(principal.getUsername(), principal.getPrefix());
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, response);
+    }
+
+    @GetMapping(value = "/true-wallet")
+    public ResponseEntity<?> trueDeposit(@AuthenticationPrincipal UserPrincipal principal) {
+        UserTrueWalletResponse response = bankService.getUserTrueWallet(principal.getUsername(), principal.getPrefix());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, response);
     }
 
