@@ -7,6 +7,7 @@ import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.service.BankBotService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.bankbot.BankBotAddCreditValidator;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ public class BankBotController {
     @PostMapping(value = "/addcredit", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> addCredit(@RequestBody BankBotAddCreditRequest bankRequest){
         bankBotAddCreditValidator.validate(bankRequest);
+        bankRequest.setTransactionId(DigestUtils.sha1Hex(bankRequest.getTransactionDate().toString().concat(bankRequest.getRemark())));
         bankBotService.addCredit(bankRequest);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }

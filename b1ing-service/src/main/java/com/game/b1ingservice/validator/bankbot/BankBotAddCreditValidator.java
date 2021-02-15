@@ -23,8 +23,8 @@ public class BankBotAddCreditValidator extends CommonValidator {
         BankBotAddCreditRequest req = BankBotAddCreditRequest.class.cast(o);
         if (StringUtils.isEmpty(req.getBotType()))
             throw new ErrorMessageException(Constants.ERROR.ERR_09001);
-        if (StringUtils.isEmpty(req.getTransactionId()))
-            throw new ErrorMessageException(Constants.ERROR.ERR_09002);
+//        if (StringUtils.isEmpty(req.getTransactionId()))
+//            throw new ErrorMessageException(Constants.ERROR.ERR_09002);
         if (ObjectUtils.isEmpty(req.getBankId()))
             throw new ErrorMessageException(Constants.ERROR.ERR_09003);
         if (StringUtils.isEmpty(req.getBankCode()))
