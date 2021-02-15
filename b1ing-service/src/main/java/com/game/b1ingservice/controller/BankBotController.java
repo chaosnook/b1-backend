@@ -28,7 +28,7 @@ public class BankBotController {
     @PostMapping(value = "/addcredit", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> addCredit(@RequestBody BankBotAddCreditRequest bankRequest){
         bankBotAddCreditValidator.validate(bankRequest);
-        bankRequest.setTransactionId(DigestUtils.sha1Hex(bankRequest.getTransactionDate().toString().concat(bankRequest.getRemark())));
+        bankRequest.setTransactionId(DigestUtils.sha1Hex(bankRequest.getTransactionDate().toString()+(bankRequest.getRemark())));
         bankBotService.addCredit(bankRequest);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
