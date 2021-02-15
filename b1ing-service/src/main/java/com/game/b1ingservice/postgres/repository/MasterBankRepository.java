@@ -12,4 +12,5 @@ import java.util.List;
 public interface MasterBankRepository extends JpaRepository<MasterBank, Long>, JpaSpecificationExecutor<MasterBank> {
  List<MasterBank> findAllByIsDeposit(boolean isDeposit);
  List<MasterBank> findAllByIsWithdraw(boolean isWithdraw);
+ List<MasterBank> findAllByIsUserBank(boolean isUserBank);
 }

@@ -53,7 +53,20 @@ public class MasterbankSeviceImpl implements MasterBankService {
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, res);
 
     }
+    @Override
+    public ResponseEntity<?> getMasterBankUser() {
+       List<MasterBankResponse> res = new ArrayList<>();
+       List<MasterBank> masterBankList = masterBankRepository.findAllByIsUserBank(true);
 
+       for(MasterBank masterBank :masterBankList){
+           MasterBankResponse masterBankResponse = new MasterBankResponse();
+           masterBankResponse.setBankName(masterBank.getBankName());
+           masterBankResponse.setBankCode(masterBank.getBankCode());
+           res.add(masterBankResponse);
+
+       }
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, res);
+    }
 }
 
 

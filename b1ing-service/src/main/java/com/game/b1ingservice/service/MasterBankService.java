@@ -5,4 +5,5 @@ import org.springframework.http.ResponseEntity;
 public interface MasterBankService {
     ResponseEntity<?> getMasterBankDeposit();
     ResponseEntity<?> getMasterBankWithdraw();
+    ResponseEntity<?> getMasterBankUser();
 }
