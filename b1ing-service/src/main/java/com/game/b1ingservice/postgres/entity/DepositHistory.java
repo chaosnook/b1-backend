@@ -48,11 +48,26 @@ public class DepositHistory extends DateAudit<String> implements Serializable {
     @Column(name = "status", columnDefinition = "character varying(50)")
     private String status;
 
-    @Column(name = "isAuto", columnDefinition = "smallint")
-    private String isAuto;
+    @Column(name = "isAuto", columnDefinition = "boolean")
+    private Boolean isAuto;
 
     @Column(name = "reason", columnDefinition = "character varying(100)")
     private String reason;
+
+    @Column(name = "remark", columnDefinition = "character varying(100)")
+    private String remark;
+
+    @Column(name = "bonus_amount", columnDefinition = "numeric(18,2)")
+    private String bonusAmount;
+
+    @Column(name = "transaction_id", columnDefinition = "character varying(100)")
+    private String transactionId;
+
+    @Column(name = "first_name", columnDefinition = "character varying(100)")
+    private String firstName;
+
+    @Column(name = "last_name", columnDefinition = "character varying(100)")
+    private String lastName;
 
     @ToString.Exclude
     @JsonIgnore

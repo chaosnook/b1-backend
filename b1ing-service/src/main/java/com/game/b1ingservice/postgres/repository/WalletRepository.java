@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -51,4 +52,28 @@ public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecif
 
     List<Wallet> findByBankIsNull();
     List<Wallet> findByTrueWalletIsNull();
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE wallet SET credit = credit + ? ,point = point - ? , version=version+1 WHERE user_id = ? ", nativeQuery = true)
+    int transferPointToCredit(BigDecimal point, BigDecimal point2, Long userId) ;
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE wallet SET point = point + ?, version=version+1  WHERE user_id = ? ", nativeQuery = true)
+    int earnPoint(BigDecimal point, Long userId) ;
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE wallet SET credit = credit - ? , version=version+1  WHERE user_id = ? ", nativeQuery = true)
+    int withDrawCredit(BigDecimal credit, Long userId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE wallet SET credit = credit + ? , version=version+1  WHERE user_id = ? ", nativeQuery = true)
+    int depositCredit(BigDecimal credit, Long userId);
+
+    @Query(value = "select o from Wallet o where o.user.accountNumber like :accountNumber")
+    List<Wallet> findWalletLikeAccount(String accountNumber);
+
 }

@@ -34,7 +34,7 @@ public class BankController {
     //CreateBank
     @PostMapping(value = "/bank", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> insertBank(@RequestBody BankRequest bankRequest, @AuthenticationPrincipal UserPrincipal principal){
-        bankValidator.validate(bankRequest);
+//        bankValidator.validate(bankRequest);
         bankService.insertBank(bankRequest, principal);
         return ResponseHelper.success(Constants.MESSAGE.MSG_02000.msg);
     }

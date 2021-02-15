@@ -25,6 +25,8 @@ public interface WebUserService {
 
     ResponseEntity<?> resetPassword(Long id, WebUserUpdate webUserUpdate);
 
+    boolean verifyTel(String tel, String prefix);
+
     WebUserHistoryResponse registerHistory(WebUserHistoryRequest webUserHistoryRequest, UserPrincipal principal);
     UserInfoResponse authUser(String username, String password, LoginRequest loginRequest);
 

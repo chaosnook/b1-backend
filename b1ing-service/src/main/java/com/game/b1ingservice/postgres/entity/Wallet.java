@@ -27,6 +27,9 @@ public class Wallet extends DateAudit<String> implements Serializable {
     @Column(name = "point", columnDefinition = "numeric(18,2)")
     private BigDecimal point;
 
+    @Column(name = "turn_over", columnDefinition = "numeric(18,2)")
+    private BigDecimal turnOver;
+
     @JsonIgnore
     @ToString.Exclude
     @JoinColumn(name = "user_id", referencedColumnName = "id")

@@ -12,13 +12,12 @@ import com.game.b1ingservice.payload.webuser.WebUserResponse;
 import com.game.b1ingservice.payload.webuser.WebUserUpdate;
 import com.game.b1ingservice.payload.webuser.*;
 import com.game.b1ingservice.payload.wellet.WalletRequest;
-import com.game.b1ingservice.postgres.entity.AffiliateHistory;
-import com.game.b1ingservice.postgres.entity.Agent;
-import com.game.b1ingservice.postgres.entity.WebUser;
+import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
 import com.game.b1ingservice.postgres.repository.AffiliateHistoryRepository;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
+import com.game.b1ingservice.postgres.repository.ConfigRepository;
 import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.WalletService;
 import com.game.b1ingservice.service.WebUserService;
@@ -41,6 +40,10 @@ import java.time.YearMonth;
 import java.util.*;
 import java.util.function.Function;
 
+import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.MIN_WITHDRAW_CREDIT;
+import static com.game.b1ingservice.commons.Constants.ERROR.ERR_04003;
+import static com.game.b1ingservice.commons.Constants.ERROR.ERR_04004;
+
 @Service
 public class WebUserServiceImpl implements WebUserService {
 
@@ -48,7 +51,7 @@ public class WebUserServiceImpl implements WebUserService {
     private WebUserRepository webUserRepository;
 
     @Autowired
-    BCryptPasswordEncoder bCryptPasswordEncoder;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     private PasswordGenerator passwordGenerator;
@@ -66,6 +69,9 @@ public class WebUserServiceImpl implements WebUserService {
     private WebUserJdbcRepository webUserJdbcRepository;
 
     @Autowired
+    private ConfigRepository configRepository;
+
+    @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
     private ObjectMapper mapper = new ObjectMapper();
@@ -79,7 +85,7 @@ public class WebUserServiceImpl implements WebUserService {
         }
 
         String tel = req.getTel();
-        String username = prefix + tel.substring(3, tel.length() - 1);
+        String username = prefix + tel.substring(1, tel.length() - 1);
 
         WebUser user = new WebUser();
         user.setAgent(opt.get());
@@ -230,19 +236,25 @@ public class WebUserServiceImpl implements WebUserService {
         }
 
         Optional<WebUser> opt = webUserRepository.findByUsernameAndAgent(username, agent.get());
-        return convertProfile(opt.get(), agent.get());
+        return convertProfile(opt.get(), agent.get(), true);
+    }
+
+    @Override
+    public boolean verifyTel(String tel, String prefix) {
+        Optional<WebUser> webUser = webUserRepository.findByTelAndAgent_Prefix(tel, prefix);
+        return webUser.isPresent();
     }
 
     UserInfoResponse convert(WebUser webUser, Agent agent) {
         UserInfoResponse userInfo = new UserInfoResponse();
-        UserProfile profile = convertProfile(webUser, agent);
+        UserProfile profile = convertProfile(webUser, agent, false);
         userInfo.setProfile(profile);
         userInfo.setToken(jwtTokenUtil.generateToken(mapper.convertValue(profile, Map.class), "user"));
 
         return userInfo;
     }
 
-    UserProfile convertProfile(WebUser webUser, Agent agent) {
+    UserProfile convertProfile(WebUser webUser, Agent agent, boolean userCheck) {
         UserProfile profile = new UserProfile();
         profile.setUserId(webUser.getId());
         profile.setAgentId(agent.getId());
@@ -256,7 +268,26 @@ public class WebUserServiceImpl implements WebUserService {
         profile.setVersion(webUser.getVersion());
         profile.setPrefix(agent.getPrefix());
         profile.setIsBonus(webUser.getIsBonus());
+
+        if (userCheck) {
+            //TODO Check user can canWithDraw from turn over
+            this.checkCanWithdraw(profile, webUser, agent);
+        }
+
         return profile;
+    }
+
+    private void checkCanWithdraw(UserProfile profile, WebUser webUser, Agent agent) {
+        profile.setCanWithDraw(true);
+        Wallet wallet = webUser.getWallet();
+
+        if (wallet.getCredit().compareTo(BigDecimal.ZERO) == 0) {
+            profile.setCanWithDraw(false);
+            profile.setWithDrawMessage(ERR_04003.msg);
+        } else if (wallet.getTurnOver() == null || wallet.getTurnOver().compareTo(BigDecimal.ZERO) > 0) {
+            profile.setCanWithDraw(false);
+            profile.setWithDrawMessage(String.format(ERR_04004.msg, wallet.getTurnOver() == null ? "0.00" : wallet.getTurnOver()));
+        }
     }
 
     @Override
@@ -299,7 +330,7 @@ public class WebUserServiceImpl implements WebUserService {
             YearMonth yearMonthObject = YearMonth.of(year, month);
             int daysInMonth = yearMonthObject.lengthOfMonth();
 
-            for (int i = 1; i <= daysInMonth ; i++) {
+            for (int i = 1; i <= daysInMonth; i++) {
                 resObj.getLabels().add(i);
                 resObj.getData().add(0);
             }
@@ -307,7 +338,7 @@ public class WebUserServiceImpl implements WebUserService {
             List<SummaryRegisterUser> listRegisterMonth = webUserJdbcRepository.summaryRegisterUsersByMonth(webUserHistoryRequest, principal);
 
             for (SummaryRegisterUser summaryRegisterUser : listRegisterMonth) {
-                resObj.getData().set(summaryRegisterUser.getLabels(), summaryRegisterUser.getData());
+                resObj.getData().set(summaryRegisterUser.getLabels()-1, summaryRegisterUser.getData());
             }
 
 
