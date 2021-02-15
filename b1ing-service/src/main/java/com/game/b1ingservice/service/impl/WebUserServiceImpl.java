@@ -338,7 +338,7 @@ public class WebUserServiceImpl implements WebUserService {
             List<SummaryRegisterUser> listRegisterMonth = webUserJdbcRepository.summaryRegisterUsersByMonth(webUserHistoryRequest, principal);
 
             for (SummaryRegisterUser summaryRegisterUser : listRegisterMonth) {
-                resObj.getData().set(summaryRegisterUser.getLabels(), summaryRegisterUser.getData());
+                resObj.getData().set(summaryRegisterUser.getLabels()-1, summaryRegisterUser.getData());
             }
 
 

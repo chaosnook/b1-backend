@@ -87,6 +87,16 @@ public class Constants {
         ERR_04000("ไม่พบข้อมูล true wallet"),
         ERR_04001("ไม่สามารถแก้ไขฝาก true wallet"),
 
+        ERR_05001("กรุณาเลือกช่วงเวลาที่ต้องการค้นหา"),
+
+        ERR_06001("name ห้ามว่าง"),
+        ERR_06002("type bonus ห้ามว่าง"),
+        ERR_06003("type promotion ห้ามว่าง"),
+        ERR_06004("max bonus ห้ามว่าง"),
+        ERR_06005("min topup ห้ามว่าง"),
+        ERR_06006("max topup ห้ามว่าง"),
+        ERR_06007("turn over ห้ามว่าง"),
+        ERR_06008("max withdraw ห้ามว่าง"),
         ERR_04002("คุณมี Point ไม่เพียงพอ"),
         ERR_04003("คุณมี Credit ไม่เพียงพอ กรุณาเติมเงิน"),
         ERR_04004("คุณมี Turn over อีก %s บาท"),
@@ -101,7 +111,6 @@ public class Constants {
         ERR_09008("TransactionDate ห้ามว่าง"),
         ERR_09009("Type ห้ามว่าง"),
 
-        ERR_05001("กรุณาเลือกช่วงเวลาที่ต้องการค้นหา")
         ;
 
         public String msg;
