@@ -63,6 +63,11 @@ public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecif
     @Query(value = "UPDATE wallet SET point = point + ?, version=version+1  WHERE user_id = ? ", nativeQuery = true)
     int earnPoint(BigDecimal point, Long userId) ;
 
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE wallet SET credit = credit - ? , version=version+1  WHERE user_id = ? ", nativeQuery = true)
+    int depositCredit(BigDecimal credit, Long userId);
+
 
     @Transactional
     @Modifying
