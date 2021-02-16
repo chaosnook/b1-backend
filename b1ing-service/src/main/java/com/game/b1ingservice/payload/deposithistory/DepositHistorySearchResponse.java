@@ -1,8 +1,5 @@
 package com.game.b1ingservice.payload.deposithistory;
 
-import com.game.b1ingservice.postgres.entity.AdminUser;
-import com.game.b1ingservice.postgres.entity.Bank;
-import com.game.b1ingservice.postgres.entity.WebUser;
 import lombok.Data;
 
 import java.math.BigDecimal;

@@ -11,7 +11,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -28,7 +27,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
         if("sevenDay".equals(type)) {
 
-//            return searchResponse.stream().filter(obj);
+//            return
         }
 
         return searchResponse;
