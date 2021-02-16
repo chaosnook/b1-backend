@@ -11,6 +11,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -21,15 +22,31 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     private DepositHistoryRepository depositHistoryRepository;
 
     @Override
-    public Page<DepositHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable) {
-        return depositHistoryRepository.findAll(specification, pageable).map(converter);
+    public Page<DepositHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type) {
+
+        Page<DepositHistorySearchResponse> searchResponse = depositHistoryRepository.findAll(specification, pageable).map(converter);
+
+        if("sevenDay".equals(type)) {
+
+//            return searchResponse.stream().filter(obj);
+        }
+
+        return searchResponse;
     }
 
     Function<DepositHistory, DepositHistorySearchResponse> converter = depositHistory -> {
         DepositHistorySearchResponse searchResponse = new DepositHistorySearchResponse();
         searchResponse.setId(depositHistory.getId());
-        searchResponse.setBankCode(depositHistory.getBank().getBankCode());
-        searchResponse.setUser(depositHistory.getUser().getUsername());
+        if(null == depositHistory.getBank()) {
+            searchResponse.setBankName(null);
+        } else {
+            searchResponse.setBankName(depositHistory.getBank().getBankName());
+        }
+        if(null == depositHistory.getUser()) {
+            searchResponse.setUsername(null);
+        } else {
+            searchResponse.setUsername(depositHistory.getUser().getUsername());
+        }
         searchResponse.setAmount(depositHistory.getAmount());
         searchResponse.setBeforeAmount(depositHistory.getBeforeAmount());
         searchResponse.setAfterAmount(depositHistory.getAfterAmount());
@@ -37,8 +54,11 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         searchResponse.setStatus(depositHistory.getStatus());
         searchResponse.setIsAuto(depositHistory.getIsAuto());
         searchResponse.setReason(depositHistory.getReason());
-        searchResponse.setAdmin(depositHistory.getAdmin().getUsername());
-
+        if(null == depositHistory.getAdmin()) {
+            searchResponse.setAdmin(null);
+        } else {
+            searchResponse.setAdmin(depositHistory.getAdmin().getUsername());
+        }
         searchResponse.setCreatedDate(depositHistory.getCreatedDate());
         searchResponse.setUpdatedDate(depositHistory.getUpdatedDate());
         searchResponse.setCreatedBy(depositHistory.getAudit().getCreatedBy());

@@ -12,8 +12,8 @@ import java.time.Instant;
 public class DepositHistorySearchResponse {
 
     private Long id;
-    private String bankCode;
-    private String user;
+    private String bankName;
+    private String username;
     private BigDecimal amount;
     private BigDecimal beforeAmount;
     private BigDecimal afterAmount;

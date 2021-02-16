@@ -9,5 +9,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface DepositHistoryService {
-    Page<DepositHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable);
+    Page<DepositHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type);
 }
