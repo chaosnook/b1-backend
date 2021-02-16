@@ -2,8 +2,10 @@ package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.bankbot.BankBotAddCreditRequest;
+import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
 import com.game.b1ingservice.postgres.entity.Wallet;
+import com.game.b1ingservice.postgres.repository.BankRepository;
 import com.game.b1ingservice.postgres.repository.DepositHistoryRepository;
 import com.game.b1ingservice.postgres.repository.WalletRepository;
 import com.game.b1ingservice.service.BankBotService;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -22,11 +25,19 @@ public class BankBotServiceImpl implements BankBotService {
     @Autowired
     private DepositHistoryRepository depositHistoryRepository;
 
+    @Autowired
+    private BankRepository bankRepository;
+
     @Override
     public void addCredit(BankBotAddCreditRequest request) {
+
+
         if (!depositHistoryRepository.existsByTransactionId(request.getTransactionId())) {
+            Optional<Bank> opt = bankRepository.findByBotIp(request.getBotIp());
+
             String accountLike = "%" + request.getAccountNo();
-            List<Wallet> wallets = walletRepository.findWalletLikeAccount(accountLike);
+
+            List<Wallet> wallets = walletRepository.findWalletLikeAccount(request.getBotIp(),accountLike);
 
             DepositHistory depositHistory = new DepositHistory();
             depositHistory.setAmount(request.getAmount());
@@ -56,6 +67,10 @@ public class BankBotServiceImpl implements BankBotService {
             } else {
                 depositHistory.setIsAuto(false);
                 depositHistory.setStatus(Constants.DEPOSIT_STATUS.PENDING);
+                depositHistory.setReason("Not sure which wallet");
+                if (opt.isPresent()){
+                    depositHistory.setBank(opt.get());
+                }
             }
             depositHistoryRepository.save(depositHistory);
         }
