@@ -12,7 +12,7 @@ import java.util.List;
 
 @Service
 public interface PromotionService {
-    void insertPromotion(MultipartFile file, PromotionRequest promotionRequest, UserPrincipal principal);
+    void insertPromotion(PromotionRequest promotionRequest, UserPrincipal principal);
 
     List<PromotionResponse> getPromotion(UserPrincipal principal);
     void updatePromotion(Long id, PromotionUpdate promotionUpdate, UserPrincipal principal);

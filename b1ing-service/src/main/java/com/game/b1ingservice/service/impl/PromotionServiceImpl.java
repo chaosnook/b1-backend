@@ -39,7 +39,7 @@ public class PromotionServiceImpl implements PromotionService {
     AgentRepository agentRepository;
 
     @Override
-        public void insertPromotion(MultipartFile file, PromotionRequest promotionRequest, UserPrincipal principal) {
+        public void insertPromotion(PromotionRequest promotionRequest, UserPrincipal principal) {
 
         Optional<Agent> opt = agentRepository.findByPrefix(principal.getPrefix());
         if (!opt.isPresent()) {
