@@ -45,6 +45,8 @@ public class PromotionUpdateValidator extends CommonValidator {
             throw new ErrorMessageException(Constants.ERROR.ERR_06005);
         if(ObjectUtils.isEmpty(req.getMaxTopup()))
             throw new ErrorMessageException(Constants.ERROR.ERR_06006);
+        if(ObjectUtils.isEmpty(req.getMaxReceiveBonus()))
+            throw new ErrorMessageException(Constants.ERROR.ERR_09010);
         if(ObjectUtils.isEmpty(req.getTurnOver()))
             throw new ErrorMessageException(Constants.ERROR.ERR_06007);
         if(ObjectUtils.isEmpty((req.getMaxWithdraw())))

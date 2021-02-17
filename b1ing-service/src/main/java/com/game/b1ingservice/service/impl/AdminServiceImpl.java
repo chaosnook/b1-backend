@@ -7,6 +7,9 @@ import com.game.b1ingservice.payload.admin.*;
 import com.game.b1ingservice.payload.agent.AgentResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.postgres.entity.*;
+import com.game.b1ingservice.postgres.jdbc.ProfitReportJdbcRepository;
+import com.game.b1ingservice.postgres.jdbc.dto.ProfitReport;
+import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AdminService;
 import com.game.b1ingservice.utils.JwtTokenUtil;
@@ -20,6 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +48,10 @@ public class AdminServiceImpl implements AdminService {
     DepositHistoryRepository depositHistoryRepository;
     @Autowired
     WithdrawHistoryRepository withdrawHistoryRepository;
+    @Autowired
+    AgentRepository agentRepository;
+    @Autowired
+    ProfitReportJdbcRepository profitReportJdbcRepository;
 
 
     @Autowired
@@ -51,10 +59,10 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public ResponseEntity<?> loginAdmin(String username, String password, LoginRequest loginRequest) {
-        Optional<AdminUser> opt = adminUserRepository.findByUsernameAndPrefixAndActive(username,loginRequest.getPrefix(),1);
-        if (opt.isPresent()){
+        Optional<AdminUser> opt = adminUserRepository.findByUsernameAndPrefixAndActive(username, loginRequest.getPrefix(), 1);
+        if (opt.isPresent()) {
             AdminUser admin = opt.get();
-            if (bCryptPasswordEncoder.matches(password,admin.getPassword())){
+            if (bCryptPasswordEncoder.matches(password, admin.getPassword())) {
                 Map<String, Object> claims = new HashMap<>();
                 claims.put("userId", admin.getId());
                 claims.put("username", admin.getUsername());
@@ -64,7 +72,7 @@ public class AdminServiceImpl implements AdminService {
                 claims.put("prefix", admin.getPrefix());
 
                 LoginProfile profile = new LoginProfile(admin.getRole().getRoleCode(), admin.getUsername(), admin.getFullName(), admin.getPrefix());
-                return ResponseEntity.ok(new LoginResponse(jwtTokenUtil.generateToken(claims, "user"),profile));
+                return ResponseEntity.ok(new LoginResponse(jwtTokenUtil.generateToken(claims, "user"), profile));
             }
         }
         return ResponseHelper.bad(Constants.ERROR.ERR_00007.msg);
@@ -84,9 +92,9 @@ public class AdminServiceImpl implements AdminService {
         adminUser.setPrefix(principal.getPrefix());
 
         Optional<Role> opt = rolerepository.findByRoleCode(registerRequest.getRoleCode());
-        if (opt.isPresent()){
+        if (opt.isPresent()) {
             adminUser.setRole(opt.get());
-        }else {
+        } else {
             opt = rolerepository.findByRoleCode("STAFF");
             adminUser.setRole(opt.get());
         }
@@ -94,9 +102,9 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void updateAdmin(AdminUpdateRequest adminUpdateRequest,UserPrincipal principal) {
+    public void updateAdmin(AdminUpdateRequest adminUpdateRequest, UserPrincipal principal) {
         Optional<AdminUser> opt = adminUserRepository.findById(adminUpdateRequest.getId());
-        if (opt.isPresent()){
+        if (opt.isPresent()) {
             AdminUser adminUser = opt.get();
 
             if (!StringUtils.isEmpty(adminUpdateRequest.getPassword())) {
@@ -111,22 +119,22 @@ public class AdminServiceImpl implements AdminService {
             adminUser.setPrefix(principal.getPrefix());
 
             Optional<Role> optRole = rolerepository.findByRoleCode(adminUpdateRequest.getRoleCode());
-            if (optRole.isPresent()){
+            if (optRole.isPresent()) {
                 adminUser.setRole(optRole.get());
-            }else {
+            } else {
                 optRole = rolerepository.findByRoleCode("STAFF");
                 adminUser.setRole(optRole.get());
             }
             adminUserRepository.save(adminUser);
-        }else {
+        } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_00009);
         }
     }
 
     @Override
     public List<AdminUserResponse> listByPrefix(String prefix) {
-         List<AdminUserResponse> list = adminUserRepository.findByPrefix(prefix).stream().map(converter).collect(Collectors.toList());
-         return list;
+        List<AdminUserResponse> list = adminUserRepository.findByPrefix(prefix).stream().map(converter).collect(Collectors.toList());
+        return list;
     }
 
     @Override
@@ -142,11 +150,11 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void addCredit(AddCreditRequest req, UserPrincipal principal) {
         Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Prefix(req.getUsername(), principal.getPrefix());
-        if(opt.isPresent()) {
+        if (opt.isPresent()) {
             WebUser webUser = opt.get();
             Optional<Wallet> opt2 = walletRepository.findByUser_Id(webUser.getId());
-            if(opt2.isPresent()) {
-                Wallet wallet =  opt2.get();
+            if (opt2.isPresent()) {
+                Wallet wallet = opt2.get();
                 BigDecimal beforAmount = wallet.getCredit();
                 Bank bank = wallet.getBank();
                 BigDecimal afterAmount = beforAmount.add(req.getCredit());
@@ -161,7 +169,7 @@ public class AdminServiceImpl implements AdminService {
 
                 Optional<AdminUser> adminOpt = adminUserRepository.findById(principal.getId());
 
-                if(adminOpt.isPresent()) {
+                if (adminOpt.isPresent()) {
                     depositHistory.setAdmin(adminOpt.get());
                 }
 
@@ -195,13 +203,13 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void withdrawCredit(WithdrawRequest req, UserPrincipal principal) {
         Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Prefix(req.getUsername(), principal.getPrefix());
-        if(opt.isPresent()) {
+        if (opt.isPresent()) {
             WebUser webUser = opt.get();
             Optional<Wallet> opt2 = walletRepository.findByUser_Id(webUser.getId());
-            if(opt2.isPresent()) {
-                Wallet wallet =  opt2.get();
+            if (opt2.isPresent()) {
+                Wallet wallet = opt2.get();
 
-                if(wallet.getCredit().compareTo(req.getCredit()) == -1) {
+                if (wallet.getCredit().compareTo(req.getCredit()) == -1) {
                     throw new ErrorMessageException(Constants.ERROR.ERR_01133);
                 }
 
@@ -219,7 +227,7 @@ public class AdminServiceImpl implements AdminService {
                 withdrawHistory.setBank(bank);
 
                 Optional<AdminUser> adminOpt = adminUserRepository.findById(principal.getId());
-                if(adminOpt.isPresent()) {
+                if (adminOpt.isPresent()) {
                     withdrawHistory.setAdmin(adminOpt.get());
                 }
 
@@ -231,6 +239,45 @@ public class AdminServiceImpl implements AdminService {
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_01127);
         }
+    }
+
+    @Override
+    public ProfitReportResponse profitReport(ProfitReportRequest profitReportRequest, UserPrincipal principal) {
+        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
+
+
+        if (!agent.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
+        ProfitReportResponse resObj = new ProfitReportResponse();
+        String value = profitReportRequest.getValue();
+
+        String date = value;
+        String[] dateParts = date.split("-");
+        String yyyy = dateParts[0];
+        String mm = dateParts[1];
+        int year = Integer.parseInt(yyyy);
+        int month = Integer.parseInt(mm);
+
+        YearMonth yearMonthObject = YearMonth.of(year, month);
+        int daysInMonth = yearMonthObject.lengthOfMonth();
+
+        for (int i = 1; i <= daysInMonth; i++) {
+            resObj.getLabels().add(i);
+            resObj.getData().add(0);
+
+        }
+        List<ProfitReport> listDepositMonth = profitReportJdbcRepository.depositReport(profitReportRequest, principal);
+        List<ProfitReport> listWithdrawMonth = profitReportJdbcRepository.withdrawReport(profitReportRequest, principal);
+
+
+        for (ProfitReport depositReport : listDepositMonth ) {
+                resObj.getData().set(depositReport.getLabels() - 1, depositReport.getData() );
+
+        }
+
+        return resObj;
     }
 
 

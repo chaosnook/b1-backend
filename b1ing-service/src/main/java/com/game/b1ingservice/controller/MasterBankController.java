@@ -43,13 +43,4 @@ public class MasterBankController {
     public ResponseEntity<?> getMasterBankWithdraw() {
         return masterBankService.getMasterBankWithdraw();
     }
-
-//    @GetMapping(value = "/bankUser",
-//            consumes = { MediaType.APPLICATION_JSON_VALUE},
-//            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-//    public  ResponseEntity<?> getMasterBankUser(){return  masterBankService.getMasterBankUser();}
-
-
-
-
 }
