@@ -1,2 +1,7 @@
-package com.game.b1ingservice.service.impl;public interface TopUpService {
+package com.game.b1ingservice.service;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public interface TopUpService {
 }
