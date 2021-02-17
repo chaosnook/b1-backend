@@ -1,17 +1,19 @@
 package com.game.b1ingservice.service.impl;
 
-import com.game.b1ingservice.payload.deposithistory.DepositHistorySearchResponse;
+import com.game.b1ingservice.payload.deposithistory.DepositListHistorySearchResponse;
+import com.game.b1ingservice.payload.deposithistory.DepositSummaryHistorySearchResponse;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
 import com.game.b1ingservice.postgres.repository.DepositHistoryRepository;
 import com.game.b1ingservice.service.DepositHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
@@ -21,20 +23,73 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     private DepositHistoryRepository depositHistoryRepository;
 
     @Override
-    public Page<DepositHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type) {
+    public Page<DepositListHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type) {
 
-        Page<DepositHistorySearchResponse> searchResponse = depositHistoryRepository.findAll(specification, pageable).map(converter);
+        Page<DepositListHistorySearchResponse> searchResponse = depositHistoryRepository.findAll(specification, pageable).map(converter);
 
-        if("sevenDay".equals(type)) {
+        if("SEVEN".equals(type)) {
 
-//            return
+        } else {
+
         }
 
         return searchResponse;
     }
 
-    Function<DepositHistory, DepositHistorySearchResponse> converter = depositHistory -> {
-        DepositHistorySearchResponse searchResponse = new DepositHistorySearchResponse();
+    @Override
+    public Page<DepositSummaryHistorySearchResponse> findSummaryByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type) {
+
+        Page<DepositListHistorySearchResponse> searchData = depositHistoryRepository.findAll(specification, pageable).map(converter);
+
+        List<DepositListHistorySearchResponse> listSummary = new ArrayList<>();
+        if("SEVEN".equals(type)) {
+
+        } else {
+
+        }
+
+        return summaryHistory(searchData.getContent(), pageable);
+    }
+
+    private Page<DepositSummaryHistorySearchResponse> summaryHistory(List<DepositListHistorySearchResponse> searchData, Pageable pageable) {
+
+        Map<String, DepositSummaryHistorySearchResponse> map = new HashMap<>();
+        for(DepositListHistorySearchResponse depositList: searchData) {
+
+            DepositSummaryHistorySearchResponse summary = new DepositSummaryHistorySearchResponse();
+
+            if(!map.containsKey(depositList.getBankName())) {
+
+                summary.setBankName(depositList.getBankName());
+                summary.setCountTask(1);
+                summary.setTotalDeposit(depositList.getAmount());
+                summary.setTotalBonus(depositList.getBonus());
+
+                map.put(depositList.getBankName(), summary);
+
+            } else {
+
+                DepositSummaryHistorySearchResponse value = map.get(depositList.getBankName());
+                summary.setBankName(value.getBankName());
+                summary.setCountTask(value.getCountTask() + 1);
+                summary.setTotalDeposit(value.getTotalDeposit().add(depositList.getAmount()));
+                summary.setTotalBonus(value.getTotalBonus().add(depositList.getBonus()));
+
+                map.replace(depositList.getBankName(), summary);
+            }
+        }
+
+        List<DepositSummaryHistorySearchResponse> listSummary = new ArrayList<>();
+        for (Map.Entry<String, DepositSummaryHistorySearchResponse> entry : map.entrySet()) {
+            listSummary.add(entry.getValue());
+        }
+
+        Page<DepositSummaryHistorySearchResponse> searchResponse = new PageImpl<>(listSummary, pageable, listSummary.size());
+        return searchResponse;
+    }
+
+    Function<DepositHistory, DepositListHistorySearchResponse> converter = depositHistory -> {
+        DepositListHistorySearchResponse searchResponse = new DepositListHistorySearchResponse();
         searchResponse.setId(depositHistory.getId());
         if(null == depositHistory.getBank()) {
             searchResponse.setBankName(null);
@@ -58,8 +113,12 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         } else {
             searchResponse.setAdmin(depositHistory.getAdmin().getUsername());
         }
-        searchResponse.setCreatedDate(depositHistory.getCreatedDate());
-        searchResponse.setUpdatedDate(depositHistory.getUpdatedDate());
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a");
+
+        searchResponse.setBonus(depositHistory.getBonusAmount());
+        searchResponse.setCreatedDate(sdf.format(Date.from(depositHistory.getCreatedDate())));
+        searchResponse.setUpdatedDate(sdf.format(Date.from(depositHistory.getUpdatedDate())));
         searchResponse.setCreatedBy(depositHistory.getAudit().getCreatedBy());
         searchResponse.setUpdatedBy(depositHistory.getAudit().getUpdatedBy());
         searchResponse.setDeleteFlag(depositHistory.getDeleteFlag());

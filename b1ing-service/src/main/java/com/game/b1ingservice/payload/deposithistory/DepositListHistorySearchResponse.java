@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @Data
-public class DepositHistorySearchResponse {
+public class DepositListHistorySearchResponse {
 
     private Long id;
     private String bankName;
@@ -19,10 +19,11 @@ public class DepositHistorySearchResponse {
     private Boolean isAuto;
     private String reason;
     private String admin;
+    private BigDecimal bonus;
 
     private int version;
-    private Instant createdDate;
-    private Instant updatedDate;
+    private String createdDate;
+    private String updatedDate;
     private String createdBy;
     private String updatedBy;
     private Integer deleteFlag;
