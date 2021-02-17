@@ -35,9 +35,9 @@ public class SearchDepositHistorySpecification extends SearchPageSpecification<D
         }
 
         if (StringUtils.isNotEmpty(searchBody.getType())) {
-            if("error".equals(searchBody.getType())) {
+            if("ERROR".equals(searchBody.getType())) {
                 predicates.add(criteriaBuilder.equal(root.get("status"), Constants.DEPOSIT_STATUS.ERROR));
-            } else if("truewallet".equals(searchBody.getType())) {
+            } else if("TRUEWALLET".equals(searchBody.getType())) {
                 predicates.add(criteriaBuilder.equal(root.get("type"), "TRUEWALLET"));
             }
         }
