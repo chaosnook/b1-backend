@@ -27,4 +27,6 @@ public interface BankRepository extends JpaRepository<Bank, Long>, JpaSpecificat
 
     Optional<Bank> findFirstByActiveAndBankGroupGreaterThanOrderByBankGroupAsc(boolean active, int bankGroupFrom);
 
+
+    Optional<Bank> findByBotIp(String botIp);
 }
