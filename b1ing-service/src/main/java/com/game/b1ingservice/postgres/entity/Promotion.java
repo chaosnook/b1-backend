@@ -54,18 +54,19 @@ public class Promotion extends DateAudit<String> implements Serializable {
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
 
-//    @OneToMany(mappedBy = "promotion", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
-//    private List<Condition> condition;
-//
-//    @ToString.Exclude
-//    @JsonIgnore
-//    @JoinColumn(name = "admin_id", referencedColumnName = "id")
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    private AdminUser adminUser;
-//
-//    @ToString.Exclude
-//    @JsonIgnore
-//    @JoinColumn(name = "agent_id", referencedColumnName = "id")
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    private Agent agent;
+    @OneToMany(mappedBy = "promotion", cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    private List<Condition> condition;
+
+    @ToString.Exclude
+    @JsonIgnore
+    @JoinColumn(name = "admin_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private AdminUser admin;
+
+    @ToString.Exclude
+    @JsonIgnore
+    @JoinColumn(name = "agent_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Agent agent;
+
 }
