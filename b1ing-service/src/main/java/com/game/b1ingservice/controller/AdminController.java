@@ -3,6 +3,7 @@ package com.game.b1ingservice.controller;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.admin.*;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.webuser.WebUserHistoryResponse;
 import com.game.b1ingservice.service.AdminService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.admin.*;
@@ -97,6 +98,13 @@ public class AdminController {
         withdrawValidator.validate(req);
         adminService.withdrawCredit(req, principal);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+    }
+
+    @PostMapping(value = "/profit-report")
+    @ResponseBody
+    public ResponseEntity<?> profitReport(@RequestBody ProfitReportRequest profitReportRequest, @AuthenticationPrincipal UserPrincipal principal) {
+        ProfitReportResponse obj = adminService.profitReport(profitReportRequest, principal);
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, obj);
     }
 
 }

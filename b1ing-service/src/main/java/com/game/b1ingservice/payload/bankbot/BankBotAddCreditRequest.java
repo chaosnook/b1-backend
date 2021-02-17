@@ -14,9 +14,7 @@ import java.time.Instant;
 public class BankBotAddCreditRequest implements Serializable {
     private String botType;
     private String transactionId;
-    private Long bankId;
-    private String bankCode;
-    private String bankAccountNo;
+    private String botIp;
 
     private String accountNo;
     @JsonSerialize(using = MoneySerializer.class)

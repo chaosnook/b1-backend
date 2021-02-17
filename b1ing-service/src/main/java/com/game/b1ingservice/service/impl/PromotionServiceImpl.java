@@ -6,19 +6,21 @@ import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.promotion.PromotionRequest;
 import com.game.b1ingservice.payload.promotion.PromotionResponse;
 import com.game.b1ingservice.payload.promotion.PromotionUpdate;
+import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.Promotion;
+import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.PromotionRepository;
+import com.game.b1ingservice.service.ConditionService;
 import com.game.b1ingservice.service.PromotionService;
-import com.game.b1ingservice.utils.FileUploadUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -30,11 +32,19 @@ public class PromotionServiceImpl implements PromotionService {
     @Autowired
     PromotionRepository promotionRepository;
 
-    @Override
-//    public void insertPromotion(MultipartFile multipartFile,PromotionRequest promotionRequest, UserPrincipal principal) throws IOException {
-        public void insertPromotion(PromotionRequest promotionRequest, UserPrincipal principal){
+    @Autowired
+    ConditionService conditionService;
 
-//        String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+    @Autowired
+    AgentRepository agentRepository;
+
+    @Override
+        public void insertPromotion(PromotionRequest promotionRequest, UserPrincipal principal) {
+
+        Optional<Agent> opt = agentRepository.findByPrefix(principal.getPrefix());
+        if (!opt.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
 
         Promotion promotion = new Promotion();
 
@@ -45,16 +55,20 @@ public class PromotionServiceImpl implements PromotionService {
         promotion.setMaxBonus(promotionRequest.getMaxBonus());
         promotion.setMinTopup(promotionRequest.getMinTopup());
         promotion.setMaxTopup(promotionRequest.getMaxTopup());
+        promotion.setMaxReceiveBonus(promotionRequest.getMaxReceiveBonus());
         promotion.setTurnOver(promotionRequest.getTurnOver());
         promotion.setMaxWithdraw(promotionRequest.getMaxWithdraw());
         promotion.setActive(promotionRequest.isActive());
         promotion.setUrlImage(promotion.getUrlImage());
-//        promotion.setUrlImage(fileName);
 
         promotionRepository.save(promotion);
 
-//        String uploadDir = "promotionPhotos/" + promotion.getId();
-//        FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
+//        ConditionRequest conditionRequest = new ConditionRequest();
+//        conditionRequest.setMinTopup(promotionRequest.getMinTopup());
+//        conditionRequest.setMaxTopup(promotionRequest.getMaxTopup());
+//        conditionRequest.setBonus(promotionRequest.getMaxReceiveBonus());
+//        conditionService.insertCondition(conditionRequest, principal);
+
     }
 
     @Override
@@ -114,9 +128,13 @@ public class PromotionServiceImpl implements PromotionService {
         promotionResponse.setMaxWithdraw(promotion.getMaxWithdraw());
         promotionResponse.setActive(promotion.isActive());
 
+        Map<String, Object> configMap = new HashMap<>();
+
+
         return promotionResponse;
 
     };
+
 
 }
 

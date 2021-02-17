@@ -1,5 +1,6 @@
 package com.game.b1ingservice.specification;
 
+import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.deposithistory.DepositHistorySearchRequest;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
 import com.game.b1ingservice.postgres.entity.WebUser;
@@ -31,6 +32,14 @@ public class SearchDepositHistorySpecification extends SearchPageSpecification<D
         if (ObjectUtils.isNotEmpty(searchBody.getAmount())) {
             BigDecimal amount = searchBody.getAmount();
             predicates.add(criteriaBuilder.equal(root.get("amount"), amount));
+        }
+
+        if (StringUtils.isNotEmpty(searchBody.getType())) {
+            if("error".equals(searchBody.getType())) {
+                predicates.add(criteriaBuilder.equal(root.get("status"), Constants.DEPOSIT_STATUS.ERROR));
+            } else if("truewallet".equals(searchBody.getType())) {
+                predicates.add(criteriaBuilder.equal(root.get("type"), "TRUEWALLET"));
+            }
         }
 
         boolean parseCreateDateFrom = DateUtils.canCastDateTime(searchBody.getCreatedDateFrom());

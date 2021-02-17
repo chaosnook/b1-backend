@@ -1,8 +1,5 @@
 package com.game.b1ingservice.payload.deposithistory;
 
-import com.game.b1ingservice.postgres.entity.AdminUser;
-import com.game.b1ingservice.postgres.entity.Bank;
-import com.game.b1ingservice.postgres.entity.WebUser;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -12,8 +9,8 @@ import java.time.Instant;
 public class DepositHistorySearchResponse {
 
     private Long id;
-    private String bankCode;
-    private String user;
+    private String bankName;
+    private String username;
     private BigDecimal amount;
     private BigDecimal beforeAmount;
     private BigDecimal afterAmount;

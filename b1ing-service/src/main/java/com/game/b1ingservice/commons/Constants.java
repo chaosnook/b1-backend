@@ -5,6 +5,7 @@ public class Constants {
     {
         ERR_TOKEN("Your token has expired"),
         ERR_PREFIX("ข้อมูลไม่ถูกต้อง"),
+        ERR_IMAGE("ไม่พบไฟล์รูปภาพ"),
         ERR_99999("ระบบไม่สามารถดำเนินการได้"),
         ERR_88888("ไม่มีสิทธ์ในการทำรายการ"),
 
@@ -103,13 +104,14 @@ public class Constants {
         ERR_04005("คุณมี Credit ไม่เพียงพอ"),
         ERR_09001("BotType ห้ามว่าง"),
         ERR_09002("TransactionId ห้ามว่าง"),
-        ERR_09003("BankId ห้ามว่าง"),
+        ERR_09003("BotIp ห้ามว่าง"),
         ERR_09004("BankCode ห้ามว่าง"),
         ERR_09005("BankAccountNo ห้ามว่าง"),
         ERR_09006("AccountNo ห้ามว่าง"),
         ERR_09007("Amount ห้ามว่าง"),
         ERR_09008("TransactionDate ห้ามว่าง"),
         ERR_09009("Type ห้ามว่าง"),
+        ERR_09010("max receive bonus ห้ามว่าง")
 
         ;
 

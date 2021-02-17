@@ -11,6 +11,7 @@ public class PromotionRequest {
     private int maxBonus;
     private int minTopup;
     private int maxTopup;
+    private int maxReceiveBonus;
     private int turnOver;
     private int maxWithdraw;
     private boolean active;
