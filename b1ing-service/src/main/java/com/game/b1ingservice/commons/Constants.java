@@ -1,6 +1,8 @@
 package com.game.b1ingservice.commons;
 
 public class Constants {
+
+    public static int AMB_ERROR = 999;
     public enum  ERROR
     {
         ERR_TOKEN("Your token has expired"),

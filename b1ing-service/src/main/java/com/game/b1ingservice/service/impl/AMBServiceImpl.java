@@ -1,5 +1,6 @@
 package com.game.b1ingservice.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.game.b1ingservice.config.AMBProperty;
 import com.game.b1ingservice.payload.amb.*;
@@ -9,6 +10,8 @@ import okhttp3.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import static com.game.b1ingservice.commons.Constants.AMB_ERROR;
 
 @Slf4j
 @Service
@@ -27,7 +30,7 @@ public class AMBServiceImpl implements AMBService {
 
     @Override
     public AmbResponse<CreateUserRes> createUser(CreateUserReq createUserReq) {
-        AmbResponse<CreateUserRes> res = new AmbResponse<>();
+        AmbResponse<CreateUserRes> ambResponse = new AmbResponse<>();
         try {
             String signature = String.format("%s:%s:%s", createUserReq.getMemberLoginName(), createUserReq.getMemberLoginPass(), ambProperty.getPrefix());
             createUserReq.setSignature(DigestUtils.md5Hex(signature));
@@ -42,17 +45,24 @@ public class AMBServiceImpl implements AMBService {
 
             Response response = client.newCall(request).execute();
 
-            ResponseBody responseBody = response.body();
+            log.info("createUser {} : {}", createUserReq.getMemberLoginName(), response);
 
+            if (response.code() != 200) {
+                ambResponse.setCode(AMB_ERROR);
+                return ambResponse;
+            }
+            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<CreateUserRes>>() {
+            });
         } catch (Exception e) {
-            res.setCode(9999);
+            log.error("getCredit", e);
+            ambResponse.setCode(AMB_ERROR);
         }
-
-        return null;
+        return ambResponse;
     }
 
     @Override
     public AmbResponse resetPassword(ResetPasswordReq resetPasswordReq, String username) {
+        AmbResponse ambResponse = new AmbResponse<>();
         try {
             String signature = String.format("%s:%s", resetPasswordReq.getPassword(), ambProperty.getPrefix());
             resetPasswordReq.setSignature(signature);
@@ -63,14 +73,27 @@ public class AMBServiceImpl implements AMBService {
                     .addHeader("Content-Type", "application/json")
                     .build();
             Response response = client.newCall(request).execute();
-        } catch (Exception e) {
 
+            log.info("getCredit {} : {}", username, response);
+
+            if (response.code() != 200) {
+                ambResponse.setCode(AMB_ERROR);
+                return ambResponse;
+            }
+
+            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse>() {
+            });
+
+        } catch (Exception e) {
+            log.error("resetPassword", e);
+            ambResponse.setCode(AMB_ERROR);
         }
-        return null;
+        return ambResponse;
     }
 
     @Override
     public AmbResponse<CreateUserRes> withdraw(WithdrawReq withdrawReq, String username) {
+        AmbResponse<CreateUserRes> ambResponse = new AmbResponse<>();
         try {
             String signature = String.format("%s:%s:%s", withdrawReq.getAmount(), username, ambProperty.getPrefix());
             withdrawReq.setSignature(DigestUtils.md5Hex(signature));
@@ -82,14 +105,25 @@ public class AMBServiceImpl implements AMBService {
                     .build();
 
             Response response = client.newCall(request).execute();
-        } catch (Exception e) {
 
+            log.info("withdraw {} : {}", username, response);
+
+            if (response.code() != 200) {
+                ambResponse.setCode(AMB_ERROR);
+                return ambResponse;
+            }
+            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<CreateUserRes>>() {
+            });
+        } catch (Exception e) {
+            log.error("withdraw", e);
+            ambResponse.setCode(AMB_ERROR);
         }
-        return null;
+        return ambResponse;
     }
 
     @Override
     public AmbResponse<DepositRes> deposit(DepositReq depositReq, String username) {
+        AmbResponse<DepositRes> ambResponse = new AmbResponse<>();
         try {
             String signature = String.format("%s:%s:%s", depositReq.getAmount(), username, ambProperty.getPrefix());
             depositReq.setSignature(DigestUtils.md5Hex(signature));
@@ -102,17 +136,26 @@ public class AMBServiceImpl implements AMBService {
 
             Response response = client.newCall(request).execute();
 
-            log.info("deposit {} : {}", response, response.body().string());
+            log.info("deposit {} : {}", username, response);
+            if (response.code() != 200) {
+                ambResponse.setCode(AMB_ERROR);
+                return ambResponse;
+            }
+
+            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<DepositRes>>() {
+            });
         } catch (Exception e) {
             log.error("deposit", e);
+            ambResponse.setCode(AMB_ERROR);
         }
-        return null;
+        return ambResponse;
     }
 
     @Override
     public AmbResponse<GameStatusRes> getGameStatus(GameStatusReq gameStatusReq) {
-        try {
+        AmbResponse<GameStatusRes> ambResponse = new AmbResponse<>();
 
+        try {
             String signature = String.format("%s:%s", ambProperty.getPrefix(), ambProperty.getClientname());
             gameStatusReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(gameStatusReq), MEDIA_JSON);
@@ -122,14 +165,25 @@ public class AMBServiceImpl implements AMBService {
                     .addHeader("Content-Type", "application/json")
                     .build();
             Response response = client.newCall(request).execute();
-        } catch (Exception e) {
 
+            log.info("getGameStatus {} : {}", gameStatusReq.getUsername(), response);
+            if (response.code() != 200) {
+                ambResponse.setCode(AMB_ERROR);
+                return ambResponse;
+            }
+
+            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<GameStatusRes>>() {
+            });
+        } catch (Exception e) {
+            log.error("getGameStatus", e);
+            ambResponse.setCode(AMB_ERROR);
         }
-        return null;
+        return ambResponse;
     }
 
     @Override
     public AmbResponse<GetCreditRes> getCredit(String username) {
+        AmbResponse<GetCreditRes> ambResponse = new AmbResponse<>();
         try {
             Request request = new Request.Builder()
                     .url(String.format("%s/credit/%s/%s", ambProperty.getUrl(), ambProperty.getKey(), username))
@@ -138,11 +192,19 @@ public class AMBServiceImpl implements AMBService {
 
             Response response = client.newCall(request).execute();
 
-            log.info("get credit {} : {}", response, response.body().string());
+            log.info("getCredit {} : {}", username, response);
+
+            if (response.code() != 200) {
+                ambResponse.setCode(AMB_ERROR);
+                return ambResponse;
+            }
+            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<GetCreditRes>>() {
+            });
         } catch (Exception e) {
             log.error("getCredit", e);
+            ambResponse.setCode(AMB_ERROR);
         }
-        return null;
+        return ambResponse;
     }
 
 
