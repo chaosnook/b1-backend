@@ -6,7 +6,7 @@ public interface AMBService {
 
     AmbResponse<CreateUserRes> createUser(CreateUserReq createUserReq);
 
-    AmbResponse resetPassword(ResetPasswordReq resetPasswordReq);
+    AmbResponse resetPassword(ResetPasswordReq resetPasswordReq, String username);
 
     AmbResponse<CreateUserRes> withdraw(WithdrawReq withdrawReq, String username);
 

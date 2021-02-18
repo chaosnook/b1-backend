@@ -27,8 +27,8 @@ public class AMBServiceImpl implements AMBService {
 
     @Override
     public AmbResponse<CreateUserRes> createUser(CreateUserReq createUserReq) {
+        AmbResponse<CreateUserRes> res = new AmbResponse<>();
         try {
-
             String signature = String.format("%s:%s:%s", createUserReq.getMemberLoginName(), createUserReq.getMemberLoginPass(), ambProperty.getPrefix());
             createUserReq.setSignature(DigestUtils.md5Hex(signature));
 
@@ -42,17 +42,30 @@ public class AMBServiceImpl implements AMBService {
 
             Response response = client.newCall(request).execute();
 
+            ResponseBody responseBody = response.body();
 
         } catch (Exception e) {
-
+            res.setCode(9999);
         }
 
         return null;
     }
 
     @Override
-    public AmbResponse resetPassword(ResetPasswordReq resetPasswordReq) {
+    public AmbResponse resetPassword(ResetPasswordReq resetPasswordReq, String username) {
+        try {
+            String signature = String.format("%s:%s", resetPasswordReq.getPassword(), ambProperty.getPrefix());
+            resetPasswordReq.setSignature(signature);
+            RequestBody body = RequestBody.create(objectMapper.writeValueAsString(resetPasswordReq), MEDIA_JSON);
+            Request request = new Request.Builder()
+                    .url(String.format("%s/reset-password/%s/%s", ambProperty.getUrl(), ambProperty.getKey(), username))
+                    .method("PUT", body)
+                    .addHeader("Content-Type", "application/json")
+                    .build();
+            Response response = client.newCall(request).execute();
+        } catch (Exception e) {
 
+        }
         return null;
     }
 
@@ -89,9 +102,9 @@ public class AMBServiceImpl implements AMBService {
 
             Response response = client.newCall(request).execute();
 
-            log.info("deposit {} : {}" , response, response.body().string());
+            log.info("deposit {} : {}", response, response.body().string());
         } catch (Exception e) {
-            log.error("deposit" , e);
+            log.error("deposit", e);
         }
         return null;
     }
@@ -125,9 +138,9 @@ public class AMBServiceImpl implements AMBService {
 
             Response response = client.newCall(request).execute();
 
-            log.info("get credit {} : {}" , response, response.body().string());
+            log.info("get credit {} : {}", response, response.body().string());
         } catch (Exception e) {
-            log.error("getCredit" , e);
+            log.error("getCredit", e);
         }
         return null;
     }

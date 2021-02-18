@@ -214,7 +214,7 @@ public class WebUserServiceImpl implements WebUserService {
             user.setPassword(AESUtils.encrypt(passwordGenerator.generateStrongPassword()));
 
             // Call reset password at AMB
-            AmbResponse ambResponse = ambService.resetPassword(ResetPasswordReq.builder().password(password).build());
+            AmbResponse ambResponse = ambService.resetPassword(ResetPasswordReq.builder().password(password).build() , user.getUsername());
             if (ambResponse.getCode() != 0) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_99999);
             }
