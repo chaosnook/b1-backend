@@ -30,6 +30,7 @@ public class MasterBankController {
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, res);
     }
 
+
     @GetMapping(value = "/bankDeposit",
             consumes = { MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })

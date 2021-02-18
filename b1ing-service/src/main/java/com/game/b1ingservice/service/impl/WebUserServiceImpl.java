@@ -4,6 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.admin.LoginRequest;
+import com.game.b1ingservice.payload.amb.AmbResponse;
+import com.game.b1ingservice.payload.amb.CreateUserReq;
+import com.game.b1ingservice.payload.amb.CreateUserRes;
+import com.game.b1ingservice.payload.amb.ResetPasswordReq;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.userinfo.UserInfoResponse;
 import com.game.b1ingservice.payload.userinfo.UserProfile;
@@ -19,6 +23,7 @@ import com.game.b1ingservice.postgres.repository.AffiliateHistoryRepository;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.ConfigRepository;
 import com.game.b1ingservice.postgres.repository.WebUserRepository;
+import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.WalletService;
 import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.utils.AESUtils;
@@ -72,6 +77,9 @@ public class WebUserServiceImpl implements WebUserService {
     private ConfigRepository configRepository;
 
     @Autowired
+    private AMBService ambService;
+
+    @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
     private ObjectMapper mapper = new ObjectMapper();
@@ -99,6 +107,17 @@ public class WebUserServiceImpl implements WebUserService {
         user.setLastName(req.getLastName());
         user.setLine(req.getLine());
         user.setIsBonus(req.getIsBonus());
+
+        // Call create usr AMB
+        AmbResponse<CreateUserRes> ambResponse = ambService.createUser(CreateUserReq.builder()
+                .phoneNo(req.getTel())
+                .memberLoginName(username)
+                .memberLoginPass(req.getPassword())
+                .build());
+
+        if (ambResponse.getCode() != 0) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_99999);
+        }
 
         WebUser userResp = webUserRepository.save(user);
 
@@ -192,7 +211,14 @@ public class WebUserServiceImpl implements WebUserService {
         if (opt.isPresent()) {
 
             WebUser user = opt.get();
-            user.setPassword(bCryptPasswordEncoder.encode(passwordGenerator.generateStrongPassword()));
+            user.setPassword(AESUtils.encrypt(passwordGenerator.generateStrongPassword()));
+
+            // Call reset password at AMB
+            AmbResponse ambResponse = ambService.resetPassword(ResetPasswordReq.builder().password(password).build());
+            if (ambResponse.getCode() != 0) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_99999);
+            }
+
             webUserRepository.save(user);
 
             WebUserUpdate resp = new WebUserUpdate();
