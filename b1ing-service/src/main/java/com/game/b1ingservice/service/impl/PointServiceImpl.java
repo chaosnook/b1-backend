@@ -2,12 +2,14 @@ package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
+import com.game.b1ingservice.payload.amb.DepositReq;
 import com.game.b1ingservice.payload.point.PointTransRequest;
 import com.game.b1ingservice.payload.point.PointTransResponse;
 import com.game.b1ingservice.postgres.entity.Wallet;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.jdbc.dto.PointHistoryDTO;
 import com.game.b1ingservice.postgres.repository.WalletRepository;
+import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.PointHistoryService;
 import com.game.b1ingservice.service.PointService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Slf4j
 @Service
@@ -25,6 +28,9 @@ public class PointServiceImpl implements PointService {
 
     @Autowired
     private PointHistoryService pointHistoryService;
+
+    @Autowired
+    private AMBService ambService;
 
     @Override
     public PointTransResponse pointTransfer(PointTransRequest transRequest, String username, String prefix) {
@@ -51,7 +57,7 @@ public class PointServiceImpl implements PointService {
             throw new ErrorMessageException(Constants.ERROR.ERR_04002);
         }
 
-        int updated = this.transferPointToCredit(point, webUser.getId());
+        int updated = this.transferPointToCredit(point, webUser.getId(), username);
 
         PointTransResponse response = new PointTransResponse();
         response.setStatus(updated > 0);
@@ -113,10 +119,14 @@ public class PointServiceImpl implements PointService {
         return 0;
     }
 
-    private int transferPointToCredit(BigDecimal point, Long userId) {
+    private int transferPointToCredit(BigDecimal point, Long userId, String username) {
         try {
-            //TODO call add point to AMB
-            return walletRepository.transferPointToCredit(point, point, userId);
+            point = point.setScale(2, RoundingMode.HALF_DOWN);
+            int updated =   walletRepository.transferPointToCredit(point, point, userId);
+            if (updated > 0) {
+                ambService.deposit(DepositReq.builder().amount(point.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build() , username);
+            }
+            return updated;
         } catch (Exception e) {
             log.error("transferPointToCredit", e);
         }

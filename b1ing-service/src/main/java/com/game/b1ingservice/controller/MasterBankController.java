@@ -44,6 +44,4 @@ public class MasterBankController {
     public ResponseEntity<?> getMasterBankWithdraw() {
         return masterBankService.getMasterBankWithdraw();
     }
-
-
 }

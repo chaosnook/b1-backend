@@ -58,7 +58,7 @@ public class DepositHistory extends DateAudit<String> implements Serializable {
     private String remark;
 
     @Column(name = "bonus_amount", columnDefinition = "numeric(18,2)")
-    private String bonusAmount;
+    private BigDecimal bonusAmount;
 
     @Column(name = "transaction_id", columnDefinition = "character varying(100)")
     private String transactionId;

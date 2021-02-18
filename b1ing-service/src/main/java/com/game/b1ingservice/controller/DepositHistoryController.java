@@ -2,7 +2,8 @@ package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.deposithistory.DepositHistorySearchRequest;
-import com.game.b1ingservice.payload.deposithistory.DepositHistorySearchResponse;
+import com.game.b1ingservice.payload.deposithistory.DepositListHistorySearchResponse;
+import com.game.b1ingservice.payload.deposithistory.DepositSummaryHistorySearchResponse;
 import com.game.b1ingservice.service.DepositHistoryService;
 import com.game.b1ingservice.specification.SearchDepositHistorySpecification;
 import com.game.b1ingservice.utils.ResponseHelper;
@@ -22,10 +23,17 @@ public class DepositHistoryController {
     @Autowired
     private DepositHistoryService depositHistoryService;
 
-    @PostMapping(value = "/search/depositHistory", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> searchDepositHistory(@RequestBody DepositHistorySearchRequest req){
+    @PostMapping(value = "/search/list/depositHistory", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> searchListDepositHistory(@RequestBody DepositHistorySearchRequest req){
         SearchDepositHistorySpecification specification = new SearchDepositHistorySpecification(req);
-        Page<DepositHistorySearchResponse> searchResponse = depositHistoryService.findByCriteria(specification, specification.getPageable(), req.getType());
+        Page<DepositListHistorySearchResponse> searchResponse = depositHistoryService.findByCriteria(specification, specification.getPageable(), req.getType());
+        return ResponseHelper.successPage(searchResponse, "data", Constants.MESSAGE.MSG_00000.msg);
+    }
+
+    @PostMapping(value = "/search/summary/depositHistory", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> searchSummaryDepositHistory(@RequestBody DepositHistorySearchRequest req){
+        SearchDepositHistorySpecification specification = new SearchDepositHistorySpecification(req);
+        Page<DepositSummaryHistorySearchResponse> searchResponse = depositHistoryService.findSummaryByCriteria(specification, specification.getPageable(), req.getType());
         return ResponseHelper.successPage(searchResponse, "data", Constants.MESSAGE.MSG_00000.msg);
     }
 }
