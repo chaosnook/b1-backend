@@ -69,6 +69,4 @@ public class WebUserController {
         WebUserHistoryResponse obj = webUserService.registerHistory(webUserHistoryRequest, principal);
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, obj);
     }
-
-
 }
