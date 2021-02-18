@@ -23,4 +23,5 @@ public interface AdminService {
 
     ProfitReportResponse profitReport(ProfitReportRequest profitReportRequest, UserPrincipal principal);
 
+//    List<MenuResponse> listMenu();
 }
