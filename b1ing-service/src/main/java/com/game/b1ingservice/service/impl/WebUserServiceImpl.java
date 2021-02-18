@@ -93,12 +93,11 @@ public class WebUserServiceImpl implements WebUserService {
         }
 
         String tel = req.getTel();
-        String username = prefix + tel.substring(1, tel.length() - 1);
+        String username = tel.substring(1, tel.length() - 1);
 
         WebUser user = new WebUser();
         user.setAgent(opt.get());
 
-        user.setUsername(username);
         user.setTel(req.getTel());
         user.setPassword(AESUtils.encrypt(req.getPassword()));
         user.setBankName(req.getBankName());
@@ -118,6 +117,8 @@ public class WebUserServiceImpl implements WebUserService {
         if (ambResponse.getCode() != 0) {
             throw new ErrorMessageException(Constants.ERROR.ERR_99999);
         }
+
+        user.setUsername(ambResponse.getResult().getLoginName());
 
         WebUser userResp = webUserRepository.save(user);
 
