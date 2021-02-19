@@ -33,7 +33,7 @@ public class AMBServiceImpl implements AMBService {
     public AmbResponse<CreateUserRes> createUser(CreateUserReq createUserReq, Agent agent) {
         AmbResponse<CreateUserRes> ambResponse = new AmbResponse<>();
         try {
-            String signature = String.format("%s:%s:%s", createUserReq.getMemberLoginName(), createUserReq.getMemberLoginPass(), agent.getPrefix());
+            String signature = String.format("%s:%s:%s", createUserReq.getMemberLoginName(), createUserReq.getMemberLoginPass(), agent.getPrefix().toLowerCase());
             createUserReq.setSignature(DigestUtils.md5Hex(signature));
 
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(createUserReq), MEDIA_JSON);
@@ -65,7 +65,7 @@ public class AMBServiceImpl implements AMBService {
     public AmbResponse resetPassword(ResetPasswordReq resetPasswordReq, String username, Agent agent) {
         AmbResponse ambResponse = new AmbResponse<>();
         try {
-            String signature = String.format("%s:%s", resetPasswordReq.getPassword(), agent.getPrefix());
+            String signature = String.format("%s:%s", resetPasswordReq.getPassword(), agent.getPrefix().toLowerCase());
             resetPasswordReq.setSignature(signature);
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(resetPasswordReq), MEDIA_JSON);
             Request request = new Request.Builder()
@@ -93,10 +93,10 @@ public class AMBServiceImpl implements AMBService {
     }
 
     @Override
-    public AmbResponse<CreateUserRes> withdraw(WithdrawReq withdrawReq, String username, Agent agent) {
-        AmbResponse<CreateUserRes> ambResponse = new AmbResponse<>();
+    public AmbResponse<WithdrawRes> withdraw(WithdrawReq withdrawReq, String username, Agent agent) {
+        AmbResponse<WithdrawRes> ambResponse = new AmbResponse<>();
         try {
-            String signature = String.format("%s:%s:%s", withdrawReq.getAmount(), username, agent.getPrefix());
+            String signature = String.format("%s:%s:%s", withdrawReq.getAmount(), username, agent.getPrefix().toLowerCase());
             withdrawReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(withdrawReq), MEDIA_JSON);
             Request request = new Request.Builder()
@@ -113,7 +113,7 @@ public class AMBServiceImpl implements AMBService {
                 ambResponse.setCode(AMB_ERROR);
                 return ambResponse;
             }
-            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<CreateUserRes>>() {
+            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<WithdrawRes>>() {
             });
         } catch (Exception e) {
             log.error("withdraw", e);
@@ -126,7 +126,7 @@ public class AMBServiceImpl implements AMBService {
     public AmbResponse<DepositRes> deposit(DepositReq depositReq, String username, Agent agent) {
         AmbResponse<DepositRes> ambResponse = new AmbResponse<>();
         try {
-            String signature = String.format("%s:%s:%s", depositReq.getAmount(), username, agent.getPrefix());
+            String signature = String.format("%s:%s:%s", depositReq.getAmount(), username, agent.getPrefix().toLowerCase());
             depositReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(depositReq), MEDIA_JSON);
             Request request = new Request.Builder()
@@ -156,7 +156,7 @@ public class AMBServiceImpl implements AMBService {
     public AmbResponse<GameStatusRes> getGameStatus(GameStatusReq gameStatusReq, Agent agent) {
         AmbResponse<GameStatusRes> ambResponse = new AmbResponse<>();
         try {
-            String signature = String.format("%s:%s", agent.getPrefix(), agent.getClientName());
+            String signature = String.format("%s:%s", agent.getPrefix().toLowerCase(), agent.getClientName());
             gameStatusReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(gameStatusReq), MEDIA_JSON);
             Request request = new Request.Builder()

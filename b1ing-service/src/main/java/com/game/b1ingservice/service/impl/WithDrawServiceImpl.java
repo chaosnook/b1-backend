@@ -6,6 +6,7 @@ import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.amb.AmbResponse;
 import com.game.b1ingservice.payload.amb.CreateUserRes;
 import com.game.b1ingservice.payload.amb.WithdrawReq;
+import com.game.b1ingservice.payload.amb.WithdrawRes;
 import com.game.b1ingservice.payload.withdraw.WithDrawRequest;
 import com.game.b1ingservice.payload.withdraw.WithDrawResponse;
 import com.game.b1ingservice.postgres.entity.*;
@@ -78,7 +79,7 @@ public class WithDrawServiceImpl implements WithDrawService {
             isAuto = creditWithDraw.compareTo(minW) >= 0;
         }
 
-        AmbResponse<CreateUserRes> ambRes = ambService.withdraw(
+        AmbResponse<WithdrawRes> ambRes = ambService.withdraw(
                 WithdrawReq.builder().amount(creditWithDraw.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build(),
                 username, webUser.getAgent());
 

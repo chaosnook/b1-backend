@@ -1,34 +1,39 @@
 package com.game.b1ingservice.controller;
 
-import com.game.b1ingservice.payload.amb.DepositReq;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.game.b1ingservice.payload.amb.*;
 import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
 import com.game.b1ingservice.service.AMBService;
-import com.game.b1ingservice.utils.ResponseHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import static com.game.b1ingservice.commons.Constants.AMB_ERROR;
 
 @RestController
-@RequestMapping("api")
+@RequestMapping("api/test")
 public class TestController {
     @Autowired
     private WebUserJdbcRepository webUserJdbcRepository;
-
     @Autowired
     private AMBService ambService;
+    @Autowired
+    private OkHttpClient client;
 
-    private static final Logger logger = LoggerFactory.getLogger(TestController.class);
+    @Autowired
+    private ObjectMapper objectMapper;
 
-//    @GetMapping("/test/hello")
-//    @ResponseBody
-//    public Object testSendToSource() {
-//        return webUserJdbcRepository.summaryRegisterUsersByDay("2021-02-01");
-//    }
+
+    private static final okhttp3.MediaType MEDIA_JSON = okhttp3.MediaType.parse("application/json");
+
+    @Value("${agent.b1ing.url}")
+    private String urlApi;
 
     @GetMapping("/testtoken")
     @ResponseBody
@@ -37,11 +42,152 @@ public class TestController {
     }
 
 
-    @GetMapping("/test/amb")
-    public ResponseEntity<?> testSendToSource() {
-//        ambService.getCredit("VBKK0000000");
-//        ambService.deposit(DepositReq.builder().amount("10.00").build(), "VBKK0000000");
-        return ResponseHelper.success("ok");
+    @PostMapping(value = "/amb/create/{key}",
+            consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public AmbResponse<CreateUserRes> createUser(@RequestBody CreateUserReq createUserReq, @PathVariable String key) {
+        AmbResponse<CreateUserRes> ambResponse = new AmbResponse<>();
+        try {
+            okhttp3.RequestBody body = okhttp3.RequestBody.create(objectMapper.writeValueAsString(createUserReq), MEDIA_JSON);
+
+            Request request = new Request.Builder()
+                    .url(String.format("%s/create/%s", urlApi, key))
+                    .method("POST", body)
+                    .addHeader("Content-Type", "application/json")
+                    .build();
+
+            Response response = client.newCall(request).execute();
+
+            if (response.code() != 200) {
+                ambResponse.setCode(AMB_ERROR);
+                return ambResponse;
+            }
+
+            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<CreateUserRes>>() {
+            });
+
+        } catch (Exception e) {
+            ambResponse.setCode(AMB_ERROR);
+        }
+        return ambResponse;
     }
 
+
+    @PutMapping(value = "/amb/reset-password/{key}/{username}",
+            consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public AmbResponse resetPassword(@RequestBody ResetPasswordReq resetPasswordReq,
+                                     @PathVariable String key, @PathVariable String username) {
+
+        AmbResponse ambResponse = new AmbResponse<>();
+        try {
+            okhttp3.RequestBody body = okhttp3.RequestBody.create(objectMapper.writeValueAsString(resetPasswordReq), MEDIA_JSON);
+            Request request = new Request.Builder()
+                    .url(String.format("%s/reset-password/%s/%s", urlApi, key, username))
+                    .method("PUT", body)
+                    .addHeader("Content-Type", "application/json")
+                    .build();
+            Response response = client.newCall(request).execute();
+
+            if (response.code() != 200) {
+                ambResponse.setCode(AMB_ERROR);
+                return ambResponse;
+            }
+
+            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse>() {
+            });
+        } catch (Exception e) {
+            ambResponse.setCode(AMB_ERROR);
+        }
+        return ambResponse;
+
+    }
+
+    @PostMapping(value = "/amb/withdraw/{key}/{username}",
+            consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public AmbResponse<WithdrawRes> withdraw(@RequestBody WithdrawReq withdrawReq,
+                                             @PathVariable String key, @PathVariable String username) {
+        AmbResponse<WithdrawRes> ambResponse = new AmbResponse<>();
+        try {
+            okhttp3.RequestBody body = okhttp3.RequestBody.create(objectMapper.writeValueAsString(withdrawReq), MEDIA_JSON);
+
+            Request request = new Request.Builder()
+                    .url(String.format("%s/withdraw/%s/%s", urlApi, key, username))
+                    .method("POST", body)
+                    .addHeader("Content-Type", "application/json")
+                    .build();
+
+            Response response = client.newCall(request).execute();
+
+            if (response.code() != 200) {
+                ambResponse.setCode(AMB_ERROR);
+                return ambResponse;
+            }
+
+            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<WithdrawRes>>() {
+            });
+
+        } catch (Exception e) {
+            ambResponse.setCode(AMB_ERROR);
+        }
+        return ambResponse;
+    }
+
+    @PostMapping(value = "/amb/deposit/{key}/{username}",
+            consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public AmbResponse<DepositRes> deposit(@RequestBody DepositReq depositReq,
+                                           @PathVariable String key, @PathVariable String username) {
+        AmbResponse<DepositRes> ambResponse = new AmbResponse<>();
+        try {
+            okhttp3.RequestBody body = okhttp3.RequestBody.create(objectMapper.writeValueAsString(depositReq), MEDIA_JSON);
+
+            Request request = new Request.Builder()
+                    .url(String.format("%s/deposit/%s/%s", urlApi, key, username))
+                    .method("POST", body)
+                    .addHeader("Content-Type", "application/json")
+                    .build();
+
+            Response response = client.newCall(request).execute();
+
+            if (response.code() != 200) {
+                ambResponse.setCode(AMB_ERROR);
+                return ambResponse;
+            }
+
+            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<DepositRes>>() {
+            });
+
+        } catch (Exception e) {
+            ambResponse.setCode(AMB_ERROR);
+        }
+        return ambResponse;
+    }
+
+
+    @PostMapping(value = "/amb/deposit/{key}/{username}",
+            consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public AmbResponse<GetCreditRes> getCredit(@PathVariable String key, @PathVariable String username) {
+        AmbResponse<GetCreditRes> ambResponse = new AmbResponse<>();
+        try {
+            Request request = new Request.Builder()
+                    .url(String.format("%s/credit/%s/%s", urlApi, key, username))
+                    .method("GET", null)
+                    .build();
+
+            Response response = client.newCall(request).execute();
+
+            if (response.code() != 200) {
+                ambResponse.setCode(AMB_ERROR);
+                return ambResponse;
+            }
+            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<GetCreditRes>>() {
+            });
+        } catch (Exception e) {
+            ambResponse.setCode(AMB_ERROR);
+        }
+        return ambResponse;
+    }
 }

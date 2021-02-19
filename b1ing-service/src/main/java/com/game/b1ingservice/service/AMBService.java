@@ -9,7 +9,7 @@ public interface AMBService {
 
     AmbResponse resetPassword(ResetPasswordReq resetPasswordReq, String username, Agent agent);
 
-    AmbResponse<CreateUserRes> withdraw(WithdrawReq withdrawReq, String username, Agent agent);
+    AmbResponse<WithdrawRes> withdraw(WithdrawReq withdrawReq, String username, Agent agent);
 
     AmbResponse<DepositRes> deposit(DepositReq depositReq, String username, Agent agent);
 
