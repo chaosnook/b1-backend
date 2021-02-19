@@ -93,7 +93,7 @@ public class WebUserServiceImpl implements WebUserService {
         }
 
         String tel = req.getTel();
-        String username = tel.substring(1, tel.length() - 1);
+        String username = tel.substring(1);
 
         WebUser user = new WebUser();
         user.setAgent(opt.get());
