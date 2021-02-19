@@ -2,13 +2,14 @@ package com.game.b1ingservice.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.game.b1ingservice.config.AMBProperty;
 import com.game.b1ingservice.payload.amb.*;
+import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.service.AMBService;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import static com.game.b1ingservice.commons.Constants.AMB_ERROR;
@@ -23,22 +24,22 @@ public class AMBServiceImpl implements AMBService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private AMBProperty ambProperty;
+    @Value("${agent.b1ing.url}")
+    private String urlApi;
 
-    private static MediaType MEDIA_JSON = MediaType.parse("application/json");
+    private static final MediaType MEDIA_JSON = MediaType.parse("application/json");
 
     @Override
-    public AmbResponse<CreateUserRes> createUser(CreateUserReq createUserReq) {
+    public AmbResponse<CreateUserRes> createUser(CreateUserReq createUserReq, Agent agent) {
         AmbResponse<CreateUserRes> ambResponse = new AmbResponse<>();
         try {
-            String signature = String.format("%s:%s:%s", createUserReq.getMemberLoginName(), createUserReq.getMemberLoginPass(), ambProperty.getPrefix());
+            String signature = String.format("%s:%s:%s", createUserReq.getMemberLoginName(), createUserReq.getMemberLoginPass(), agent.getPrefix());
             createUserReq.setSignature(DigestUtils.md5Hex(signature));
 
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(createUserReq), MEDIA_JSON);
 
             Request request = new Request.Builder()
-                    .url(String.format("%s/create/%s", ambProperty.getUrl(), ambProperty.getKey()))
+                    .url(String.format("%s/create/%s", urlApi, agent.getKey()))
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json")
                     .build();
@@ -61,14 +62,14 @@ public class AMBServiceImpl implements AMBService {
     }
 
     @Override
-    public AmbResponse resetPassword(ResetPasswordReq resetPasswordReq, String username) {
+    public AmbResponse resetPassword(ResetPasswordReq resetPasswordReq, String username, Agent agent) {
         AmbResponse ambResponse = new AmbResponse<>();
         try {
-            String signature = String.format("%s:%s", resetPasswordReq.getPassword(), ambProperty.getPrefix());
+            String signature = String.format("%s:%s", resetPasswordReq.getPassword(), agent.getPrefix());
             resetPasswordReq.setSignature(signature);
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(resetPasswordReq), MEDIA_JSON);
             Request request = new Request.Builder()
-                    .url(String.format("%s/reset-password/%s/%s", ambProperty.getUrl(), ambProperty.getKey(), username))
+                    .url(String.format("%s/reset-password/%s/%s", urlApi, agent.getKey(), username))
                     .method("PUT", body)
                     .addHeader("Content-Type", "application/json")
                     .build();
@@ -92,14 +93,14 @@ public class AMBServiceImpl implements AMBService {
     }
 
     @Override
-    public AmbResponse<CreateUserRes> withdraw(WithdrawReq withdrawReq, String username) {
+    public AmbResponse<CreateUserRes> withdraw(WithdrawReq withdrawReq, String username, Agent agent) {
         AmbResponse<CreateUserRes> ambResponse = new AmbResponse<>();
         try {
-            String signature = String.format("%s:%s:%s", withdrawReq.getAmount(), username, ambProperty.getPrefix());
+            String signature = String.format("%s:%s:%s", withdrawReq.getAmount(), username, agent.getPrefix());
             withdrawReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(withdrawReq), MEDIA_JSON);
             Request request = new Request.Builder()
-                    .url(String.format("%s/withdraw/%s/%s", ambProperty.getUrl(), ambProperty.getKey(), username))
+                    .url(String.format("%s/withdraw/%s/%s", urlApi, agent.getKey(), username))
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json")
                     .build();
@@ -122,14 +123,14 @@ public class AMBServiceImpl implements AMBService {
     }
 
     @Override
-    public AmbResponse<DepositRes> deposit(DepositReq depositReq, String username) {
+    public AmbResponse<DepositRes> deposit(DepositReq depositReq, String username, Agent agent) {
         AmbResponse<DepositRes> ambResponse = new AmbResponse<>();
         try {
-            String signature = String.format("%s:%s:%s", depositReq.getAmount(), username, ambProperty.getPrefix());
+            String signature = String.format("%s:%s:%s", depositReq.getAmount(), username, agent.getPrefix());
             depositReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(depositReq), MEDIA_JSON);
             Request request = new Request.Builder()
-                    .url(String.format("%s/deposit/%s/%s", ambProperty.getUrl(), ambProperty.getKey(), username))
+                    .url(String.format("%s/deposit/%s/%s", urlApi, agent.getKey(), username))
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json")
                     .build();
@@ -152,15 +153,14 @@ public class AMBServiceImpl implements AMBService {
     }
 
     @Override
-    public AmbResponse<GameStatusRes> getGameStatus(GameStatusReq gameStatusReq) {
+    public AmbResponse<GameStatusRes> getGameStatus(GameStatusReq gameStatusReq, Agent agent) {
         AmbResponse<GameStatusRes> ambResponse = new AmbResponse<>();
-
         try {
-            String signature = String.format("%s:%s", ambProperty.getPrefix(), ambProperty.getClientname());
+            String signature = String.format("%s:%s", agent.getPrefix(), agent.getClientName());
             gameStatusReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(gameStatusReq), MEDIA_JSON);
             Request request = new Request.Builder()
-                    .url(String.format("%s/gameStatus/%s", ambProperty.getUrl(), ambProperty.getKey()))
+                    .url(String.format("%s/gameStatus/%s", urlApi, agent.getKey()))
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json")
                     .build();
@@ -182,11 +182,11 @@ public class AMBServiceImpl implements AMBService {
     }
 
     @Override
-    public AmbResponse<GetCreditRes> getCredit(String username) {
+    public AmbResponse<GetCreditRes> getCredit(String username, Agent agent) {
         AmbResponse<GetCreditRes> ambResponse = new AmbResponse<>();
         try {
             Request request = new Request.Builder()
-                    .url(String.format("%s/credit/%s/%s", ambProperty.getUrl(), ambProperty.getKey(), username))
+                    .url(String.format("%s/credit/%s/%s", urlApi, agent.getKey(), username))
                     .method("GET", null)
                     .build();
 

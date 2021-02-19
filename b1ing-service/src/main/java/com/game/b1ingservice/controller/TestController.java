@@ -39,8 +39,8 @@ public class TestController {
 
     @GetMapping("/test/amb")
     public ResponseEntity<?> testSendToSource() {
-        ambService.getCredit("VBKK0000000");
-        ambService.deposit(DepositReq.builder().amount("10.00").build(), "VBKK0000000");
+//        ambService.getCredit("VBKK0000000");
+//        ambService.deposit(DepositReq.builder().amount("10.00").build(), "VBKK0000000");
         return ResponseHelper.success("ok");
     }
 

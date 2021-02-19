@@ -112,7 +112,7 @@ public class WebUserServiceImpl implements WebUserService {
                 .phoneNo(req.getTel())
                 .memberLoginName(username)
                 .memberLoginPass(req.getPassword())
-                .build());
+                .build() , opt.get());
 
         if (ambResponse.getCode() != 0) {
             throw new ErrorMessageException(Constants.ERROR.ERR_99999);
@@ -215,7 +215,7 @@ public class WebUserServiceImpl implements WebUserService {
             user.setPassword(AESUtils.encrypt(passwordGenerator.generateStrongPassword()));
 
             // Call reset password at AMB
-            AmbResponse ambResponse = ambService.resetPassword(ResetPasswordReq.builder().password(password).build() , user.getUsername());
+            AmbResponse ambResponse = ambService.resetPassword(ResetPasswordReq.builder().password(password).build() , user.getUsername(), opt.get().getAgent());
             if (ambResponse.getCode() != 0) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_99999);
             }
