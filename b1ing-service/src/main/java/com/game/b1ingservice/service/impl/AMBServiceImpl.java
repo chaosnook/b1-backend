@@ -66,16 +66,16 @@ public class AMBServiceImpl implements AMBService {
                     .addHeader("Content-Type", "application/json")
                     .build();
 
-            Response response = client.newCall(request).execute();
+            try (Response response = client.newCall(request).execute()) {
+                log.info("createUser {} : {}", createUserReq.getMemberLoginName(), response);
 
-            log.info("createUser {} : {}", createUserReq.getMemberLoginName(), response);
-
-            if (response.code() != 200) {
-                ambResponse.setCode(AMB_ERROR);
-                return ambResponse;
+                if (response.code() != 200) {
+                    ambResponse.setCode(AMB_ERROR);
+                    return ambResponse;
+                }
+                return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<CreateUserRes>>() {
+                });
             }
-            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<CreateUserRes>>() {
-            });
         } catch (Exception e) {
             log.error("getCredit", e);
             ambResponse.setCode(AMB_ERROR);
@@ -95,18 +95,18 @@ public class AMBServiceImpl implements AMBService {
                     .method("PUT", body)
                     .addHeader("Content-Type", "application/json")
                     .build();
-            Response response = client.newCall(request).execute();
+            try (Response response = client.newCall(request).execute()) {
 
-            log.info("getCredit {} : {}", username, response);
+                log.info("getCredit {} : {}", username, response);
 
-            if (response.code() != 200) {
-                ambResponse.setCode(AMB_ERROR);
-                return ambResponse;
+                if (response.code() != 200) {
+                    ambResponse.setCode(AMB_ERROR);
+                    return ambResponse;
+                }
+
+                return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse>() {
+                });
             }
-
-            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse>() {
-            });
-
         } catch (Exception e) {
             log.error("resetPassword", e);
             ambResponse.setCode(AMB_ERROR);
@@ -127,16 +127,16 @@ public class AMBServiceImpl implements AMBService {
                     .addHeader("Content-Type", "application/json")
                     .build();
 
-            Response response = client.newCall(request).execute();
+            try (Response response = client.newCall(request).execute()) {
+                log.info("withdraw {} : {}", username, response);
 
-            log.info("withdraw {} : {}", username, response);
-
-            if (response.code() != 200) {
-                ambResponse.setCode(AMB_ERROR);
-                return ambResponse;
+                if (response.code() != 200) {
+                    ambResponse.setCode(AMB_ERROR);
+                    return ambResponse;
+                }
+                return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<WithdrawRes>>() {
+                });
             }
-            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<WithdrawRes>>() {
-            });
         } catch (Exception e) {
             log.error("withdraw", e);
             ambResponse.setCode(AMB_ERROR);
@@ -157,16 +157,17 @@ public class AMBServiceImpl implements AMBService {
                     .addHeader("Content-Type", "application/json")
                     .build();
 
-            Response response = client.newCall(request).execute();
+            try (Response response = client.newCall(request).execute()) {
 
-            log.info("deposit {} : {}", username, response);
-            if (response.code() != 200) {
-                ambResponse.setCode(AMB_ERROR);
-                return ambResponse;
+                log.info("deposit {} : {}", username, response);
+                if (response.code() != 200) {
+                    ambResponse.setCode(AMB_ERROR);
+                    return ambResponse;
+                }
+
+                return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<DepositRes>>() {
+                });
             }
-
-            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<DepositRes>>() {
-            });
         } catch (Exception e) {
             log.error("deposit", e);
             ambResponse.setCode(AMB_ERROR);
@@ -186,16 +187,17 @@ public class AMBServiceImpl implements AMBService {
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json")
                     .build();
-            Response response = client.newCall(request).execute();
+            try (Response response = client.newCall(request).execute()) {
 
-            log.info("getGameStatus {} : {}", gameStatusReq.getUsername(), response);
-            if (response.code() != 200) {
-                ambResponse.setCode(AMB_ERROR);
-                return ambResponse;
+                log.info("getGameStatus {} : {}", gameStatusReq.getUsername(), response);
+                if (response.code() != 200) {
+                    ambResponse.setCode(AMB_ERROR);
+                    return ambResponse;
+                }
+
+                return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<GameStatusRes>>() {
+                });
             }
-
-            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<GameStatusRes>>() {
-            });
         } catch (Exception e) {
             log.error("getGameStatus", e);
             ambResponse.setCode(AMB_ERROR);
@@ -212,16 +214,17 @@ public class AMBServiceImpl implements AMBService {
                     .method("GET", null)
                     .build();
 
-            Response response = client.newCall(request).execute();
+            try (Response response = client.newCall(request).execute()) {
 
-            log.info("getCredit {} : {}", username, response);
+                log.info("getCredit {} : {}", username, response);
 
-            if (response.code() != 200) {
-                ambResponse.setCode(AMB_ERROR);
-                return ambResponse;
+                if (response.code() != 200) {
+                    ambResponse.setCode(AMB_ERROR);
+                    return ambResponse;
+                }
+                return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<GetCreditRes>>() {
+                });
             }
-            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<GetCreditRes>>() {
-            });
         } catch (Exception e) {
             log.error("getCredit", e);
             ambResponse.setCode(AMB_ERROR);
