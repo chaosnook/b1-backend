@@ -1,11 +1,12 @@
 package com.game.b1ingservice.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.amb.AmbResponse;
 import com.game.b1ingservice.payload.amb.DepositReq;
 import com.game.b1ingservice.payload.amb.DepositRes;
-import com.game.b1ingservice.payload.bankbot.BankBotAddCreditRequest;
-import com.game.b1ingservice.payload.bankbot.BankBotAddCreditTrueWalletRequest;
+import com.game.b1ingservice.payload.bankbot.*;
 import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
 import com.game.b1ingservice.postgres.entity.TrueWallet;
@@ -17,6 +18,7 @@ import com.game.b1ingservice.postgres.repository.WalletRepository;
 import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.BankBotService;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,10 +46,16 @@ public class BankBotServiceImpl implements BankBotService {
     @Autowired
     private AMBService ambService;
 
+    @Autowired
+    private OkHttpClient client;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+    private static final MediaType MEDIA_JSON = MediaType.parse("application/json");
     @Override
     public void addCredit(BankBotAddCreditRequest request) {
         if (!depositHistoryRepository.existsByTransactionId(request.getTransactionId())) {
-            Optional<Bank> opt = bankRepository.findByBotIp(request.getBotIp());
+            Optional<Bank> opt = bankRepository.findByBankTypeAndBotIp("DEPOSIT",request.getBotIp());
 
             String accountLike = "%" + request.getAccountNo();
 
@@ -146,6 +154,37 @@ public class BankBotServiceImpl implements BankBotService {
             }
             depositHistoryRepository.save(depositHistory);
         }
+    }
+
+    @Override
+    public BankBotScbWithdrawCreditResponse withDrawCredit(BankBotScbWithdrawCreditRequest request) {
+        List<Bank> banks = bankRepository.findByBankTypeAndActiveOrderByBankGroupAscBankOrderAsc("WITHDRAW", true);
+        if (0<banks.size()){
+            Bank bank = banks.get(0);
+
+            try {
+                RequestBody body = RequestBody.create(objectMapper.writeValueAsString(request), MEDIA_JSON);
+                Request bankBotRequest = new Request.Builder()
+                        .url(String.format("http://%s/scb/api/withdraw.php", bank.getBotIp()))
+                        .method("POST", body)
+                        .addHeader("Content-Type", "application/json")
+                        .build();
+
+                Response response = client.newCall(bankBotRequest).execute();
+
+                return objectMapper.readValue(response.body().string(), new TypeReference<BankBotScbWithdrawCreditResponse>() {
+                });
+            }catch (Exception e){
+                BankBotScbWithdrawCreditResponse response = new BankBotScbWithdrawCreditResponse();
+                response.setStatus(false);
+                response.setMessege(e.getLocalizedMessage());
+                return response;
+            }
+        }
+        BankBotScbWithdrawCreditResponse response = new BankBotScbWithdrawCreditResponse();
+        response.setStatus(false);
+        response.setMessege("Not found withdraw bank");
+        return response;
     }
 
     private AmbResponse<DepositRes> sendToAskMeBet(DepositHistory depositHistory,Wallet wallet){

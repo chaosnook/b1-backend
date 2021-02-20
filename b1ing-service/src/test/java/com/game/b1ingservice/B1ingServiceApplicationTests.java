@@ -12,20 +12,20 @@ import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-@SpringBootTest
+//@SpringBootTest
 class B1ingServiceApplicationTests {
 
-    @Autowired
-    private AMBService ambService;
-	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-	@Test
-	void contextLoads() {
-		try {
-			Date d = sdf.parse("2021-02-20T20:28:05.000+07:00".replace(".000+07:00", ""));
-			System.out.println(d.toInstant());
-		}catch (Exception e){
-			e.printStackTrace();
-		}
-	}
+//    @Autowired
+//    private AMBService ambService;
+//	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+//	@Test
+//	void contextLoads() {
+//		try {
+//			Date d = sdf.parse("2021-02-20T20:28:05.000+07:00".replace(".000+07:00", ""));
+//			System.out.println(d.toInstant());
+//		}catch (Exception e){
+//			e.printStackTrace();
+//		}
+//	}
 
 }

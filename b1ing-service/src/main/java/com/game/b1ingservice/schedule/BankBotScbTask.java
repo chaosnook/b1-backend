@@ -42,7 +42,7 @@ public class BankBotScbTask {
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-    @Scheduled(cron = "${bank.schedule.cron}")
+    @Scheduled(cron = "0 0 12 1 1 *")
     public void scheduleFixedRateTask() {
         List<Bank> lists = bankRepository.findAll();
         for (Bank bank : lists) {
