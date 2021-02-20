@@ -1,10 +1,13 @@
 package com.game.b1ingservice.service.impl;
 
+import com.game.b1ingservice.payload.deposithistory.DepositHisUserReq;
+import com.game.b1ingservice.payload.deposithistory.DepositHisUserRes;
 import com.game.b1ingservice.payload.deposithistory.DepositListHistorySearchResponse;
 import com.game.b1ingservice.payload.deposithistory.DepositSummaryHistorySearchResponse;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
 import com.game.b1ingservice.postgres.repository.DepositHistoryRepository;
 import com.game.b1ingservice.service.DepositHistoryService;
+import com.game.b1ingservice.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class DepositHistoryServiceImpl implements DepositHistoryService {
@@ -49,6 +53,21 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         }
 
         return summaryHistory(searchData.getContent(), pageable);
+    }
+
+    @Override
+    public List<DepositHisUserRes> searchByUser(DepositHisUserReq depositHisUserReq, String username) {
+        List<DepositHistory> depositHistories = new ArrayList<>();
+        if (depositHisUserReq.getStartDate() != null && depositHisUserReq.getEndDate() != null) {
+            depositHistories = depositHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenOrderByCreatedDateDesc(username,
+                    DateUtils.atStartOfDay(DateUtils.convertStartDate(depositHisUserReq.getStartDate())).toInstant(),
+                    DateUtils.atEndOfDay(DateUtils.convertEndDate(depositHisUserReq.getEndDate())).toInstant());
+        } else if (depositHisUserReq.getStartDate() != null) {
+            depositHistories = depositHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenOrderByCreatedDateDesc(username,
+                    DateUtils.atStartOfDay(DateUtils.convertStartDate(depositHisUserReq.getStartDate())).toInstant(),
+                    DateUtils.atEndOfDay(DateUtils.convertEndDate(depositHisUserReq.getStartDate())).toInstant());
+        }
+        return depositHistories.stream().map(converterUser).collect(Collectors.toList());
     }
 
     private Page<DepositSummaryHistorySearchResponse> summaryHistory(List<DepositListHistorySearchResponse> searchData, Pageable pageable) {
@@ -126,5 +145,16 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
         Map<String, Object> configMap = new HashMap<>();
         return searchResponse;
+    };
+
+
+    Function<DepositHistory, DepositHisUserRes> converterUser = depositHistory -> {
+        DepositHisUserRes depHis = new DepositHisUserRes();
+        depHis.setReason(depositHistory.getReason());
+        depHis.setCreatedDate(depositHistory.getCreatedDate());
+        depHis.setStatus(depositHistory.getStatus());
+        depHis.setValue(depositHistory.getAmount());
+        depHis.setBonus(depositHistory.getBonusAmount());
+        return depHis;
     };
 }
