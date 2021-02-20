@@ -60,7 +60,7 @@ public class WithDrawServiceImpl implements WithDrawService {
         withdrawHistory.setAmount(creditWithDraw);
         withdrawHistory.setBeforeAmount(wallet.getCredit());
         withdrawHistory.setUser(webUser);
-        withdrawHistory.setBank(bank);
+
         withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.PENDING);
         withdrawHistory = withdrawHistoryService.saveHistory(withdrawHistory);
 
@@ -96,6 +96,8 @@ public class WithDrawServiceImpl implements WithDrawService {
             withdrawHistory.setAfterAmount(wallet.getCredit().subtract(creditWithDraw));
             withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.SUCCESS);
             if (isAuto) {
+                // bank ที่จะโอนเงินให้ลูกค้า
+//                withdrawHistory.setBank();
                 //TODO call bot ถอนเงิน
             } else {
                 withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.PENDING_APPROVE);
