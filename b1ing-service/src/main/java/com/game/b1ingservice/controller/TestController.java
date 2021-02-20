@@ -45,7 +45,7 @@ public class TestController {
     @PostMapping(value = "/amb/create/{key}",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
-    public AmbResponse<CreateUserRes> createUser(@RequestBody CreateUserReq createUserReq, @PathVariable String key) {
+    public AmbResponse<CreateUserRes> createUserAMB(@RequestBody CreateUserReq createUserReq, @PathVariable String key) {
         AmbResponse<CreateUserRes> ambResponse = new AmbResponse<>();
         try {
             okhttp3.RequestBody body = okhttp3.RequestBody.create(objectMapper.writeValueAsString(createUserReq), MEDIA_JSON);
@@ -76,7 +76,7 @@ public class TestController {
     @PutMapping(value = "/amb/reset-password/{key}/{username}",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
-    public AmbResponse resetPassword(@RequestBody ResetPasswordReq resetPasswordReq,
+    public AmbResponse resetPasswordAMB(@RequestBody ResetPasswordReq resetPasswordReq,
                                      @PathVariable String key, @PathVariable String username) {
 
         AmbResponse ambResponse = new AmbResponse<>();
@@ -106,7 +106,7 @@ public class TestController {
     @PostMapping(value = "/amb/withdraw/{key}/{username}",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
-    public AmbResponse<WithdrawRes> withdraw(@RequestBody WithdrawReq withdrawReq,
+    public AmbResponse<WithdrawRes> withdrawAMB(@RequestBody WithdrawReq withdrawReq,
                                              @PathVariable String key, @PathVariable String username) {
         AmbResponse<WithdrawRes> ambResponse = new AmbResponse<>();
         try {
@@ -137,7 +137,7 @@ public class TestController {
     @PostMapping(value = "/amb/deposit/{key}/{username}",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
-    public AmbResponse<DepositRes> deposit(@RequestBody DepositReq depositReq,
+    public AmbResponse<DepositRes> depositAMB(@RequestBody DepositReq depositReq,
                                            @PathVariable String key, @PathVariable String username) {
         AmbResponse<DepositRes> ambResponse = new AmbResponse<>();
         try {
@@ -166,10 +166,10 @@ public class TestController {
     }
 
 
-    @PostMapping(value = "/amb/deposit/{key}/{username}",
+    @GetMapping(value = "/amb/credit/{key}/{username}",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
-    public AmbResponse<GetCreditRes> getCredit(@PathVariable String key, @PathVariable String username) {
+    public AmbResponse<GetCreditRes> getCreditAMB(@PathVariable String key, @PathVariable String username) {
         AmbResponse<GetCreditRes> ambResponse = new AmbResponse<>();
         try {
             Request request = new Request.Builder()

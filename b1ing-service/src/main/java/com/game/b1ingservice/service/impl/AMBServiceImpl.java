@@ -2,9 +2,17 @@ package com.game.b1ingservice.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.game.b1ingservice.commons.Constants;
+import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.amb.*;
 import com.game.b1ingservice.postgres.entity.Agent;
+import com.game.b1ingservice.postgres.entity.Config;
+import com.game.b1ingservice.postgres.entity.WebUser;
+import com.game.b1ingservice.postgres.repository.AgentRepository;
+import com.game.b1ingservice.postgres.repository.ConfigRepository;
+import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.AMBService;
+import com.game.b1ingservice.utils.AESUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -12,11 +20,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
+import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.*;
+import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG_TYPE.AMB_CONFIG;
 import static com.game.b1ingservice.commons.Constants.AMB_ERROR;
 
 @Slf4j
 @Service
 public class AMBServiceImpl implements AMBService {
+
+    @Autowired
+    private WebUserRepository webUserRepository;
+
+    @Autowired
+    private AgentRepository agentRepository;
+
+    @Autowired
+    private ConfigRepository configRepository;
 
     @Autowired
     private OkHttpClient client;
@@ -44,16 +66,16 @@ public class AMBServiceImpl implements AMBService {
                     .addHeader("Content-Type", "application/json")
                     .build();
 
-            Response response = client.newCall(request).execute();
+            try (Response response = client.newCall(request).execute()) {
+                log.info("createUser {} : {}", createUserReq.getMemberLoginName(), response);
 
-            log.info("createUser {} : {}", createUserReq.getMemberLoginName(), response);
-
-            if (response.code() != 200) {
-                ambResponse.setCode(AMB_ERROR);
-                return ambResponse;
+                if (response.code() != 200) {
+                    ambResponse.setCode(AMB_ERROR);
+                    return ambResponse;
+                }
+                return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<CreateUserRes>>() {
+                });
             }
-            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<CreateUserRes>>() {
-            });
         } catch (Exception e) {
             log.error("getCredit", e);
             ambResponse.setCode(AMB_ERROR);
@@ -73,18 +95,18 @@ public class AMBServiceImpl implements AMBService {
                     .method("PUT", body)
                     .addHeader("Content-Type", "application/json")
                     .build();
-            Response response = client.newCall(request).execute();
+            try (Response response = client.newCall(request).execute()) {
 
-            log.info("getCredit {} : {}", username, response);
+                log.info("getCredit {} : {}", username, response);
 
-            if (response.code() != 200) {
-                ambResponse.setCode(AMB_ERROR);
-                return ambResponse;
+                if (response.code() != 200) {
+                    ambResponse.setCode(AMB_ERROR);
+                    return ambResponse;
+                }
+
+                return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse>() {
+                });
             }
-
-            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse>() {
-            });
-
         } catch (Exception e) {
             log.error("resetPassword", e);
             ambResponse.setCode(AMB_ERROR);
@@ -105,16 +127,16 @@ public class AMBServiceImpl implements AMBService {
                     .addHeader("Content-Type", "application/json")
                     .build();
 
-            Response response = client.newCall(request).execute();
+            try (Response response = client.newCall(request).execute()) {
+                log.info("withdraw {} : {}", username, response);
 
-            log.info("withdraw {} : {}", username, response);
-
-            if (response.code() != 200) {
-                ambResponse.setCode(AMB_ERROR);
-                return ambResponse;
+                if (response.code() != 200) {
+                    ambResponse.setCode(AMB_ERROR);
+                    return ambResponse;
+                }
+                return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<WithdrawRes>>() {
+                });
             }
-            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<WithdrawRes>>() {
-            });
         } catch (Exception e) {
             log.error("withdraw", e);
             ambResponse.setCode(AMB_ERROR);
@@ -135,16 +157,17 @@ public class AMBServiceImpl implements AMBService {
                     .addHeader("Content-Type", "application/json")
                     .build();
 
-            Response response = client.newCall(request).execute();
+            try (Response response = client.newCall(request).execute()) {
 
-            log.info("deposit {} : {}", username, response);
-            if (response.code() != 200) {
-                ambResponse.setCode(AMB_ERROR);
-                return ambResponse;
+                log.info("deposit {} : {}", username, response);
+                if (response.code() != 200) {
+                    ambResponse.setCode(AMB_ERROR);
+                    return ambResponse;
+                }
+
+                return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<DepositRes>>() {
+                });
             }
-
-            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<DepositRes>>() {
-            });
         } catch (Exception e) {
             log.error("deposit", e);
             ambResponse.setCode(AMB_ERROR);
@@ -164,16 +187,17 @@ public class AMBServiceImpl implements AMBService {
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json")
                     .build();
-            Response response = client.newCall(request).execute();
+            try (Response response = client.newCall(request).execute()) {
 
-            log.info("getGameStatus {} : {}", gameStatusReq.getUsername(), response);
-            if (response.code() != 200) {
-                ambResponse.setCode(AMB_ERROR);
-                return ambResponse;
+                log.info("getGameStatus {} : {}", gameStatusReq.getUsername(), response);
+                if (response.code() != 200) {
+                    ambResponse.setCode(AMB_ERROR);
+                    return ambResponse;
+                }
+
+                return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<GameStatusRes>>() {
+                });
             }
-
-            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<GameStatusRes>>() {
-            });
         } catch (Exception e) {
             log.error("getGameStatus", e);
             ambResponse.setCode(AMB_ERROR);
@@ -190,21 +214,63 @@ public class AMBServiceImpl implements AMBService {
                     .method("GET", null)
                     .build();
 
-            Response response = client.newCall(request).execute();
+            try (Response response = client.newCall(request).execute()) {
 
-            log.info("getCredit {} : {}", username, response);
+                log.info("getCredit {} : {}", username, response);
 
-            if (response.code() != 200) {
-                ambResponse.setCode(AMB_ERROR);
-                return ambResponse;
+                if (response.code() != 200) {
+                    ambResponse.setCode(AMB_ERROR);
+                    return ambResponse;
+                }
+                return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<GetCreditRes>>() {
+                });
             }
-            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<GetCreditRes>>() {
-            });
         } catch (Exception e) {
             log.error("getCredit", e);
             ambResponse.setCode(AMB_ERROR);
         }
         return ambResponse;
+    }
+
+    @Override
+    public GameLinkRes getGameLink(String username, String prefix) {
+
+        Optional<Agent> agent = agentRepository.findByPrefix(prefix);
+
+        if (!agent.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
+        Optional<WebUser> opt = webUserRepository.findByUsernameAndAgent(username, agent.get());
+        if (!opt.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_00007);
+        }
+
+        String url = "";
+        String urlMobile = "";
+        String urlUser = agent.get().getWebsite();
+        String hash = "";
+
+        List<Config> configs = configRepository.findAllByTypeAndAgent(AMB_CONFIG, agent.get());
+        for (Config conf : configs) {
+            if (URL_AMB_GAME.equals(conf.getParameter())) {
+                url = conf.getValue();
+            } else if (URL_AMB_MOBILE_GAME.equals(conf.getParameter())) {
+                urlMobile = conf.getValue();
+            } else if (AMB_HASH.equals(conf.getParameter())) {
+                hash = conf.getValue();
+            }
+        }
+
+        String password = AESUtils.decrypt(opt.get().getPassword());
+
+        String urlGame = String.format("%s?username=%s&password=%s&url=%s?prefix=%s&hash=%s", url, username, password, urlUser, prefix.toLowerCase(), hash);
+        String urlMobileGame = String.format("%s?username=%s&password=%s&url=%s?prefix=%s&hash=%s", urlMobile, username, password, urlUser, prefix.toLowerCase(), hash);
+
+        GameLinkRes gameLinkRes = new GameLinkRes();
+        gameLinkRes.setUrlWebProduct(urlGame);
+        gameLinkRes.setUrlMobileProduct(urlMobileGame);
+        return gameLinkRes;
     }
 
 

@@ -166,6 +166,9 @@ public class Constants {
         public static final String DESC = "D";
     }
 
+    public static class AGENT_CONFIG_TYPE  {
+        public static final String AMB_CONFIG = "AMB-CONFIG";
+    }
     public static class AGENT_CONFIG  {
         public static final String MAX_AUTO_WITHDRAW = "maxAutoWithdraw";
         public static final String MIN_WITHDRAW_CREDIT = "minWithdrawCredit";
@@ -176,6 +179,10 @@ public class Constants {
         public static final String ON_OFF_WEBSITE = "onOffWebsite";
         public static final String ALLOW_OUTSTANDING_BET = "allowOutstandingBet";
         public static final String TRANS_CREDIT = "TRANS_CREDIT";
+
+        public static final String URL_AMB_GAME = "urlAmbGame";
+        public static final String URL_AMB_MOBILE_GAME = "urlMobileAmbGame";
+        public static final String AMB_HASH = "ambHash";
     }
 
     public static class DEPOSIT_STATUS {
