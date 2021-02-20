@@ -7,6 +7,8 @@ import com.game.b1ingservice.payload.amb.AmbResponse;
 import com.game.b1ingservice.payload.amb.CreateUserRes;
 import com.game.b1ingservice.payload.amb.WithdrawReq;
 import com.game.b1ingservice.payload.amb.WithdrawRes;
+import com.game.b1ingservice.payload.bankbot.BankBotScbWithdrawCreditRequest;
+import com.game.b1ingservice.payload.bankbot.BankBotScbWithdrawCreditResponse;
 import com.game.b1ingservice.payload.withdraw.WithDrawRequest;
 import com.game.b1ingservice.payload.withdraw.WithDrawResponse;
 import com.game.b1ingservice.postgres.entity.*;
@@ -14,6 +16,7 @@ import com.game.b1ingservice.postgres.repository.ConfigRepository;
 import com.game.b1ingservice.postgres.repository.WalletRepository;
 import com.game.b1ingservice.postgres.repository.WithdrawHistoryRepository;
 import com.game.b1ingservice.service.AMBService;
+import com.game.b1ingservice.service.BankBotService;
 import com.game.b1ingservice.service.WithDrawService;
 import com.game.b1ingservice.service.WithdrawHistoryService;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +46,8 @@ public class WithDrawServiceImpl implements WithDrawService {
     @Autowired
     private AMBService ambService;
 
-
+    @Autowired
+    private BankBotService bankBotService;
     @Override
     public WithDrawResponse withdraw(WithDrawRequest withDrawRequest, String username, String prefix) {
         Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
@@ -60,7 +64,7 @@ public class WithDrawServiceImpl implements WithDrawService {
         withdrawHistory.setAmount(creditWithDraw);
         withdrawHistory.setBeforeAmount(wallet.getCredit());
         withdrawHistory.setUser(webUser);
-
+        withdrawHistory.setIsAuto(0);
         withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.PENDING);
         withdrawHistory = withdrawHistoryService.saveHistory(withdrawHistory);
 
@@ -94,11 +98,25 @@ public class WithDrawServiceImpl implements WithDrawService {
         response.setStatus(withdrawResult > 0);
         if (withdrawResult > 0) {
             withdrawHistory.setAfterAmount(wallet.getCredit().subtract(creditWithDraw));
-            withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.SUCCESS);
+
             if (isAuto) {
                 // bank ที่จะโอนเงินให้ลูกค้า
 //                withdrawHistory.setBank();
                 //TODO call bot ถอนเงิน
+                BankBotScbWithdrawCreditRequest request = new BankBotScbWithdrawCreditRequest();
+                request.setAmount(creditWithDraw);
+                request.setAccountTo(webUser.getAccountNumber());
+                request.setBankCode(webUser.getBankName());
+                BankBotScbWithdrawCreditResponse depositResult = bankBotService.withDrawCredit(request);
+                withdrawHistory.setIsAuto(1);
+                if (depositResult.getStatus()){
+                    withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.SUCCESS);
+                    withdrawHistory.setReason(depositResult.getQrString());
+                }else {
+                    withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);
+                    withdrawHistory.setReason(depositResult.getMessege());
+                }
+
             } else {
                 withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.PENDING_APPROVE);
             }
