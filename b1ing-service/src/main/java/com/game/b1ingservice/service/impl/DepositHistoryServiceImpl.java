@@ -2,6 +2,7 @@ package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.payload.deposithistory.DepositListHistorySearchResponse;
 import com.game.b1ingservice.payload.deposithistory.DepositSummaryHistorySearchResponse;
+import com.game.b1ingservice.payload.deposithistory.SevenDay;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
 import com.game.b1ingservice.postgres.repository.DepositHistoryRepository;
 import com.game.b1ingservice.service.DepositHistoryService;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class DepositHistoryServiceImpl implements DepositHistoryService {
@@ -25,15 +27,17 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     @Override
     public Page<DepositListHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type) {
 
-        Page<DepositListHistorySearchResponse> searchResponse = depositHistoryRepository.findAll(specification, pageable).map(converter);
+        Page<DepositListHistorySearchResponse> searchData = depositHistoryRepository.findAll(specification, pageable).map(converter);
 
         if("SEVEN".equals(type)) {
 
-        } else {
+            List<DepositListHistorySearchResponse> listSummary = findUserDepositSevenDay(searchData);
 
+            Page<DepositListHistorySearchResponse> searchResponse = new PageImpl<>(listSummary, pageable, listSummary.size());
+            return searchResponse;
         }
 
-        return searchResponse;
+        return searchData;
     }
 
     @Override
@@ -41,14 +45,18 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
         Page<DepositListHistorySearchResponse> searchData = depositHistoryRepository.findAll(specification, pageable).map(converter);
 
-        List<DepositListHistorySearchResponse> listSummary = new ArrayList<>();
+        List<DepositListHistorySearchResponse> listSummary;
         if("SEVEN".equals(type)) {
+
+            listSummary = findUserDepositSevenDay(searchData);
 
         } else {
 
+            listSummary = searchData.getContent();
+
         }
 
-        return summaryHistory(searchData.getContent(), pageable);
+        return summaryHistory(listSummary, pageable);
     }
 
     private Page<DepositSummaryHistorySearchResponse> summaryHistory(List<DepositListHistorySearchResponse> searchData, Pageable pageable) {
@@ -86,6 +94,55 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
         Page<DepositSummaryHistorySearchResponse> searchResponse = new PageImpl<>(listSummary, pageable, listSummary.size());
         return searchResponse;
+    }
+
+    private List<DepositListHistorySearchResponse> findUserDepositSevenDay(Page<DepositListHistorySearchResponse> searchData) {
+
+        Map<String, SevenDay> map = new HashMap<>();
+
+        List<DepositListHistorySearchResponse> listData = searchData.getContent().stream()
+                .sorted(Comparator.comparing(DepositListHistorySearchResponse::getCreatedDate)).collect(Collectors.toList());
+
+        for(DepositListHistorySearchResponse depositHistory : listData) {
+
+            String date = depositHistory.getCreatedDate().substring(0,2);
+            if(!map.containsKey(depositHistory.getUsername())) {
+
+                SevenDay sevenDay = new SevenDay();
+                sevenDay.setDay(date);
+                sevenDay.setCount(1);
+                map.put(depositHistory.getUsername(), sevenDay);
+
+            } else {
+
+                SevenDay sevenDay = map.get(depositHistory.getUsername());
+                if(!sevenDay.getDay().equals(date)) {
+                    SevenDay sevenDayNew = new SevenDay();
+                    sevenDayNew.setDay(date);
+                    sevenDayNew.setCount(sevenDay.getCount() + 1);
+                    map.replace(depositHistory.getUsername(), sevenDayNew);
+                }
+            }
+        }
+
+        List<String> listUser = new ArrayList<>();
+        for(Map.Entry<String, SevenDay> entry : map.entrySet()) {
+            if(entry.getValue().getCount() == 7){
+                listUser.add(entry.getKey());
+            }
+        }
+
+        List<DepositListHistorySearchResponse> listSummary = new ArrayList<>();
+        for(String username : listUser) {
+            List<DepositListHistorySearchResponse> list = searchData.getContent().stream()
+                    .filter(obj -> obj.getUsername().equals(username)).collect(Collectors.toList());
+
+            for(DepositListHistorySearchResponse deposit : list) {
+                listSummary.add(deposit);
+            }
+        }
+
+        return listSummary;
     }
 
     Function<DepositHistory, DepositListHistorySearchResponse> converter = depositHistory -> {
