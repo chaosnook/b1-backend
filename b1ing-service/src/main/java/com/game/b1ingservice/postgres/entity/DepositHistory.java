@@ -29,6 +29,12 @@ public class DepositHistory extends DateAudit<String> implements Serializable {
 
     @ToString.Exclude
     @JsonIgnore
+    @JoinColumn(name = "truewallet_code", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private TrueWallet trueWallet;
+
+    @ToString.Exclude
+    @JsonIgnore
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private WebUser user;
@@ -68,6 +74,9 @@ public class DepositHistory extends DateAudit<String> implements Serializable {
 
     @Column(name = "last_name", columnDefinition = "character varying(100)")
     private String lastName;
+
+    @Column(name = "mobile", columnDefinition = "character varying(50)")
+    private String mobile;
 
     @ToString.Exclude
     @JsonIgnore

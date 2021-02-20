@@ -1,5 +1,6 @@
 package com.game.b1ingservice.postgres.repository;
 
+import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.entity.TrueWallet;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,4 +27,6 @@ public interface TrueWalletRepository extends JpaRepository<TrueWallet, Long>, J
     List<TrueWallet> findAllByPrefixAndActiveOrderByBankGroupAsc(String prefix, boolean active);
 
     Optional<TrueWallet> findFirstByActiveAndBankGroupGreaterThanOrderByBankGroupAsc(boolean active, int bankGroupFrom);
+
+    Optional<TrueWallet> findByBotIp(String botIp);
 }
