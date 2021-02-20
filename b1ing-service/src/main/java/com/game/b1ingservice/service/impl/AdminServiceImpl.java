@@ -265,15 +265,30 @@ public class AdminServiceImpl implements AdminService {
 
         for (int i = 1; i <= daysInMonth; i++) {
             resObj.getLabels().add(i);
-            resObj.getData().add(0);
+            resObj.getData().add(BigDecimal.valueOf(0));
 
         }
         List<ProfitReport> listDepositMonth = profitReportJdbcRepository.depositReport(profitReportRequest, principal);
         List<ProfitReport> listWithdrawMonth = profitReportJdbcRepository.withdrawReport(profitReportRequest, principal);
 
 
-        for (ProfitReport depositReport : listDepositMonth ) {
-                resObj.getData().set(depositReport.getLabels() - 1, depositReport.getData() );
+        for (int i = 0; i< resObj.getLabels().size(); i++) {
+            int finalI = i;
+            Optional<ProfitReport> depO = listDepositMonth.stream().filter(dep -> dep.getLabels() == finalI +1).findFirst();
+
+            BigDecimal depValue = new BigDecimal(0);
+            if (depO.isPresent()) {
+                depValue = depO.get().getData();
+            }
+
+            Optional<ProfitReport> withO = listWithdrawMonth.stream().filter(with -> with.getLabels() == finalI +1).findFirst();
+
+            BigDecimal withValue = new BigDecimal(0);
+            if (withO.isPresent()) {
+                withValue = withO.get().getData();
+            }
+
+                resObj.getData().set(i, depValue.subtract(withValue));
 
         }
 

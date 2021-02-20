@@ -2,6 +2,8 @@ package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
+import com.game.b1ingservice.payload.amb.AmbResponse;
+import com.game.b1ingservice.payload.amb.GetCreditRes;
 import com.game.b1ingservice.payload.userinfo.UserWalletResponse;
 import com.game.b1ingservice.payload.wellet.WalletRequest;
 import com.game.b1ingservice.postgres.entity.Bank;
@@ -11,6 +13,7 @@ import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.repository.BankRepository;
 import com.game.b1ingservice.postgres.repository.TrueWalletRepository;
 import com.game.b1ingservice.postgres.repository.WalletRepository;
+import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,9 @@ public class WalletServiceImpl implements WalletService {
 
     @Autowired
     private TrueWalletRepository trueWalletRepository;
+
+    @Autowired
+    private AMBService ambService;
 
     @Override
     public void createWallet(WalletRequest req, WebUser user) {
@@ -57,13 +63,23 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public UserWalletResponse getUserWallet(String username, String prefix) {
 
-        //TODO call get credit from AMB
-       Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
-       if (wallet == null) {
-           throw new ErrorMessageException(Constants.ERROR.ERR_00007);
-       }
+        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
+        if (wallet == null) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_00007);
+        }
+        WebUser webUser = wallet.getUser();
+        AmbResponse<GetCreditRes> ambRes = ambService.getCredit(username, webUser.getAgent());
+
+        if (ambRes.getCode() != 0) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_00007);
+        }
+
+        BigDecimal credit = ambRes.getResult().getCredit();
+
+        walletRepository.updateUserCredit(credit, webUser.getId());
+
         UserWalletResponse response = new UserWalletResponse();
-        response.setCredit(wallet.getCredit());
+        response.setCredit(credit);
         response.setPoint(wallet.getPoint());
         response.setHasTrueWallet(wallet.getTrueWallet() != null);
         response.setHasBank(wallet.getBank() != null);

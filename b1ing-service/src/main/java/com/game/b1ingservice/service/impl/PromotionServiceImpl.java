@@ -59,7 +59,7 @@ public class PromotionServiceImpl implements PromotionService {
         promotion.setTurnOver(promotionRequest.getTurnOver());
         promotion.setMaxWithdraw(promotionRequest.getMaxWithdraw());
         promotion.setActive(promotionRequest.isActive());
-        promotion.setUrlImage(promotion.getUrlImage());
+        promotion.setUrlImage(promotionRequest.getUrlImage());
 
         promotionRepository.save(promotion);
 

@@ -76,4 +76,11 @@ public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecif
     @Query(value = "select o from Wallet o where o.bank.botIp = :botIp and o.user.accountNumber like :accountNumber")
     List<Wallet> findWalletLikeAccount(String botIp, String accountNumber);
 
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE wallet SET credit = ? , version=version+1  WHERE user_id = ? ", nativeQuery = true)
+    void updateUserCredit(BigDecimal credit, Long userId);
+
+    @Query(value = "select o from Wallet o where o.trueWallet.botIp = :botIp and o.user.tel = :mobile")
+    List<Wallet> findWalletByTrueMobile(String botIp, String mobile);
 }
