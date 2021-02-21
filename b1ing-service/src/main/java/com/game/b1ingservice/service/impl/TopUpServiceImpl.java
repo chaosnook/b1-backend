@@ -5,16 +5,23 @@ import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.admin.ProfitReportRequest;
 import com.game.b1ingservice.payload.admin.ProfitReportResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.topup.TopUpResponse;
+import com.game.b1ingservice.payload.topup.TopupRequest;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.jdbc.ProfitReportJdbcRepository;
+import com.game.b1ingservice.postgres.jdbc.TopupReportJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.ProfitReport;
+import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
+import com.game.b1ingservice.postgres.jdbc.dto.TopupReport;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.service.AdminService;
 import com.game.b1ingservice.service.TopUpService;
+import com.game.b1ingservice.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
@@ -25,42 +32,26 @@ public class TopUpServiceImpl implements TopUpService {
     @Autowired
     private AgentRepository agentRepository;
     @Autowired
-    ProfitReportJdbcRepository profitReportJdbcRepository;
+    private TopupReportJdbcRepository topupReportJdbcRepository;
+
     @Override
-    public ProfitReportResponse topupReport(ProfitReportRequest profitReportRequest, UserPrincipal principal) {
+    public TopUpResponse topUpReport(TopupRequest topupRequest, UserPrincipal principal) {
         Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
 
         if (!agent.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
         }
 
-        ProfitReportResponse resObj = new ProfitReportResponse();
-        String value = profitReportRequest.getValue();
+        TopUpResponse resObj = new TopUpResponse();
 
-        //// byMonth
-        String date = value;
-        String[] dateParts = date.split("-");
-        String yyyy = dateParts[0];
-        String mm = dateParts[1];
-        int year = Integer.parseInt(yyyy);
-        int month = Integer.parseInt(mm);
 
-        YearMonth yearMonthObject = YearMonth.of(year, month);
-        int daysInMonth = yearMonthObject.lengthOfMonth();
+        List<TopupReport> lists = topupReportJdbcRepository.topupReportList(topupRequest, principal);
+        for (TopupReport report : lists) {
 
-        for (int i = 1; i <= daysInMonth; i++) {
-            resObj.getLabels().add(i);
-            resObj.getData().add(BigDecimal.valueOf(0));
+            resObj.getLabels().add(report.getLabels());
+            resObj.getData().add(report.getData());
+
         }
-
-        List<ProfitReport> list = profitReportJdbcRepository.depositReport(profitReportRequest, principal);
-
-        for (ProfitReport profitReport : list) {
-            resObj.getData().set(profitReport.getLabels() - 1, profitReport.getData());
-        }
-
-
         return resObj;
     }
-
 }
