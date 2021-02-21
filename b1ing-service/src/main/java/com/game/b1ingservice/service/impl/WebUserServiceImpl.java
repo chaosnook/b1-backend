@@ -93,12 +93,11 @@ public class WebUserServiceImpl implements WebUserService {
         }
 
         String tel = req.getTel();
-        String username = prefix + tel.substring(1, tel.length() - 1);
+        String username = tel.substring(1);
 
         WebUser user = new WebUser();
         user.setAgent(opt.get());
 
-        user.setUsername(username);
         user.setTel(req.getTel());
         user.setPassword(AESUtils.encrypt(req.getPassword()));
         user.setBankName(req.getBankName());
@@ -113,11 +112,13 @@ public class WebUserServiceImpl implements WebUserService {
                 .phoneNo(req.getTel())
                 .memberLoginName(username)
                 .memberLoginPass(req.getPassword())
-                .build());
+                .build() , opt.get());
 
         if (ambResponse.getCode() != 0) {
             throw new ErrorMessageException(Constants.ERROR.ERR_99999);
         }
+
+        user.setUsername(ambResponse.getResult().getLoginName());
 
         WebUser userResp = webUserRepository.save(user);
 
@@ -214,7 +215,7 @@ public class WebUserServiceImpl implements WebUserService {
             user.setPassword(AESUtils.encrypt(passwordGenerator.generateStrongPassword()));
 
             // Call reset password at AMB
-            AmbResponse ambResponse = ambService.resetPassword(ResetPasswordReq.builder().password(password).build());
+            AmbResponse ambResponse = ambService.resetPassword(ResetPasswordReq.builder().password(password).build() , user.getUsername(), opt.get().getAgent());
             if (ambResponse.getCode() != 0) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_99999);
             }

@@ -5,6 +5,7 @@ import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.amb.DepositReq;
 import com.game.b1ingservice.payload.point.PointTransRequest;
 import com.game.b1ingservice.payload.point.PointTransResponse;
+import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.Wallet;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.jdbc.dto.PointHistoryDTO;
@@ -57,7 +58,7 @@ public class PointServiceImpl implements PointService {
             throw new ErrorMessageException(Constants.ERROR.ERR_04002);
         }
 
-        int updated = this.transferPointToCredit(point, webUser.getId(), username);
+        int updated = this.transferPointToCredit(point, webUser.getId(), username, webUser.getAgent());
 
         PointTransResponse response = new PointTransResponse();
         response.setStatus(updated > 0);
@@ -119,12 +120,12 @@ public class PointServiceImpl implements PointService {
         return 0;
     }
 
-    private int transferPointToCredit(BigDecimal point, Long userId, String username) {
+    private int transferPointToCredit(BigDecimal point, Long userId, String username, Agent agent) {
         try {
             point = point.setScale(2, RoundingMode.HALF_DOWN);
             int updated =   walletRepository.transferPointToCredit(point, point, userId);
             if (updated > 0) {
-                ambService.deposit(DepositReq.builder().amount(point.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build() , username);
+                ambService.deposit(DepositReq.builder().amount(point.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build() , username, agent);
             }
             return updated;
         } catch (Exception e) {

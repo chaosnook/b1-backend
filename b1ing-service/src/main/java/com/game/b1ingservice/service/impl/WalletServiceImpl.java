@@ -67,20 +67,20 @@ public class WalletServiceImpl implements WalletService {
         if (wallet == null) {
             throw new ErrorMessageException(Constants.ERROR.ERR_00007);
         }
-        AmbResponse<GetCreditRes> ambRes = ambService.getCredit(username);
+        WebUser webUser = wallet.getUser();
+        AmbResponse<GetCreditRes> ambRes = ambService.getCredit(username, webUser.getAgent());
+
         if (ambRes.getCode() != 0) {
-            throw new ErrorMessageException(Constants.ERROR.ERR_00007);
+            throw new ErrorMessageException(Constants.ERROR.ERR_99999);
         }
 
         BigDecimal credit = ambRes.getResult().getCredit();
 
-        WebUser webUser = wallet.getUser();
-
         walletRepository.updateUserCredit(credit, webUser.getId());
 
         UserWalletResponse response = new UserWalletResponse();
-        response.setCredit(wallet.getCredit());
-        response.setPoint(credit);
+        response.setCredit(credit);
+        response.setPoint(wallet.getPoint());
         response.setHasTrueWallet(wallet.getTrueWallet() != null);
         response.setHasBank(wallet.getBank() != null);
 

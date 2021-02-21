@@ -41,12 +41,8 @@ public class UrlServiceImpl implements UrlService {
     public List<UrlResponse> getUrl(UserPrincipal principal) {
         Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
         List<UrlResponse> responseList = new ArrayList<>();
-        List<Config> configList = configRepository.findAllByTypeAndAgent(Constants.AGENT_CONFIG.AGENT_CONFIG, agent.get());
+        List<Config> configList = configRepository.findAllByTypeAndAgent(Constants.AGENT_CONFIG.URL_CONFIG, agent.get());
 
-//        List<Config> configList = configRepository.findAll();
-//        if (configList.isEmpty()) {
-//            return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, responseList);
-//        }
         for (Config config : configList) {
             UrlResponse urlResponse = new UrlResponse();
             urlResponse.setAgentId(principal.getAgentId());

@@ -4,6 +4,7 @@ import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.admin.LoginRequest;
 import com.game.b1ingservice.payload.agent.AgentInfoRequest;
 import com.game.b1ingservice.payload.agent.AgentResponse;
+import com.game.b1ingservice.payload.amb.GameLinkRes;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.userinfo.UserProfile;
 import com.game.b1ingservice.payload.webuser.WebUserRequest;
@@ -31,6 +32,9 @@ public class UserController {
 
     @Autowired
     private AgentService agentService;
+
+    @Autowired
+    private AMBService ambService;
 
     @PostMapping(value = "/prefix")
     public ResponseEntity<?> prefixInfo(@RequestBody AgentInfoRequest req) {
@@ -66,4 +70,8 @@ public class UserController {
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, response);
     }
 
+    @GetMapping(value = "/link-game")
+    public ResponseEntity<?> linkGame(@AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, ambService.getGameLink(principal.getUsername(), principal.getPrefix()));
+    }
 }
