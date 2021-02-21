@@ -5,12 +5,14 @@ import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.admin.*;
 import com.game.b1ingservice.payload.agent.AgentResponse;
+import com.game.b1ingservice.payload.amb.*;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.jdbc.ProfitReportJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.ProfitReport;
 import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
 import com.game.b1ingservice.postgres.repository.*;
+import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.AdminService;
 import com.game.b1ingservice.utils.JwtTokenUtil;
 import com.game.b1ingservice.utils.ResponseHelper;
@@ -52,6 +54,8 @@ public class AdminServiceImpl implements AdminService {
     AgentRepository agentRepository;
     @Autowired
     ProfitReportJdbcRepository profitReportJdbcRepository;
+    @Autowired
+    private AMBService ambService;
 
 
     @Autowired
@@ -175,12 +179,12 @@ public class AdminServiceImpl implements AdminService {
 
                 depositHistoryRepository.save(depositHistory);
 
-                //TODO Call api AMB add credit
-                // success status from api add credit
-                boolean success = true;
-                // error message from api add credit
-                String errorMessage = "...";
-                if (success) {
+                AmbResponse<DepositRes> ambResponse = ambService.deposit(DepositReq.builder()
+                    .amount(req.getCredit().toString())
+                    .build(), req.getUsername(), wallet.getUser().getAgent());
+
+                String errorMessage = "";
+                if (ambResponse.getCode() == 0) {
                     walletRepository.depositCredit(afterAmount, webUser.getId());
                     depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
                 } else {
@@ -225,10 +229,27 @@ public class AdminServiceImpl implements AdminService {
                 withdrawHistory.setAfterAmount(afterAmount);
                 withdrawHistory.setUser(webUser);
                 withdrawHistory.setBank(bank);
+                withdrawHistory.setStatus(Constants.DEPOSIT_STATUS.PENDING);
 
                 Optional<AdminUser> adminOpt = adminUserRepository.findById(principal.getId());
                 if (adminOpt.isPresent()) {
                     withdrawHistory.setAdmin(adminOpt.get());
+                }
+
+                withdrawHistoryRepository.save(withdrawHistory);
+
+                AmbResponse<WithdrawRes> ambResponse = ambService.withdraw(WithdrawReq.builder()
+                        .amount(req.getCredit().toString())
+                        .build(), req.getUsername(), wallet.getUser().getAgent());
+
+                String errorMessage = "";
+                if (ambResponse.getCode() == 0) {
+                    walletRepository.withDrawCredit(afterAmount, webUser.getId());
+                    withdrawHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
+                } else {
+                    //if error
+                    withdrawHistory.setReason(errorMessage);
+                    withdrawHistory.setStatus(Constants.DEPOSIT_STATUS.ERROR);
                 }
 
                 withdrawHistoryRepository.save(withdrawHistory);
