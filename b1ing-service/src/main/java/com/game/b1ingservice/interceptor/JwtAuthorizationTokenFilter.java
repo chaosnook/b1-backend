@@ -6,6 +6,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -35,7 +36,9 @@ public class JwtAuthorizationTokenFilter extends OncePerRequestFilter {
             Arrays.asList(
                     "/api/admin/auth",
                     "/api/user/auth",
-                    "/api/user/register"
+                    "/api/user/register",
+                    "/api/file/downloadFile/*"
+//                    "/api/file/uploadMultipleFiles"
 //                    "/api/admin/register"
             ));
 
@@ -43,32 +46,49 @@ public class JwtAuthorizationTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws IOException, ServletException {
 
-        MultiReadRequest multiReadRequest = new MultiReadRequest(request);
+        if (request.getContentType().contains(MediaType.MULTIPART_FORM_DATA_VALUE)){
+            try {
+                Authentication authentication = tokenAuthenticationService.getAuthentication(request);
 
-        log.info("Log header : host  {} : Proto {} : Port {}", multiReadRequest.getHeader("X-Forwarded-Host"),
-                multiReadRequest.getHeader("X-Forwarded-Proto"),
-                multiReadRequest.getHeader("X-Forwarded-Port"));
-        log.info("Before Filter ");
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (ExpiredJwtException e) {
+                logger.warn("the token is expired and not valid anymore in header", e);
+            } catch (MalformedJwtException e) {
+                logger.warn(e.getMessage(), e);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
 
-        try {
-            Authentication authentication = tokenAuthenticationService.getAuthentication(multiReadRequest);
+            filterChain.doFilter(request, response);
+        }else {
+            MultiReadRequest multiReadRequest = new MultiReadRequest(request);
+            log.info("Log header : host  {} : Proto {} : Port {}", multiReadRequest.getHeader("X-Forwarded-Host"),
+                    multiReadRequest.getHeader("X-Forwarded-Proto"),
+                    multiReadRequest.getHeader("X-Forwarded-Port"));
+            log.info("Before Filter ");
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (ExpiredJwtException e) {
-            logger.warn("the token is expired and not valid anymore in header", e);
-        } catch (MalformedJwtException e) {
-            logger.warn(e.getMessage(), e);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            try {
+                Authentication authentication = tokenAuthenticationService.getAuthentication(multiReadRequest);
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (ExpiredJwtException e) {
+                logger.warn("the token is expired and not valid anymore in header", e);
+            } catch (MalformedJwtException e) {
+                logger.warn(e.getMessage(), e);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+
+            filterChain.doFilter(multiReadRequest, response);
         }
 
-        filterChain.doFilter(multiReadRequest, response);
 
         log.info("After Filter");
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+
         return excludeUrlPatterns.stream()
                 .anyMatch(p -> pathMatcher.match(p, request.getServletPath())) || !request.getServletPath().startsWith("/api");
     }
