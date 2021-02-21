@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 public class WithdrawHisUserReq {
     private String startDate;
-    private String endDate;
+    private String prevDate;
 }

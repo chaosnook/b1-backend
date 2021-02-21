@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 public class DepositHisUserReq {
     private String startDate;
-    private String endDate;
+    private String prevDate;
 }

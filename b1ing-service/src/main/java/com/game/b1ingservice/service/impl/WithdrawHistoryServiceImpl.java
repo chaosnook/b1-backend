@@ -28,10 +28,10 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     @Override
     public List<WithdrawHisUserRes> searchByUser(WithdrawHisUserReq withDrawRequest, String username) {
         List<WithdrawHistory> depositHistories = new ArrayList<>();
-        if (withDrawRequest.getStartDate() != null && withDrawRequest.getEndDate() != null) {
+        if (withDrawRequest.getStartDate() != null && withDrawRequest.getPrevDate() != null) {
             depositHistories = withdrawHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenOrderByCreatedDateDesc(username,
-                    DateUtils.atStartOfDay(DateUtils.convertStartDate(withDrawRequest.getStartDate())).toInstant(),
-                    DateUtils.atEndOfDay(DateUtils.convertEndDate(withDrawRequest.getEndDate())).toInstant());
+                    DateUtils.atStartOfDay(DateUtils.convertStartDate(withDrawRequest.getPrevDate())).toInstant(),
+                    DateUtils.atEndOfDay(DateUtils.convertEndDate(withDrawRequest.getStartDate())).toInstant());
         } else if (withDrawRequest.getStartDate() != null) {
             depositHistories = withdrawHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenOrderByCreatedDateDesc(username,
                     DateUtils.atStartOfDay(DateUtils.convertStartDate(withDrawRequest.getStartDate())).toInstant(),

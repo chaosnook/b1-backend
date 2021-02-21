@@ -65,10 +65,10 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     @Override
     public List<DepositHisUserRes> searchByUser(DepositHisUserReq depositHisUserReq, String username) {
         List<DepositHistory> depositHistories = new ArrayList<>();
-        if (depositHisUserReq.getStartDate() != null && depositHisUserReq.getEndDate() != null) {
+        if (depositHisUserReq.getStartDate() != null && depositHisUserReq.getPrevDate() != null) {
             depositHistories = depositHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenOrderByCreatedDateDesc(username,
-                    DateUtils.atStartOfDay(DateUtils.convertStartDate(depositHisUserReq.getStartDate())).toInstant(),
-                    DateUtils.atEndOfDay(DateUtils.convertEndDate(depositHisUserReq.getEndDate())).toInstant());
+                    DateUtils.atStartOfDay(DateUtils.convertStartDate(depositHisUserReq.getPrevDate())).toInstant(),
+                    DateUtils.atEndOfDay(DateUtils.convertEndDate(depositHisUserReq.getStartDate())).toInstant());
         } else if (depositHisUserReq.getStartDate() != null) {
             depositHistories = depositHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenOrderByCreatedDateDesc(username,
                     DateUtils.atStartOfDay(DateUtils.convertStartDate(depositHisUserReq.getStartDate())).toInstant(),

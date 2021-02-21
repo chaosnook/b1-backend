@@ -71,7 +71,7 @@ public class WalletServiceImpl implements WalletService {
         AmbResponse<GetCreditRes> ambRes = ambService.getCredit(username, webUser.getAgent());
 
         if (ambRes.getCode() != 0) {
-            throw new ErrorMessageException(Constants.ERROR.ERR_00007);
+            throw new ErrorMessageException(Constants.ERROR.ERR_99999);
         }
 
         BigDecimal credit = ambRes.getResult().getCredit();
