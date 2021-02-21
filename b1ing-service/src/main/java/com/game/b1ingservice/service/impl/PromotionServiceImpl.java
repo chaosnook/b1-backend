@@ -49,7 +49,6 @@ public class PromotionServiceImpl implements PromotionService {
         Promotion promotion = new Promotion();
 
         promotion.setName(promotionRequest.getName());
-        promotion.setType(promotionRequest.getType());
         promotion.setTypeBonus(promotionRequest.getTypeBonus());
         promotion.setTypePromotion(promotionRequest.getTypePromotion());
         promotion.setMaxBonus(promotionRequest.getMaxBonus());

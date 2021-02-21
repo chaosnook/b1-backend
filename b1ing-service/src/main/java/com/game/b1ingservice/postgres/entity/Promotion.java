@@ -24,7 +24,7 @@ public class Promotion extends DateAudit<String> implements Serializable {
 
     @Column(name = "name", columnDefinition = "character varying(50) not null")
     private String name;
-    @Column(name = "type", columnDefinition = "character varying(20) not null")
+    @Column(name = "type", columnDefinition = "character varying(20)")
     private String type;
     @Column(name = "type_bonus", columnDefinition = "character varying(20) not null")
     private String typeBonus;

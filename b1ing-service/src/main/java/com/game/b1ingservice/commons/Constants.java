@@ -174,6 +174,7 @@ public class Constants {
         public static final String ON_OFF_WEBSITE = "onOffWebsite";
         public static final String ALLOW_OUTSTANDING_BET = "allowOutstandingBet";
         public static final String TRANS_CREDIT = "TRANS_CREDIT";
+        public static final String AGENT_CONFIG = "AGENT-CONFIG";
     }
 
     public static class DEPOSIT_STATUS {
