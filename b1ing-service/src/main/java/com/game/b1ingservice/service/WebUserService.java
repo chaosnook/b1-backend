@@ -33,4 +33,8 @@ public interface WebUserService {
     UserProfile getProfile(String username, String prefix);
 //    WebUserHistoryResponse registerHistory(WebUserHistoryRequest webUserHistoryRequest);
 
+    GetUserInfoResponse getUserInfo(String username, String prefix);
+
+
+
 }
