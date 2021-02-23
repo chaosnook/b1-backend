@@ -5,7 +5,7 @@ import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.amb.AmbResponse;
 import com.game.b1ingservice.payload.amb.GetCreditRes;
 import com.game.b1ingservice.payload.userinfo.UserWalletResponse;
-import com.game.b1ingservice.payload.wellet.WalletRequest;
+import com.game.b1ingservice.payload.wallet.WalletRequest;
 import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.entity.TrueWallet;
 import com.game.b1ingservice.postgres.entity.Wallet;

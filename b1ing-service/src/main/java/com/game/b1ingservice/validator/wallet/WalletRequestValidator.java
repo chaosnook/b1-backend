@@ -2,7 +2,7 @@ package com.game.b1ingservice.validator.wallet;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
-import com.game.b1ingservice.payload.wellet.WalletRequest;
+import com.game.b1ingservice.payload.wallet.WalletRequest;
 import com.game.b1ingservice.validator.CommonValidator;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Component;

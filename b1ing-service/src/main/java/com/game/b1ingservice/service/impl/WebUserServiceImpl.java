@@ -15,7 +15,7 @@ import com.game.b1ingservice.payload.webuser.WebUserRequest;
 import com.game.b1ingservice.payload.webuser.WebUserResponse;
 import com.game.b1ingservice.payload.webuser.WebUserUpdate;
 import com.game.b1ingservice.payload.webuser.*;
-import com.game.b1ingservice.payload.wellet.WalletRequest;
+import com.game.b1ingservice.payload.wallet.WalletRequest;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;

@@ -2,13 +2,11 @@ package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
-import com.game.b1ingservice.payload.bank.BankAllRequest;
 import com.game.b1ingservice.payload.bank.BankRequest;
 import com.game.b1ingservice.payload.bank.BankResponse;
 import com.game.b1ingservice.payload.bankdeposit.UserBankDepositResponse;
 import com.game.b1ingservice.payload.bankdeposit.UserTrueWalletResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
-import com.game.b1ingservice.payload.wellet.WalletRequest;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.BankRepository;

@@ -9,6 +9,7 @@ import com.game.b1ingservice.payload.promotion.PromotionUpdate;
 import com.game.b1ingservice.payload.promotion.PromotionUserRes;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.Promotion;
+import com.game.b1ingservice.postgres.jdbc.dto.PromotionHistoryDTO;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.PromotionRepository;
 import com.game.b1ingservice.service.ConditionService;

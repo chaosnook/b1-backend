@@ -1,4 +1,4 @@
-package com.game.b1ingservice.payload.wellet;
+package com.game.b1ingservice.payload.wallet;
 
 import lombok.Data;
 

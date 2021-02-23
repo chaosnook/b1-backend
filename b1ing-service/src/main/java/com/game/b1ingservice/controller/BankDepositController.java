@@ -56,7 +56,6 @@ public class BankDepositController {
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
-
     @PutMapping(value = "/update-all-bank-wallet-deposit")
     public ResponseEntity<?> updateAllBankDeposit(@RequestBody BankDepositAllRequest request, @AuthenticationPrincipal UserPrincipal principal) {
         request.setPrefix(principal.getPrefix());
