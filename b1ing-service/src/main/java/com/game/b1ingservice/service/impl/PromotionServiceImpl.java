@@ -6,6 +6,7 @@ import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.promotion.PromotionRequest;
 import com.game.b1ingservice.payload.promotion.PromotionResponse;
 import com.game.b1ingservice.payload.promotion.PromotionUpdate;
+import com.game.b1ingservice.payload.promotion.PromotionUserRes;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.Promotion;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
@@ -112,6 +113,18 @@ public class PromotionServiceImpl implements PromotionService {
         }
     }
 
+    @Override
+    public List<PromotionUserRes> getUserPromotion(String prefix) {
+        return promotionRepository.findAllByAgent_PrefixAndActive(prefix , true).stream().map(userConverter).collect(Collectors.toList());
+    }
+
+    Function<Promotion, PromotionUserRes> userConverter = promotion -> {
+        PromotionUserRes userRes = new PromotionUserRes();
+        userRes.setId(promotion.getId());
+        userRes.setName(promotion.getName());
+        userRes.setUrlImage(promotion.getUrlImage());
+        return userRes;
+    };
 
 
     Function<Promotion, PromotionResponse> converter = promotion -> {

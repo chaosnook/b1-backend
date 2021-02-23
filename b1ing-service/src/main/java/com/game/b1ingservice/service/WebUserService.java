@@ -33,4 +33,5 @@ public interface WebUserService {
     UserProfile getProfile(String username, String prefix);
 //    WebUserHistoryResponse registerHistory(WebUserHistoryRequest webUserHistoryRequest);
 
+    void updateUserWebProfile(String username, String prefix, WebUserProfileUpdate webUserUpdate);
 }
