@@ -266,6 +266,18 @@ public class WebUserServiceImpl implements WebUserService {
     }
 
     @Override
+    public void updateUserWebProfile(String username, String prefix, WebUserProfileUpdate webUserUpdate) {
+        Optional<WebUser> webUser = webUserRepository.findFirstByUsernameAndAgent_Prefix(username, prefix);
+        if (!webUser.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_99999);
+        }
+
+        WebUser user = webUser.get();
+        user.setIsBonus(webUserUpdate.getIsBonus());
+        webUserRepository.save(user);
+    }
+
+    @Override
     public boolean verifyTel(String tel, String prefix) {
         Optional<WebUser> webUser = webUserRepository.findByTelAndAgent_Prefix(tel, prefix);
         return webUser.isPresent();
