@@ -59,4 +59,7 @@ public class Agent extends DateAudit<String> implements Serializable {
     @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
     private List<Promotion> promotions;
 
+    @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
+    private List<PromotionHistory> promotionHistory ;
+
 }

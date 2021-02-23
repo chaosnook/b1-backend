@@ -28,6 +28,18 @@ public class PromotionHistory extends DateAudit<String> implements Serializable 
     @ManyToOne(fetch = FetchType.LAZY)
     private Promotion promotion;
 
+    @JsonIgnore
+    @ToString.Exclude
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY)
+    private WebUser user;
+
+    @JsonIgnore
+    @ToString.Exclude
+    @JoinColumn(name = "agent_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Agent agent;
+
     @Column(name = "topUp", columnDefinition = "smallint not null")
     private int topup;
 
@@ -36,6 +48,7 @@ public class PromotionHistory extends DateAudit<String> implements Serializable 
 
     @Column(name = "turn_over", columnDefinition = "smallint not null")
     private int turnOver;
+
 
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
