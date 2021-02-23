@@ -1,7 +1,6 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
-import com.game.b1ingservice.payload.agent.AgentResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.userinfo.UserInfoResponse;
 import com.game.b1ingservice.payload.webuser.*;
@@ -58,9 +57,9 @@ public class WebUserController {
 
     @PutMapping(value = "webuser/reset/{id}",
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> resetPassword(@PathVariable Long id, @RequestBody WebUserUpdate webUserUpdate){
-        webUserService.resetPassword(id, webUserUpdate);
-        return webUserService.resetPassword(id, webUserUpdate);
+    public ResponseEntity<?> resetPassword(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal){
+        WebUserResetPasswordResponse resp = webUserService.resetPassword(id, principal);
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
     }
 
     @PostMapping("/webuser/reghistory")

@@ -81,7 +81,6 @@ public class PromotionServiceImpl implements PromotionService {
         if(opt.isPresent()) {
             Promotion promotion = opt.get();
             promotion.setName(promotionUpdate.getName());
-            promotion.setType(promotionUpdate.getType());
             promotion.setTypeBonus(promotionUpdate.getTypeBonus());
             promotion.setTypePromotion(promotionUpdate.getTypePromotion());
             promotion.setMaxBonus(promotionUpdate.getMaxBonus());
