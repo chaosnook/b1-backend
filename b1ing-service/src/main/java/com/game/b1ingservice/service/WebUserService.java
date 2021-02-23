@@ -30,5 +30,8 @@ public interface WebUserService {
 
     UserProfile getProfile(String username, String prefix);
 
+    GetUserInfoResponse getUserInfo(String username, String prefix);
+
     void updateUserWebProfile(String username, String prefix, WebUserProfileUpdate webUserUpdate);
+
 }

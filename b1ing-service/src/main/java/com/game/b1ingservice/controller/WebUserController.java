@@ -8,6 +8,7 @@ import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
 import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.specification.SearchWebUserSpecification;
 import com.game.b1ingservice.utils.ResponseHelper;
+import com.game.b1ingservice.validator.webuser.GetWebUserInfoRequestValidator;
 import com.game.b1ingservice.validator.webuser.WebUserRequestValidator;
 import com.game.b1ingservice.validator.webuser.WebUserUpdateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class WebUserController {
 
     @Autowired
     private WebUserJdbcRepository webUserJdbcRepository;
+
+    @Autowired
+    private GetWebUserInfoRequestValidator getWebUserInfoRequestValidator;
 
     @PostMapping(value = "/webuser")
     public ResponseEntity<?> createWebUser(@RequestBody WebUserRequest req, @AuthenticationPrincipal UserPrincipal principal){
@@ -67,5 +71,12 @@ public class WebUserController {
     public ResponseEntity<?> registerHistoryReport(@RequestBody WebUserHistoryRequest webUserHistoryRequest, @AuthenticationPrincipal UserPrincipal principal) {
         WebUserHistoryResponse obj = webUserService.registerHistory(webUserHistoryRequest, principal);
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, obj);
+    }
+
+    @PostMapping("/webuser/getInfo")
+    public ResponseEntity<?> getUserInfo(@RequestBody GetUserInfoRequest req, @AuthenticationPrincipal UserPrincipal principal) {
+        getWebUserInfoRequestValidator.validate(req);
+        GetUserInfoResponse response = webUserService.getUserInfo(req.getUsername(), principal.getPrefix());
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, response);
     }
 }

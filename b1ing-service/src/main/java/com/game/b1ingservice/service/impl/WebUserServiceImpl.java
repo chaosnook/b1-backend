@@ -11,6 +11,7 @@ import com.game.b1ingservice.payload.amb.ResetPasswordReq;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.userinfo.UserInfoResponse;
 import com.game.b1ingservice.payload.userinfo.UserProfile;
+import com.game.b1ingservice.payload.userinfo.UserWalletResponse;
 import com.game.b1ingservice.payload.webuser.WebUserRequest;
 import com.game.b1ingservice.payload.webuser.WebUserResponse;
 import com.game.b1ingservice.payload.webuser.WebUserUpdate;
@@ -19,10 +20,7 @@ import com.game.b1ingservice.payload.wallet.WalletRequest;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
-import com.game.b1ingservice.postgres.repository.AffiliateHistoryRepository;
-import com.game.b1ingservice.postgres.repository.AgentRepository;
-import com.game.b1ingservice.postgres.repository.ConfigRepository;
-import com.game.b1ingservice.postgres.repository.WebUserRepository;
+import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.WalletService;
 import com.game.b1ingservice.service.WebUserService;
@@ -78,6 +76,9 @@ public class WebUserServiceImpl implements WebUserService {
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private WalletRepository walletRepository;
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -399,5 +400,30 @@ public class WebUserServiceImpl implements WebUserService {
         return resObj;
 
     }
+
+    @Override
+    public GetUserInfoResponse getUserInfo(String username, String prefix) {
+        GetUserInfoResponse response = new GetUserInfoResponse();
+        Optional<WebUser> optWebUser = webUserRepository.findFirstByUsernameAndAgent_Prefix(username, prefix);
+        if(optWebUser.isPresent()) {
+            WebUser webUser = optWebUser.get();
+            response.setName(webUser.getFirstName() + " " + webUser.getLastName());
+            response.setTel(webUser.getTel());
+            response.setBankName(webUser.getBankName());
+            response.setBankAccount(webUser.getAccountNumber());
+
+            Optional<Wallet> optWallet = walletRepository.findByUser_Id(webUser.getId());
+            if(optWallet.isPresent()) {
+                Wallet wallet = optWallet.get();
+                response.setTurnOver(wallet.getTurnOver());
+                response.setCredit(wallet.getCredit());
+            }
+        } else {
+            throw new ErrorMessageException(Constants.ERROR.ERR_01127);
+        }
+
+        return response;
+    }
+
 
 }

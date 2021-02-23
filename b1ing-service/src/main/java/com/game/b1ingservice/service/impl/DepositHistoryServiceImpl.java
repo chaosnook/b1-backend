@@ -1,18 +1,14 @@
 package com.game.b1ingservice.service.impl;
 
-import com.game.b1ingservice.payload.deposithistory.DepositHisUserReq;
-import com.game.b1ingservice.payload.deposithistory.DepositHisUserRes;
-import com.game.b1ingservice.payload.deposithistory.DepositListHistorySearchResponse;
-import com.game.b1ingservice.payload.deposithistory.DepositSummaryHistorySearchResponse;
-import com.game.b1ingservice.payload.deposithistory.SevenDay;
+import com.game.b1ingservice.payload.deposithistory.*;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
+import com.game.b1ingservice.postgres.jdbc.DepositHistoryTop20Repository;
+import com.game.b1ingservice.postgres.jdbc.dto.DepositHistoryTop20Dto;
 import com.game.b1ingservice.postgres.repository.DepositHistoryRepository;
 import com.game.b1ingservice.service.DepositHistoryService;
 import com.game.b1ingservice.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +22,9 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
     @Autowired
     private DepositHistoryRepository depositHistoryRepository;
+
+    @Autowired
+    private DepositHistoryTop20Repository depositHistoryTop20Repository;
 
     @Override
     public Page<DepositListHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type) {
@@ -75,6 +74,32 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                     DateUtils.atEndOfDay(DateUtils.convertEndDate(depositHisUserReq.getStartDate())).toInstant());
         }
         return depositHistories.stream().map(converterUser).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DepositHistoryTop20Resp> findListByUsername(String username) {
+
+       List<DepositHistoryTop20Dto> depositDtos = depositHistoryTop20Repository.findTop20DepositHistory(username);
+
+       List<DepositHistoryTop20Resp> result = new ArrayList<>();
+       for(DepositHistoryTop20Dto depositDto: depositDtos) {
+           DepositHistoryTop20Resp deposit = new DepositHistoryTop20Resp();
+           deposit.setAmount(depositDto.getAmount());
+           deposit.setBonus(depositDto.getBonus());
+           deposit.setBeforeAmount(depositDto.getBeforeAmount());
+           deposit.setAddCredit(depositDto.getAddCredit());
+           deposit.setAfterAmount(depositDto.getAfterAmount());
+
+           SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a");
+           Date date = new Date();
+           date.setTime(depositDto.getCreatedDate().getTime());
+           deposit.setCreatedDate(sdf.format(date));
+
+           deposit.setReason(depositDto.getReason());
+           result.add(deposit);
+       }
+
+        return result;
     }
 
     private Page<DepositSummaryHistorySearchResponse> summaryHistory(List<DepositListHistorySearchResponse> searchData, Pageable pageable) {
