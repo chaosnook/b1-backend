@@ -7,7 +7,9 @@ import com.game.b1ingservice.payload.agent.AgentResponse;
 import com.game.b1ingservice.payload.amb.GameLinkRes;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.userinfo.UserProfile;
+import com.game.b1ingservice.payload.webuser.WebUserProfileUpdate;
 import com.game.b1ingservice.payload.webuser.WebUserRequest;
+import com.game.b1ingservice.payload.webuser.WebUserUpdate;
 import com.game.b1ingservice.service.*;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.webuser.WebUserRequestValidator;
@@ -73,5 +75,11 @@ public class UserController {
     @GetMapping(value = "/link-game")
     public ResponseEntity<?> linkGame(@AuthenticationPrincipal UserPrincipal principal) {
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, ambService.getGameLink(principal.getUsername(), principal.getPrefix()));
+    }
+
+    @PutMapping(value = "/update-profile")
+    public ResponseEntity<?> updateProfile(@RequestBody WebUserProfileUpdate webUserUpdate, @AuthenticationPrincipal UserPrincipal principal) {
+        webUserService.updateUserWebProfile(principal.getUsername(), principal.getPrefix(), webUserUpdate);
+        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 }

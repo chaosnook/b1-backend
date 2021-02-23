@@ -27,13 +27,11 @@ import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.utils.AESUtils;
 import com.game.b1ingservice.utils.JwtTokenUtil;
 import com.game.b1ingservice.utils.PasswordGenerator;
-import com.game.b1ingservice.utils.ResponseHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +41,6 @@ import java.time.YearMonth;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.MIN_WITHDRAW_CREDIT;
 import static com.game.b1ingservice.commons.Constants.ERROR.ERR_04003;
 import static com.game.b1ingservice.commons.Constants.ERROR.ERR_04004;
 
@@ -205,7 +202,9 @@ public class WebUserServiceImpl implements WebUserService {
     };
 
     @Override
-    public ResponseEntity<?> resetPassword(Long id, WebUserUpdate webUserUpdate) {
+    public WebUserResetPasswordResponse resetPassword(Long id, UserPrincipal principal) {
+
+        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
 
         String password = passwordGenerator.generateStrongPassword();
 
@@ -223,11 +222,11 @@ public class WebUserServiceImpl implements WebUserService {
 
             webUserRepository.save(user);
 
-            WebUserUpdate resp = new WebUserUpdate();
+            WebUserResetPasswordResponse resp = new WebUserResetPasswordResponse();
             resp.setUsername(user.getUsername());
             resp.setPassword(password);
 
-            return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
+            return resp;
 
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_01104);
@@ -265,6 +264,18 @@ public class WebUserServiceImpl implements WebUserService {
 
         Optional<WebUser> opt = webUserRepository.findByUsernameAndAgent(username, agent.get());
         return convertProfile(opt.get(), agent.get(), true);
+    }
+
+    @Override
+    public void updateUserWebProfile(String username, String prefix, WebUserProfileUpdate webUserUpdate) {
+        Optional<WebUser> webUser = webUserRepository.findFirstByUsernameAndAgent_Prefix(username, prefix);
+        if (!webUser.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_99999);
+        }
+
+        WebUser user = webUser.get();
+        user.setIsBonus(webUserUpdate.getIsBonus());
+        webUserRepository.save(user);
     }
 
     @Override

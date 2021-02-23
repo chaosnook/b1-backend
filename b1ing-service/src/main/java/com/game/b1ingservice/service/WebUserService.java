@@ -7,11 +7,9 @@ import com.game.b1ingservice.payload.webuser.WebUserRequest;
 import com.game.b1ingservice.payload.webuser.*;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.postgres.entity.WebUser;
-import org.apache.catalina.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,7 +21,7 @@ public interface WebUserService {
 
     Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable);
 
-    ResponseEntity<?> resetPassword(Long id, WebUserUpdate webUserUpdate);
+    WebUserResetPasswordResponse resetPassword(Long id, UserPrincipal principal);
 
     boolean verifyTel(String tel, String prefix);
 
@@ -31,10 +29,9 @@ public interface WebUserService {
     UserInfoResponse authUser(String username, String password, LoginRequest loginRequest);
 
     UserProfile getProfile(String username, String prefix);
-//    WebUserHistoryResponse registerHistory(WebUserHistoryRequest webUserHistoryRequest);
 
     GetUserInfoResponse getUserInfo(String username, String prefix);
 
-
+    void updateUserWebProfile(String username, String prefix, WebUserProfileUpdate webUserUpdate);
 
 }

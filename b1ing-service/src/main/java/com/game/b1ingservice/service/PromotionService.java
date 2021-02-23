@@ -4,6 +4,7 @@ import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.promotion.PromotionRequest;
 import com.game.b1ingservice.payload.promotion.PromotionResponse;
 import com.game.b1ingservice.payload.promotion.PromotionUpdate;
+import com.game.b1ingservice.payload.promotion.PromotionUserRes;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,4 +18,6 @@ public interface PromotionService {
     List<PromotionResponse> getPromotion(UserPrincipal principal);
     void updatePromotion(Long id, PromotionUpdate promotionUpdate, UserPrincipal principal);
     void deletePromotion(Long id);
+
+    List<PromotionUserRes> getUserPromotion(String prefix);
 }
