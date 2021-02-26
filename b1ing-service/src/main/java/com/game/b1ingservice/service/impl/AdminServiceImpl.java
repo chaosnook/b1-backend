@@ -217,7 +217,7 @@ public class AdminServiceImpl implements AdminService {
             if (opt2.isPresent()) {
                 Wallet wallet = opt2.get();
 
-                if (wallet.getCredit().compareTo(req.getCredit()) == -1) {
+                if (wallet.getCredit().compareTo(req.getCredit()) < 0) {
                     throw new ErrorMessageException(Constants.ERROR.ERR_01133);
                 }
 
