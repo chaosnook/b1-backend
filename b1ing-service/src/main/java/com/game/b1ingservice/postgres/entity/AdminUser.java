@@ -41,7 +41,7 @@ public class AdminUser extends DateAudit<String> implements Serializable {
 
     @JsonIgnore
     @JoinColumn(name = "agent_id", referencedColumnName = "id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Agent agent;
 
     @ManyToOne(fetch = FetchType.LAZY)

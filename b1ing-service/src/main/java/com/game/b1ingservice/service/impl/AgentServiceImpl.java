@@ -47,6 +47,9 @@ public class AgentServiceImpl implements AgentService {
             agent.setLineId(agentReq.getLineId());
             agent.setLineToken(agentReq.getLineToken());
             agent.setWebsite(agentReq.getWebsite());
+            agent.setBackground(agentReq.getBackground());
+            agent.setLogo(agentReq.getLogo());
+
             agent.setVersion(agentReq.getVersion());
 
             //=== save config

@@ -77,7 +77,7 @@ public class TestController {
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public AmbResponse resetPasswordAMB(@RequestBody ResetPasswordReq resetPasswordReq,
-                                     @PathVariable String key, @PathVariable String username) {
+                                        @PathVariable String key, @PathVariable String username) {
 
         AmbResponse ambResponse = new AmbResponse<>();
         try {
@@ -94,8 +94,7 @@ public class TestController {
                 return ambResponse;
             }
 
-            return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse>() {
-            });
+            return objectMapper.readValue(response.body().string(), AmbResponse.class);
         } catch (Exception e) {
             ambResponse.setCode(AMB_ERROR);
         }
@@ -107,7 +106,7 @@ public class TestController {
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public AmbResponse<WithdrawRes> withdrawAMB(@RequestBody WithdrawReq withdrawReq,
-                                             @PathVariable String key, @PathVariable String username) {
+                                                @PathVariable String key, @PathVariable String username) {
         AmbResponse<WithdrawRes> ambResponse = new AmbResponse<>();
         try {
             okhttp3.RequestBody body = okhttp3.RequestBody.create(objectMapper.writeValueAsString(withdrawReq), MEDIA_JSON);
@@ -138,7 +137,7 @@ public class TestController {
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public AmbResponse<DepositRes> depositAMB(@RequestBody DepositReq depositReq,
-                                           @PathVariable String key, @PathVariable String username) {
+                                              @PathVariable String key, @PathVariable String username) {
         AmbResponse<DepositRes> ambResponse = new AmbResponse<>();
         try {
             okhttp3.RequestBody body = okhttp3.RequestBody.create(objectMapper.writeValueAsString(depositReq), MEDIA_JSON);

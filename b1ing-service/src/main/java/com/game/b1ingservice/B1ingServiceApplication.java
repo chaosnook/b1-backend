@@ -6,6 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import javax.annotation.PostConstruct;
+import java.util.TimeZone;
+
 @SpringBootApplication
 @EnableScheduling
 @EnableConfigurationProperties({
@@ -17,6 +20,8 @@ public class B1ingServiceApplication {
 		SpringApplication.run(B1ingServiceApplication.class, args);
 	}
 
-
-
+	@PostConstruct
+	void started() {
+		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Bangkok"));
+	}
 }

@@ -9,7 +9,6 @@ import com.game.b1ingservice.payload.promotion.PromotionUpdate;
 import com.game.b1ingservice.payload.promotion.PromotionUserRes;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.Promotion;
-import com.game.b1ingservice.postgres.jdbc.dto.PromotionHistoryDTO;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.PromotionRepository;
 import com.game.b1ingservice.service.ConditionService;
@@ -17,8 +16,7 @@ import com.game.b1ingservice.service.PromotionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.HashMap;
 import java.util.List;
@@ -122,7 +120,13 @@ public class PromotionServiceImpl implements PromotionService {
         PromotionUserRes userRes = new PromotionUserRes();
         userRes.setId(promotion.getId());
         userRes.setName(promotion.getName());
-        userRes.setUrlImage(promotion.getUrlImage());
+
+        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/file/downloadFile/")
+                .path(promotion.getName())
+                .toUriString();
+
+        userRes.setUrlImage(fileDownloadUri);
         return userRes;
     };
 

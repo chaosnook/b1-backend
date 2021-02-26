@@ -46,7 +46,7 @@ public class JwtAuthorizationTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws IOException, ServletException {
 
-        if (request.getContentType() != null && MediaType.MULTIPART_FORM_DATA_VALUE.contains(request.getContentType())){
+        if (request.getContentType() != null && request.getContentType().contains(MediaType.MULTIPART_FORM_DATA_VALUE)){
             try {
                 Authentication authentication = tokenAuthenticationService.getAuthentication(request);
 
