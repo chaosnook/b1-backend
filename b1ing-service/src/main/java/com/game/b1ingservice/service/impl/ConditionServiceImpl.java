@@ -2,11 +2,16 @@ package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
+import com.game.b1ingservice.payload.bank.BankResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.condition.ConditionListRequest;
 import com.game.b1ingservice.payload.condition.ConditionRequest;
 import com.game.b1ingservice.payload.condition.ConditionResponse;
+import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.entity.Condition;
+import com.game.b1ingservice.postgres.entity.Promotion;
 import com.game.b1ingservice.postgres.repository.ConditionRepository;
+import com.game.b1ingservice.postgres.repository.PromotionRepository;
 import com.game.b1ingservice.service.ConditionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,16 +29,29 @@ public class ConditionServiceImpl implements ConditionService {
     @Autowired
     ConditionRepository conditionRepository;
 
+    @Autowired
+    PromotionRepository promotionRepository;
+
     @Override
     public void insertCondition(ConditionRequest conditionRequest, UserPrincipal principal) {
 
-        Condition condition = new Condition();
+        Optional<Promotion> opt = promotionRepository.findById(conditionRequest.getPromotionId());
 
-        condition.setMinTopup(conditionRequest.getMinTopup());
-        condition.setMaxTopup(conditionRequest.getMaxTopup());
-        condition.setBonus(conditionRequest.getBonus());
+        if(opt.isPresent()) {
 
-        conditionRepository.save(condition);
+            Condition condition = new Condition();
+
+            condition.setMinTopup(conditionRequest.getMinTopup());
+            condition.setMaxTopup(conditionRequest.getMaxTopup());
+            condition.setBonus(conditionRequest.getBonus());
+
+            condition.setPromotion(opt.get());
+
+            conditionRepository.save(condition);
+
+        } else {
+            throw new ErrorMessageException(Constants.ERROR.ERR_09011);
+        }
     }
 
     @Override
