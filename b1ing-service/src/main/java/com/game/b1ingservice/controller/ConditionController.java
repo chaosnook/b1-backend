@@ -2,6 +2,7 @@ package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.condition.ConditionListRequest;
 import com.game.b1ingservice.payload.condition.ConditionRequest;
 import com.game.b1ingservice.service.ConditionService;
 import com.game.b1ingservice.utils.ResponseHelper;

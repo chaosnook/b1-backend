@@ -19,6 +19,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG_STATUS;
+
 @Service
 public class AgentServiceImpl implements AgentService {
     @Autowired
@@ -47,6 +49,9 @@ public class AgentServiceImpl implements AgentService {
             agent.setLineId(agentReq.getLineId());
             agent.setLineToken(agentReq.getLineToken());
             agent.setWebsite(agentReq.getWebsite());
+            agent.setBackground(agentReq.getBackground());
+            agent.setLogo(agentReq.getLogo());
+
             agent.setVersion(agentReq.getVersion());
 
             //=== save config
@@ -68,7 +73,7 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public Page<AgentResponse> findByCriteria(Specification<Agent> specification, Pageable pageable) {
-        return agentRepository.findAll(specification,pageable).map(converter);
+        return agentRepository.findAll(specification, pageable).map(converter);
     }
 
     Function<Agent, AgentResponse> converter = agent -> {
@@ -90,7 +95,14 @@ public class AgentServiceImpl implements AgentService {
         agentResponse.setVersion(agent.getVersion());
 
         Map<String, Object> configMap = new HashMap<>();
-        agent.getConfigs().forEach(config -> configMap.put(config.getParameter(), config.getValue()));
+        agent.getConfigs().forEach(config -> {
+            if (AGENT_CONFIG_STATUS.contains(config.getParameter())) {
+                configMap.put(config.getParameter(), Boolean.parseBoolean(config.getValue()));
+            } else {
+                configMap.put(config.getParameter(), config.getValue());
+            }
+        });
+
         agentResponse.setConfig(configMap);
 
         return agentResponse;

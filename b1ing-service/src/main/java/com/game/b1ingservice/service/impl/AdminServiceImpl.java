@@ -28,6 +28,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.List;
@@ -184,7 +185,7 @@ public class AdminServiceImpl implements AdminService {
                 depositHistoryRepository.save(depositHistory);
 
                 AmbResponse<DepositRes> ambResponse = ambService.deposit(DepositReq.builder()
-                    .amount(req.getCredit().toString())
+                    .amount(req.getCredit().setScale(2, RoundingMode.HALF_DOWN).toPlainString())
                     .build(), req.getUsername(), wallet.getUser().getAgent());
 
                 String errorMessage = "";
@@ -217,7 +218,7 @@ public class AdminServiceImpl implements AdminService {
             if (opt2.isPresent()) {
                 Wallet wallet = opt2.get();
 
-                if (wallet.getCredit().compareTo(req.getCredit()) == -1) {
+                if (wallet.getCredit().compareTo(req.getCredit()) < 0) {
                     throw new ErrorMessageException(Constants.ERROR.ERR_01133);
                 }
 

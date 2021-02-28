@@ -88,7 +88,7 @@ public class AMBServiceImpl implements AMBService {
         AmbResponse ambResponse = new AmbResponse<>();
         try {
             String signature = String.format("%s:%s", resetPasswordReq.getPassword(), agent.getPrefix().toLowerCase());
-            resetPasswordReq.setSignature(signature);
+            resetPasswordReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(resetPasswordReq), MEDIA_JSON);
             Request request = new Request.Builder()
                     .url(String.format("%s/reset-password/%s/%s", urlApi, agent.getKey(), username))
@@ -97,15 +97,14 @@ public class AMBServiceImpl implements AMBService {
                     .build();
             try (Response response = client.newCall(request).execute()) {
 
-                log.info("getCredit {} : {}", username, response);
+                log.info("resetPassword {} : {}", username, response);
 
                 if (response.code() != 200) {
                     ambResponse.setCode(AMB_ERROR);
                     return ambResponse;
                 }
 
-                return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse>() {
-                });
+                return objectMapper.readValue(response.body().string(), AmbResponse.class);
             }
         } catch (Exception e) {
             log.error("resetPassword", e);

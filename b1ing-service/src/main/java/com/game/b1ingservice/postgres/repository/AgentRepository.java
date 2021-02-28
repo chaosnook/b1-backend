@@ -13,4 +13,6 @@ import java.util.Optional;
 @Repository
 public interface AgentRepository extends JpaRepository<Agent, Long>, JpaSpecificationExecutor<Agent> {
     Optional<Agent> findByPrefix(String prefix);
+
+    Agent findFirsByPrefix(String prefix);
 }

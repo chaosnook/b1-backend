@@ -110,7 +110,7 @@ public class WebUserServiceImpl implements WebUserService {
                 .phoneNo(req.getTel())
                 .memberLoginName(username)
                 .memberLoginPass(req.getPassword())
-                .build() , opt.get());
+                .build(), opt.get());
 
         if (ambResponse.getCode() != 0) {
             throw new ErrorMessageException(Constants.ERROR.ERR_99999);
@@ -204,18 +204,16 @@ public class WebUserServiceImpl implements WebUserService {
     @Override
     public WebUserResetPasswordResponse resetPassword(Long id, UserPrincipal principal) {
 
-        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
-
         String password = passwordGenerator.generateStrongPassword();
 
         Optional<WebUser> opt = webUserRepository.findById(id);
         if (opt.isPresent()) {
 
             WebUser user = opt.get();
-            user.setPassword(AESUtils.encrypt(passwordGenerator.generateStrongPassword()));
+            user.setPassword(AESUtils.encrypt(password));
 
             // Call reset password at AMB
-            AmbResponse ambResponse = ambService.resetPassword(ResetPasswordReq.builder().password(password).build() , user.getUsername(), opt.get().getAgent());
+            AmbResponse ambResponse = ambService.resetPassword(ResetPasswordReq.builder().password(password).build(), user.getUsername(), opt.get().getAgent());
             if (ambResponse.getCode() != 0) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_99999);
             }
@@ -377,7 +375,7 @@ public class WebUserServiceImpl implements WebUserService {
             List<SummaryRegisterUser> listRegisterMonth = webUserJdbcRepository.summaryRegisterUsersByMonth(webUserHistoryRequest, principal);
 
             for (SummaryRegisterUser summaryRegisterUser : listRegisterMonth) {
-                resObj.getData().set(summaryRegisterUser.getLabels()-1, summaryRegisterUser.getData());
+                resObj.getData().set(summaryRegisterUser.getLabels() - 1, summaryRegisterUser.getData());
             }
 
 
@@ -405,7 +403,7 @@ public class WebUserServiceImpl implements WebUserService {
     public GetUserInfoResponse getUserInfo(String username, String prefix) {
         GetUserInfoResponse response = new GetUserInfoResponse();
         Optional<WebUser> optWebUser = webUserRepository.findFirstByUsernameAndAgent_Prefix(username, prefix);
-        if(optWebUser.isPresent()) {
+        if (optWebUser.isPresent()) {
             WebUser webUser = optWebUser.get();
             response.setName(webUser.getFirstName() + " " + webUser.getLastName());
             response.setTel(webUser.getTel());
@@ -413,7 +411,7 @@ public class WebUserServiceImpl implements WebUserService {
             response.setBankAccount(webUser.getAccountNumber());
 
             Optional<Wallet> optWallet = walletRepository.findByUser_Id(webUser.getId());
-            if(optWallet.isPresent()) {
+            if (optWallet.isPresent()) {
                 Wallet wallet = optWallet.get();
                 response.setTurnOver(wallet.getTurnOver());
                 response.setCredit(wallet.getCredit());

@@ -78,6 +78,9 @@ public class DepositHistory extends DateAudit<String> implements Serializable {
     @Column(name = "mobile", columnDefinition = "character varying(50)")
     private String mobile;
 
+    @Column(name = "mistake_type", columnDefinition = "character varying(50)")
+    private String mistakeType;
+
     @ToString.Exclude
     @JsonIgnore
     @JoinColumn(name = "admin_id", referencedColumnName = "id")

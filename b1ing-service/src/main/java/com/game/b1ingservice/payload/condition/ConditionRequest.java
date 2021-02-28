@@ -7,4 +7,5 @@ public class ConditionRequest {
     private int minTopup;
     private int maxTopup;
     private int bonus;
+    private Long promotionId;
 }

@@ -1,6 +1,14 @@
 package com.game.b1ingservice.commons;
 
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.List;
+
+import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.*;
+
 public class Constants {
+
+    public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a");
 
     public static int AMB_ERROR = 999;
     public enum  ERROR
@@ -118,7 +126,8 @@ public class Constants {
         ERR_09007("Amount ห้ามว่าง"),
         ERR_09008("TransactionDate ห้ามว่าง"),
         ERR_09009("Type ห้ามว่าง"),
-        ERR_09010("max receive bonus ห้ามว่าง")
+        ERR_09010("max receive bonus ห้ามว่าง"),
+        ERR_09011("ไม่พบโปรโมชัน")
 
         ;
 
@@ -191,6 +200,8 @@ public class Constants {
         public static final String AMB_HASH = "ambHash";
     }
 
+    public static List<String> AGENT_CONFIG_STATUS = Arrays.asList(LIMIT_WITHDRAW, APPROVE_WITHDRAW_AUTO, APPROVE_WITHDRAW_AUTO_NEW, ON_OFF_WEBSITE);
+
     public static class DEPOSIT_STATUS {
         public static final String PENDING = "PENDING";
         public static final String SUCCESS = "SUCCESS";
@@ -212,12 +223,19 @@ public class Constants {
         public static final String PENDING = "PENDING";
         public static final String PENDING_APPROVE = "PENDING_APPROVE";
         public static final String SUCCESS = "SUCCESS";
+        public static final String REJECT = "REJECT";
         public static final String ERROR = "ERROR";
     }
 
     public static class POINT_TYPE {
         public static final String EARN_POINT = "EARN_POINT";
         public static final String TRANS_CREDIT = "TRANS_CREDIT";
+    }
+
+    public static class PROBLEM {
+        public static final String NO_SLIP = "NO_SLIP";
+        public static final String CUT_CREDIT = "CUT_CREDIT";
+        public static final String ADD_CREDIT = "ADD_CREDIT";
     }
 
 }

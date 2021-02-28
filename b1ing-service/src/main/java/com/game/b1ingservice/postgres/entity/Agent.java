@@ -3,6 +3,8 @@ package com.game.b1ingservice.postgres.entity;
 import com.game.b1ingservice.postgres.entity.audit.DateAudit;
 import com.game.b1ingservice.postgres.entity.audit.UserAuditEmbeddable;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -10,6 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "agent", uniqueConstraints = {@UniqueConstraint(columnNames = {"prefix"})})
@@ -46,9 +49,11 @@ public class Agent extends DateAudit<String> implements Serializable {
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
     private List<WebUser> webUsers;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private List<AdminUser> adminUsers;
 
@@ -56,9 +61,11 @@ public class Agent extends DateAudit<String> implements Serializable {
     @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private List<Config> configs;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
     private List<Promotion> promotions;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
     private List<PromotionHistory> promotionHistory ;
 
