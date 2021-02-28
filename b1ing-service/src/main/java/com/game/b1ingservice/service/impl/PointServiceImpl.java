@@ -2,7 +2,9 @@ package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
+import com.game.b1ingservice.payload.amb.AmbResponse;
 import com.game.b1ingservice.payload.amb.DepositReq;
+import com.game.b1ingservice.payload.amb.DepositRes;
 import com.game.b1ingservice.payload.point.PointTransRequest;
 import com.game.b1ingservice.payload.point.PointTransResponse;
 import com.game.b1ingservice.postgres.entity.Agent;
@@ -61,15 +63,19 @@ public class PointServiceImpl implements PointService {
         int updated = this.transferPointToCredit(point, webUser.getId(), username, webUser.getAgent());
 
         PointTransResponse response = new PointTransResponse();
-        response.setStatus(updated > 0);
-        if (updated > 0) {
+        response.setStatus(updated == 1);
+        if (updated == 1) {
             historyDTO.setAfterAmount(wallet.getPoint().subtract(point));
             historyDTO.setStatus(Constants.POINT_TRANS_STATUS.SUCCESS);
         } else {
+            historyDTO.setReason(String.valueOf(updated));
             historyDTO.setStatus(Constants.POINT_TRANS_STATUS.ERROR);
         }
         pointHistoryService.updateStatus(historyDTO);
 
+        if (!response.getStatus()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_10001);
+        }
         return response;
     }
 
@@ -122,11 +128,16 @@ public class PointServiceImpl implements PointService {
 
     private int transferPointToCredit(BigDecimal point, Long userId, String username, Agent agent) {
         try {
+            int updated;
             point = point.setScale(2, RoundingMode.HALF_DOWN);
-            int updated =   walletRepository.transferPointToCredit(point, point, userId);
-            if (updated > 0) {
-                ambService.deposit(DepositReq.builder().amount(point.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build() , username, agent);
+            AmbResponse<DepositRes> deposit = ambService.deposit(DepositReq.builder().amount(point.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build(), username, agent);
+
+            if (deposit.getCode() == 0) {
+                updated = walletRepository.transferPointToCredit(point, point, userId);
+            } else {
+                updated = deposit.getCode();
             }
+
             return updated;
         } catch (Exception e) {
             log.error("transferPointToCredit", e);
