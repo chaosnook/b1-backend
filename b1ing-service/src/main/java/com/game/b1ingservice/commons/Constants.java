@@ -1,5 +1,10 @@
 package com.game.b1ingservice.commons;
 
+import java.util.Arrays;
+import java.util.List;
+
+import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.*;
+
 public class Constants {
 
     public static int AMB_ERROR = 999;
@@ -191,6 +196,8 @@ public class Constants {
         public static final String AMB_HASH = "ambHash";
     }
 
+    public static List<String> AGENT_CONFIG_STATUS = Arrays.asList(LIMIT_WITHDRAW, APPROVE_WITHDRAW_AUTO, APPROVE_WITHDRAW_AUTO_NEW, ON_OFF_WEBSITE);
+
     public static class DEPOSIT_STATUS {
         public static final String PENDING = "PENDING";
         public static final String SUCCESS = "SUCCESS";
@@ -219,6 +226,12 @@ public class Constants {
     public static class POINT_TYPE {
         public static final String EARN_POINT = "EARN_POINT";
         public static final String TRANS_CREDIT = "TRANS_CREDIT";
+    }
+
+    public static class PROBLEM {
+        public static final String NO_SLIP = "NO_SLIP";
+        public static final String CUT_CREDIT = "CUT_CREDIT";
+        public static final String ADD_CREDIT = "ADD_CREDIT";
     }
 
 }
