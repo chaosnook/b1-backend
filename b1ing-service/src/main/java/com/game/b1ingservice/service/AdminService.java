@@ -22,5 +22,6 @@ public interface AdminService {
     void withdrawCredit(WithdrawRequest req, UserPrincipal principal);
 
     ProfitReportResponse profitReport(ProfitReportRequest profitReportRequest, UserPrincipal principal);
+    ProfitLossResponse profitLoss(ProfitLossRequest profitLossRequest, UserPrincipal principal);
 
 }

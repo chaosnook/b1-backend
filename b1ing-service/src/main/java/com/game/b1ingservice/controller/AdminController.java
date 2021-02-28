@@ -107,6 +107,10 @@ public class AdminController {
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, obj);
     }
 
-
+    @PostMapping(value = "/profit-loss", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> profitLoss(@RequestBody ProfitLossRequest profitLossRequest, @AuthenticationPrincipal UserPrincipal principal) {
+        ProfitLossResponse obj = adminService.profitLoss(profitLossRequest, principal);
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, obj);
+    }
 
 }
