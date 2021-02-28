@@ -2,13 +2,13 @@ package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.payload.withdraw.WithdrawHisUserReq;
 import com.game.b1ingservice.payload.withdraw.WithdrawHisUserRes;
+import com.game.b1ingservice.payload.withdrawhistory.WithdrawHistoryByUserIdResp;
 import com.game.b1ingservice.payload.withdrawhistory.WithdrawListHistorySearchResponse;
 import com.game.b1ingservice.payload.withdrawhistory.WithdrawSummaryHistorySearchResponse;
 import com.game.b1ingservice.postgres.entity.WithdrawHistory;
 import com.game.b1ingservice.postgres.repository.WithdrawHistoryRepository;
 import com.game.b1ingservice.service.WithdrawHistoryService;
 import com.game.b1ingservice.utils.DateUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -45,6 +45,35 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
                     DateUtils.atEndOfDay(DateUtils.convertEndDate(withDrawRequest.getStartDate())).toInstant());
         }
         return depositHistories.stream().map(converterUser).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<WithdrawHistoryByUserIdResp> findListByUserId(Long userId) {
+        List<WithdrawHistory> list = withdrawHistoryRepository.findTop10ByUser_IdOrderByCreatedDateDesc(userId);
+        List<WithdrawHistoryByUserIdResp> result = new ArrayList<>();
+        if(!list.isEmpty()) {
+            for(WithdrawHistory withdrawDto : list) {
+                WithdrawHistoryByUserIdResp withdraw = new WithdrawHistoryByUserIdResp();
+                if(null == withdrawDto.getBank()) {
+                    withdraw.setBankName(null);
+                } else {
+                    withdraw.setBankName(withdrawDto.getBank().getBankName());
+                }
+                withdraw.setType(withdrawDto.getType());
+                withdraw.setAmount(withdrawDto.getAmount().toString());
+                withdraw.setStatus(withdrawDto.getStatus());
+
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a");
+                Date date = Date.from(withdrawDto.getCreatedDate());
+                withdraw.setCreatedDate(sdf.format(date));
+
+                withdraw.setReason(withdrawDto.getReason());
+
+                result.add(withdraw);
+            }
+        }
+
+        return result;
     }
 
     Function<WithdrawHistory, WithdrawHisUserRes> converterUser = withdrawHistory -> {

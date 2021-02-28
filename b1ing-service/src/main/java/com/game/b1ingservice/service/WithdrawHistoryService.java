@@ -1,11 +1,11 @@
 package com.game.b1ingservice.service;
 
-import com.game.b1ingservice.payload.deposithistory.DepositSummaryHistorySearchResponse;
+import com.game.b1ingservice.payload.deposithistory.DepositHistoryByUserIdResp;
 import com.game.b1ingservice.payload.withdraw.WithdrawHisUserReq;
 import com.game.b1ingservice.payload.withdraw.WithdrawHisUserRes;
+import com.game.b1ingservice.payload.withdrawhistory.WithdrawHistoryByUserIdResp;
 import com.game.b1ingservice.payload.withdrawhistory.WithdrawListHistorySearchResponse;
 import com.game.b1ingservice.payload.withdrawhistory.WithdrawSummaryHistorySearchResponse;
-import com.game.b1ingservice.postgres.entity.DepositHistory;
 import com.game.b1ingservice.postgres.entity.WithdrawHistory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,4 +22,6 @@ public interface WithdrawHistoryService {
     WithdrawHistory saveHistory(WithdrawHistory withdrawHistory);
 
     List<WithdrawHisUserRes> searchByUser(WithdrawHisUserReq withDrawRequest, String username);
+
+    List<WithdrawHistoryByUserIdResp> findListByUserId(Long userId);
 }

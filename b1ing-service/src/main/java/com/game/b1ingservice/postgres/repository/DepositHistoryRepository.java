@@ -15,4 +15,6 @@ public interface DepositHistoryRepository extends JpaRepository<DepositHistory, 
 
     List<DepositHistory> findAllByUser_usernameAndCreatedDateBetweenOrderByCreatedDateDesc(String username, Instant startDate, Instant endDate);
 
+    List<DepositHistory> findTop10ByUser_IdOrderByCreatedDateDesc(Long id);
+
 }

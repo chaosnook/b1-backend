@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -41,5 +38,11 @@ public class DepositHistoryController {
     public ResponseEntity<?> searchListDepositHistoryTop20ByUsername(@RequestBody DepositHistoryTop20Req req) {
         List<DepositHistoryTop20Resp> searchResponse = depositHistoryService.findListByUsername(req.getUsername());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, searchResponse);
+    }
+
+    @PostMapping(value = "/depositHistory/userId/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> depositHistory(@PathVariable Long id) {
+        List<DepositHistoryByUserIdResp> result = depositHistoryService.findListByUserId(id);
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, result);
     }
 }
