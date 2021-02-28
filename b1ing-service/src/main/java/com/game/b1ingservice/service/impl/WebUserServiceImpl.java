@@ -41,8 +41,7 @@ import java.time.YearMonth;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.game.b1ingservice.commons.Constants.ERROR.ERR_04003;
-import static com.game.b1ingservice.commons.Constants.ERROR.ERR_04004;
+import static com.game.b1ingservice.commons.Constants.ERROR.*;
 
 @Service
 public class WebUserServiceImpl implements WebUserService {
@@ -153,17 +152,31 @@ public class WebUserServiceImpl implements WebUserService {
 
     @Override
     public void updateUser(Long id, WebUserUpdate req) {
+        Optional<WebUser> optUsername = webUserRepository.findByIdNotAndUsername(id, req.getUsername());
+        if(optUsername.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_01119);
+        }
         Optional<WebUser> opt = webUserRepository.findById(id);
         if (opt.isPresent()) {
             WebUser user = opt.get();
+            user.setUsername(req.getUsername());
             user.setBankName(req.getBankName());
             user.setAccountNumber(req.getAccountNumber());
             user.setFirstName(req.getFirstName());
             user.setLastName(req.getLastName());
+            user.setTel(req.getTel());
             user.setLine(req.getLine());
             user.setIsBonus(req.getIsBonus());
 
-            webUserRepository.save(user);
+            WebUser userResp = webUserRepository.save(user);
+
+            if (!StringUtils.isEmpty(req.getAffiliate())) {
+                Optional<AffiliateHistory> optAffiliateHistory = affiliateHistoryRepository.findByAffiliateAndUser_Id(req.getAffiliate(), id);
+                if(!optAffiliateHistory.isPresent()) {
+                    insertAffiliateHistory(req.getAffiliate(), userResp);
+                }
+            }
+
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_01104);
         }

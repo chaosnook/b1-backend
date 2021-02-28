@@ -1,0 +1,213 @@
+package com.game.b1ingservice.service.impl;
+
+import com.game.b1ingservice.commons.Constants;
+import com.game.b1ingservice.exception.ErrorMessageException;
+import com.game.b1ingservice.payload.amb.*;
+import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.misktake.MistakeReq;
+import com.game.b1ingservice.payload.misktake.MistakeSearchListRes;
+import com.game.b1ingservice.payload.misktake.MistakeSearchReq;
+import com.game.b1ingservice.payload.misktake.MistakeSearchSummaryRes;
+import com.game.b1ingservice.payload.thieve.ThieveResponse;
+import com.game.b1ingservice.postgres.entity.*;
+import com.game.b1ingservice.postgres.repository.*;
+import com.game.b1ingservice.service.AMBService;
+import com.game.b1ingservice.service.MistakeService;
+import com.game.b1ingservice.utils.DateUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Instant;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static com.game.b1ingservice.commons.Constants.DATE_FORMAT;
+
+@Service
+@Slf4j
+public class MistakeServiceImpl implements MistakeService {
+
+    @Autowired
+    private WebUserRepository webUserRepository;
+
+    @Autowired
+    private AMBService ambService;
+
+    @Autowired
+    private DepositHistoryRepository depositHistoryRepository;
+
+    @Autowired
+    private WalletRepository walletRepository;
+
+    @Autowired
+    private WithdrawHistoryRepository withdrawHistoryRepository;
+
+    @Autowired
+    private AgentRepository agentRepository;
+
+    @Autowired
+    private AdminUserRepository adminUserRepository;
+
+    @Override
+    public void createMistake(MistakeReq mistakeReq, UserPrincipal principal) {
+        Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Prefix(mistakeReq.getUsername(), principal.getPrefix());
+
+        if (!opt.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_01127);
+        }
+
+        Optional<AdminUser> adminOpt = adminUserRepository.findById(principal.getId());
+        if (!adminOpt.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_01127);
+        }
+
+        WebUser user = opt.get();
+        BigDecimal credit = mistakeReq.getCredit().setScale(2, RoundingMode.HALF_DOWN);
+        String username = user.getUsername();
+        Agent agent = user.getAgent();
+
+        Wallet wallet = user.getWallet();
+        BigDecimal beforeAmount = wallet.getCredit();
+        BigDecimal afterAmount = beforeAmount.add(credit);
+
+        AmbResponse<DepositRes> ambResponse;
+
+
+        switch (mistakeReq.getType()) {
+            case Constants.PROBLEM.NO_SLIP:
+                ambResponse = ambService.deposit(DepositReq.builder()
+                        .amount(credit.toPlainString()).build(), username, agent);
+                if (ambResponse.getCode() == 0) {
+                    walletRepository.depositCredit(credit, user.getId());
+
+
+                    DepositHistory depositHistory = new DepositHistory();
+                    depositHistory.setAmount(credit);
+                    depositHistory.setBeforeAmount(beforeAmount);
+                    depositHistory.setAfterAmount(afterAmount);
+                    depositHistory.setUser(user);
+                    depositHistory.setMistakeType(Constants.PROBLEM.NO_SLIP);
+                    depositHistory.setReason(mistakeReq.getReason());
+                    depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
+                    depositHistory.setBonusAmount(BigDecimal.ZERO);
+                    depositHistory.setAdmin(adminOpt.get());
+                    depositHistoryRepository.save(depositHistory);
+                }
+
+                break;
+
+            case Constants.PROBLEM.ADD_CREDIT:
+                ambResponse = ambService.deposit(DepositReq.builder()
+                        .amount(credit.toPlainString()).build(), username, agent);
+
+                if (ambResponse.getCode() == 0) {
+                    walletRepository.depositCreditAndTurnOver(credit, credit, mistakeReq.getTurnOver(), user.getId());
+
+                    DepositHistory depositHistory = new DepositHistory();
+                    depositHistory.setAmount(credit);
+                    depositHistory.setBeforeAmount(beforeAmount);
+                    depositHistory.setAfterAmount(afterAmount);
+                    depositHistory.setUser(user);
+                    depositHistory.setMistakeType(Constants.PROBLEM.ADD_CREDIT);
+                    depositHistory.setReason(mistakeReq.getReason());
+                    depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
+                    depositHistory.setBonusAmount(BigDecimal.ZERO);
+                    depositHistory.setAdmin(adminOpt.get());
+                    depositHistoryRepository.save(depositHistory);
+                }
+
+                break;
+
+            case Constants.PROBLEM.CUT_CREDIT:
+                AmbResponse<WithdrawRes> withdrawRes = ambService.withdraw(WithdrawReq.builder()
+                        .amount(credit.toPlainString()).build(), username, agent);
+
+                if (withdrawRes.getCode() == 0) {
+                    walletRepository.withDrawCredit(credit, user.getId());
+
+                    WithdrawHistory withdrawHistory = new WithdrawHistory();
+                    withdrawHistory.setBeforeAmount(beforeAmount);
+                    withdrawHistory.setAfterAmount(afterAmount);
+                    withdrawHistory.setUser(user);
+                    withdrawHistory.setMistakeType(Constants.PROBLEM.CUT_CREDIT);
+                    withdrawHistory.setReason(mistakeReq.getReason());
+                    withdrawHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
+                    withdrawHistory.setAdmin(adminOpt.get());
+                    withdrawHistoryRepository.save(withdrawHistory);
+                }
+                break;
+            default:
+                throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
+    }
+
+    @Override
+    public List<MistakeSearchListRes> findByCriteria(MistakeSearchReq req, UserPrincipal principal) {
+        Instant instantStart = DateUtils.convertStartDateTime(req.getStartDate()).toInstant();
+        Instant instantEnd = DateUtils.convertEndDateTime(req.getEndDate()).toInstant();
+        String type = req.getType();
+
+        List<String> types = new ArrayList<>();
+        if (!type.equals("ALL")) {
+            types.addAll(Arrays.asList(Constants.PROBLEM.CUT_CREDIT, Constants.PROBLEM.ADD_CREDIT, Constants.PROBLEM.NO_SLIP));
+        } else {
+            types.add(type.toUpperCase(Locale.ROOT));
+        }
+
+        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
+        if (!agent.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
+        List<DepositHistory> list = depositHistoryRepository.findAllByUser_AgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(agent.get(), instantStart, instantEnd, types);
+        return list.stream().map(converter).collect(Collectors.toList());
+    }
+
+    @Override
+    public MistakeSearchSummaryRes summaryData(List<MistakeSearchListRes> resList) {
+
+        MistakeSearchSummaryRes summaryRes = new MistakeSearchSummaryRes();
+        BigDecimal noSlip = BigDecimal.valueOf(0);
+        BigDecimal cutCredit = BigDecimal.valueOf(0);
+        BigDecimal addCredit = BigDecimal.valueOf(0);
+
+        for (MistakeSearchListRes res : resList) {
+            switch (res.getMistakeType()) {
+                case Constants.PROBLEM.NO_SLIP:
+                    noSlip = noSlip.add(res.getAmount());
+                    break;
+                case Constants.PROBLEM.ADD_CREDIT:
+                    cutCredit = cutCredit.add(res.getAmount());
+                    break;
+                case Constants.PROBLEM.CUT_CREDIT:
+                    addCredit = addCredit.add(res.getAmount());
+                    break;
+            }
+        }
+
+        summaryRes.setNoSlip(noSlip);
+        summaryRes.setCutCredit(cutCredit);
+        summaryRes.setAddCredit(addCredit);
+
+        return summaryRes;
+    }
+
+
+    Function<DepositHistory, MistakeSearchListRes> converter = history -> {
+        MistakeSearchListRes res = new MistakeSearchListRes();
+        res.setBankName(history.getMistakeType());
+        res.setAmount(history.getAmount());
+        res.setAfterAmount(history.getAfterAmount());
+        res.setBeforeAmount(history.getBeforeAmount());
+        res.setReason(history.getReason());
+        res.setCreatedDate(DATE_FORMAT.format(history.getCreatedDate().toEpochMilli()));
+        res.setCreatedBy(history.getAdmin().getUsername());
+
+        return res;
+    };
+}

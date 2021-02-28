@@ -1,5 +1,6 @@
 package com.game.b1ingservice.postgres.jdbc;
 
+import com.game.b1ingservice.postgres.entity.DepositHistory;
 import com.game.b1ingservice.postgres.jdbc.dto.DepositHistoryTop20Dto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @Slf4j
 @Repository
-public class DepositHistoryTop20Repository {
+public class DepositHistoryJdbcRepository {
 
     @Autowired
     @Qualifier("postgresJdbcTemplate")

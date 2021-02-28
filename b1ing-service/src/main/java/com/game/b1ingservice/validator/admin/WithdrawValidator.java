@@ -2,7 +2,6 @@ package com.game.b1ingservice.validator.admin;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
-import com.game.b1ingservice.payload.admin.AddCreditRequest;
 import com.game.b1ingservice.payload.admin.WithdrawRequest;
 import com.game.b1ingservice.validator.CommonValidator;
 import org.apache.commons.lang3.ObjectUtils;
@@ -21,9 +20,9 @@ public class WithdrawValidator extends CommonValidator {
         }
         if(ObjectUtils.isEmpty(req.getCredit())) {
             throw  new ErrorMessageException(Constants.ERROR.ERR_01128);
-        } else if(isNumber(req.getCredit().toString())){
+        } else if(!isNumber(req.getCredit().toString())){
             throw  new ErrorMessageException(Constants.ERROR.ERR_01131);
-        } else if(req.getCredit().compareTo(minCredit) == -1) {
+        } else if(req.getCredit().compareTo(minCredit) < 0) {
             throw  new ErrorMessageException(Constants.ERROR.ERR_01131);
         }
     }

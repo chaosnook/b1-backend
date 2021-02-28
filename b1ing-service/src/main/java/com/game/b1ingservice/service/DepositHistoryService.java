@@ -18,4 +18,6 @@ public interface DepositHistoryService {
 
     List<DepositHistoryTop20Resp> findListByUsername(String username);
 
+    List<DepositHistoryByUserIdResp> findListByUserId(Long userId);
+
 }

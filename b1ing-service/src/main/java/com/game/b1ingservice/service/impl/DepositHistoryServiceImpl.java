@@ -2,7 +2,7 @@ package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.payload.deposithistory.*;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
-import com.game.b1ingservice.postgres.jdbc.DepositHistoryTop20Repository;
+import com.game.b1ingservice.postgres.jdbc.DepositHistoryJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.DepositHistoryTop20Dto;
 import com.game.b1ingservice.postgres.repository.DepositHistoryRepository;
 import com.game.b1ingservice.service.DepositHistoryService;
@@ -12,6 +12,7 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
@@ -24,7 +25,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     private DepositHistoryRepository depositHistoryRepository;
 
     @Autowired
-    private DepositHistoryTop20Repository depositHistoryTop20Repository;
+    private DepositHistoryJdbcRepository depositHistoryJdbcRepository;
 
     @Override
     public Page<DepositListHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type) {
@@ -79,7 +80,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     @Override
     public List<DepositHistoryTop20Resp> findListByUsername(String username) {
 
-       List<DepositHistoryTop20Dto> depositDtos = depositHistoryTop20Repository.findTop20DepositHistory(username);
+       List<DepositHistoryTop20Dto> depositDtos = depositHistoryJdbcRepository.findTop20DepositHistory(username);
 
        List<DepositHistoryTop20Resp> result = new ArrayList<>();
        for(DepositHistoryTop20Dto depositDto: depositDtos) {
@@ -98,6 +99,37 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
            deposit.setReason(depositDto.getReason());
            result.add(deposit);
        }
+
+        return result;
+    }
+
+    @Override
+    public List<DepositHistoryByUserIdResp> findListByUserId(Long userId) {
+        List<DepositHistory> list = depositHistoryRepository.findTop10ByUser_IdOrderByCreatedDateDesc(userId);
+        List<DepositHistoryByUserIdResp> result = new ArrayList<>();
+        if(!list.isEmpty()) {
+            for(DepositHistory depositDto : list) {
+                DepositHistoryByUserIdResp deposit = new DepositHistoryByUserIdResp();
+                if(null == depositDto.getBank()) {
+                    deposit.setBankName(null);
+                } else {
+                    deposit.setBankName(depositDto.getBank().getBankName());
+                }
+                deposit.setAmount(depositDto.getAmount().toString());
+                deposit.setBonus(depositDto.getBonusAmount().toString());
+                deposit.setAddCredit(depositDto.getAmount().add(depositDto.getBonusAmount()).toString());
+                deposit.setBeforeAmount(depositDto.getBeforeAmount().toString());
+                deposit.setAfterAmount(depositDto.getAfterAmount().toString());
+
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a");
+                Date date = Date.from(depositDto.getCreatedDate());
+                deposit.setCreatedDate(sdf.format(date));
+
+                deposit.setReason(depositDto.getReason());
+
+                result.add(deposit);
+            }
+        }
 
         return result;
     }

@@ -29,6 +29,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.time.YearMonth;
 import java.util.*;
@@ -185,7 +186,7 @@ public class AdminServiceImpl implements AdminService {
                 depositHistoryRepository.save(depositHistory);
 
                 AmbResponse<DepositRes> ambResponse = ambService.deposit(DepositReq.builder()
-                    .amount(req.getCredit().toString())
+                    .amount(req.getCredit().setScale(2, RoundingMode.HALF_DOWN).toPlainString())
                     .build(), req.getUsername(), wallet.getUser().getAgent());
 
                 String errorMessage = "";
@@ -226,7 +227,7 @@ public class AdminServiceImpl implements AdminService {
                 Bank bank = wallet.getBank();
                 BigDecimal afterAmount = beforAmount.subtract(req.getCredit());
                 wallet.setCredit(afterAmount);
-                walletRepository.withDrawCredit(afterAmount, webUser.getId());
+                walletRepository.withDrawCredit(req.getCredit(), webUser.getId());
 
                 WithdrawHistory withdrawHistory = new WithdrawHistory();
                 withdrawHistory.setAmount(req.getCredit());
@@ -250,11 +251,12 @@ public class AdminServiceImpl implements AdminService {
                 String errorMessage = "";
                 if (ambResponse.getCode() == 0) {
                     walletRepository.withDrawCredit(afterAmount, webUser.getId());
-                    withdrawHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
+
                     BankBotScbWithdrawCreditRequest request = new BankBotScbWithdrawCreditRequest();
                     request.setAmount(req.getCredit());
                     request.setAccountTo(webUser.getAccountNumber());
                     request.setBankCode(webUser.getBankName());
+
                     BankBotScbWithdrawCreditResponse depositResult = bankBotService.withDrawCredit(request);
                     if (depositResult.getStatus()){
                         withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.SUCCESS);
@@ -263,13 +265,16 @@ public class AdminServiceImpl implements AdminService {
                         withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);
                         withdrawHistory.setReason(depositResult.getMessege());
                     }
+                    withdrawHistoryRepository.save(withdrawHistory);
+
                 } else {
                     //if error
                     withdrawHistory.setReason(errorMessage);
                     withdrawHistory.setStatus(Constants.DEPOSIT_STATUS.ERROR);
-                }
+                    withdrawHistoryRepository.save(withdrawHistory);
 
-                withdrawHistoryRepository.save(withdrawHistory);
+                    throw new ErrorMessageException(Constants.ERROR.ERR_10001);
+                }
 
             } else {
                 throw new ErrorMessageException(Constants.ERROR.ERR_01132);

@@ -54,6 +54,9 @@ public class WithdrawHistory  extends DateAudit<String> implements Serializable 
     @Column(name = "reason", columnDefinition = "character varying(100)")
     private String reason;
 
+    @Column(name = "mistake_type", columnDefinition = "character varying(50)")
+    private String mistakeType;
+
     @ToString.Exclude
     @JsonIgnore
     @JoinColumn(name = "admin_id", referencedColumnName = "id")
