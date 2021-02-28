@@ -81,12 +81,6 @@ public class PromotionServiceImpl implements PromotionService {
 
         promotionRepository.save(promotion);
 
-//        ConditionRequest conditionRequest = new ConditionRequest();
-//        conditionRequest.setMinTopup(promotionRequest.getMinTopup());
-//        conditionRequest.setMaxTopup(promotionRequest.getMaxTopup());
-//        conditionRequest.setBonus(promotionRequest.getMaxReceiveBonus());
-//        conditionService.insertCondition(conditionRequest, principal);
-
     }
 
     @Override
