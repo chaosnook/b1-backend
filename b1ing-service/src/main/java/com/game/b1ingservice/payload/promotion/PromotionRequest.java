@@ -1,6 +1,9 @@
 package com.game.b1ingservice.payload.promotion;
 
+import com.game.b1ingservice.payload.condition.ConditionRequest;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class PromotionRequest {
@@ -16,4 +19,5 @@ public class PromotionRequest {
     private int maxWithdraw;
     private boolean active;
     private String urlImage;
+    List<ConditionRequest> conditions ;
 }

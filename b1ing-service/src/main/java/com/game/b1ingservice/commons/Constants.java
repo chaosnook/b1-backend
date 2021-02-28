@@ -118,7 +118,8 @@ public class Constants {
         ERR_09007("Amount ห้ามว่าง"),
         ERR_09008("TransactionDate ห้ามว่าง"),
         ERR_09009("Type ห้ามว่าง"),
-        ERR_09010("max receive bonus ห้ามว่าง")
+        ERR_09010("max receive bonus ห้ามว่าง"),
+        ERR_09011("ไม่พบโปรโมชัน")
 
         ;
 

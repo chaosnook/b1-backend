@@ -7,8 +7,11 @@ import com.game.b1ingservice.payload.promotion.PromotionRequest;
 import com.game.b1ingservice.payload.promotion.PromotionResponse;
 import com.game.b1ingservice.payload.promotion.PromotionUpdate;
 import com.game.b1ingservice.payload.promotion.PromotionUserRes;
+import com.game.b1ingservice.postgres.entity.AdminUser;
 import com.game.b1ingservice.postgres.entity.Agent;
+import com.game.b1ingservice.postgres.entity.Condition;
 import com.game.b1ingservice.postgres.entity.Promotion;
+import com.game.b1ingservice.postgres.repository.AdminUserRepository;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.PromotionRepository;
 import com.game.b1ingservice.service.ConditionService;
@@ -38,13 +41,18 @@ public class PromotionServiceImpl implements PromotionService {
     @Autowired
     AgentRepository agentRepository;
 
+    @Autowired
+    AdminUserRepository adminUserRepository;
+
     @Override
         public void insertPromotion(PromotionRequest promotionRequest, UserPrincipal principal) {
 
         Optional<Agent> opt = agentRepository.findByPrefix(principal.getPrefix());
+        Optional<AdminUser> optAdmin = adminUserRepository.findById(principal.getId());
         if (!opt.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
         }
+
 
         Promotion promotion = new Promotion();
 
@@ -59,6 +67,17 @@ public class PromotionServiceImpl implements PromotionService {
         promotion.setMaxWithdraw(promotionRequest.getMaxWithdraw());
         promotion.setActive(promotionRequest.isActive());
         promotion.setUrlImage(promotionRequest.getUrlImage());
+        promotion.setAgent(opt.get());
+        promotion.setAdmin(optAdmin.get());
+
+        promotion.setCondition(promotionRequest.getConditions().stream().map(conditionRequest -> {
+            Condition condition = new Condition();
+            condition.setPromotion(promotion);
+            condition.setMinTopup(conditionRequest.getMinTopup());
+            condition.setMaxTopup(conditionRequest.getMaxTopup());
+            condition.setBonus(conditionRequest.getBonus());
+            return condition;
+        }).collect(Collectors.toList()));
 
         promotionRepository.save(promotion);
 
