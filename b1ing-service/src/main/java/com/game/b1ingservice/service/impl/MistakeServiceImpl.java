@@ -148,8 +148,8 @@ public class MistakeServiceImpl implements MistakeService {
 
     @Override
     public List<MistakeSearchListRes> findByCriteria(MistakeSearchReq req, UserPrincipal principal) {
-        Instant instantStart = DateUtils.convertStartDateTime(req.getStartDate()).toInstant();
-        Instant instantEnd = DateUtils.convertEndDateTime(req.getEndDate()).toInstant();
+        Instant instantStart = DateUtils.convertStartDateTimeSec(req.getStartDate()).toInstant();
+        Instant instantEnd = DateUtils.convertEndDateTimeSec(req.getEndDate()).toInstant();
         String type = req.getType();
 
         List<String> types = new ArrayList<>();

@@ -15,6 +15,7 @@ public class DateUtils {
 
     public static final FastDateFormat DDMMYYYY = FastDateFormat.getInstance("dd/MM/yyyy");
     public static final FastDateFormat DDMMYYYHHmm = FastDateFormat.getInstance("dd/MM/yyyy HH:mm");
+    public static final FastDateFormat DDMMYYYHHmmss = FastDateFormat.getInstance("dd/MM/yyyy HH:mm:ss");
     public static String nowDateFormat(String format) {
         return new SimpleDateFormat(format).format(nowDateUtil());
     }
@@ -66,9 +67,27 @@ public class DateUtils {
         }
     }
 
+    public static Date convertStartDateTimeSec(String strDate) {
+        try {
+            return DateUtils.atStartOfDateTime(DDMMYYYHHmmss.parse(strDate));
+        } catch (Exception e) {
+            //  log.error("Parse Date Error : {}", e.getMessage());
+            return null;
+        }
+    }
+
     public static Date convertEndDateTime(String strDate) {
         try {
             return DateUtils.atEndOfDateTime(DDMMYYYHHmm.parse(strDate));
+        } catch (Exception e) {
+            //  log.error("Parse Date Error : {}", e.getMessage());
+            return null;
+        }
+    }
+
+    public static Date convertEndDateTimeSec(String strDate) {
+        try {
+            return DateUtils.atEndOfDateTime(DDMMYYYHHmmss.parse(strDate));
         } catch (Exception e) {
             //  log.error("Parse Date Error : {}", e.getMessage());
             return null;
