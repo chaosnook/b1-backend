@@ -17,13 +17,17 @@ public class WebUserUpdateValidator extends CommonValidator {
 
     public void validate(WebUserUpdate req) {
 
+        if(StringUtils.isEmpty(req.getUsername())) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_01118);
+        }
+
         if(StringUtils.isEmpty(req.getBankName())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01120);
         }
 
         if(StringUtils.isEmpty(req.getAccountNumber())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01121);
-        } else if(isNumber(req.getAccountNumber())) {
+        } else if(!isNumber(req.getAccountNumber())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01122);
         }
 
@@ -35,9 +39,12 @@ public class WebUserUpdateValidator extends CommonValidator {
             throw new ErrorMessageException(Constants.ERROR.ERR_01124);
         }
 
+        if(StringUtils.isEmpty(req.getTel())) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_01106);
+        }
+
         if(StringUtils.isEmpty(req.getIsBonus())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01125);
         }
     }
-
 }

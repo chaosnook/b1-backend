@@ -9,10 +9,11 @@ import com.game.b1ingservice.payload.amb.*;
 import com.game.b1ingservice.payload.bankbot.BankBotScbWithdrawCreditRequest;
 import com.game.b1ingservice.payload.bankbot.BankBotScbWithdrawCreditResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.deposithistory.DepositHistoryTop20Resp;
 import com.game.b1ingservice.postgres.entity.*;
+import com.game.b1ingservice.postgres.jdbc.ProfitLossJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.ProfitReportJdbcRepository;
-import com.game.b1ingservice.postgres.jdbc.dto.ProfitReport;
-import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
+import com.game.b1ingservice.postgres.jdbc.dto.*;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.AdminService;
@@ -29,11 +30,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
 import java.time.YearMonth;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -62,6 +61,8 @@ public class AdminServiceImpl implements AdminService {
     private AMBService ambService;
     @Autowired
     private BankBotService bankBotService;
+    @Autowired
+    ProfitLossJdbcRepository profitLossJdbcRepository;
 
     @Autowired
     RoleRepository rolerepository;
@@ -265,7 +266,7 @@ public class AdminServiceImpl implements AdminService {
                         withdrawHistory.setReason(depositResult.getMessege());
                     }
                     withdrawHistoryRepository.save(withdrawHistory);
-                    
+
                 } else {
                     //if error
                     withdrawHistory.setReason(errorMessage);
@@ -332,6 +333,33 @@ public class AdminServiceImpl implements AdminService {
 
                 resObj.getData().set(i, depValue.subtract(withValue));
 
+        }
+
+        return resObj;
+    }
+
+    @Override
+    public ProfitLossResponse profitLoss(ProfitLossRequest profitLossRequest, UserPrincipal principal) {
+        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
+
+
+        if (!agent.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
+        ProfitLossResponse resObj = new ProfitLossResponse();
+
+        List<ProfitLoss> listDeposit = profitLossJdbcRepository.depositProfit(profitLossRequest, principal);
+        List<ProfitLoss> listWithdraw = profitLossJdbcRepository.withdrawProfit(profitLossRequest, principal);
+
+        for(ProfitLoss profitLoss: listDeposit) {
+            resObj.setDeposit(profitLoss.getDeposit());
+            resObj.setBonus(profitLoss.getBonus());
+            resObj.setDepositBonus(profitLoss.getDepositBonus());
+        }
+        for(ProfitLoss profitLoss: listWithdraw) {
+            resObj.setWithdraw(profitLoss.getWithdraw());
+            resObj.setProfitLoss(resObj.getDepositBonus().subtract(profitLoss.getWithdraw()));
         }
 
         return resObj;
