@@ -144,6 +144,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
             if(!map.containsKey(depositList.getBankName())) {
 
                 summary.setBankName(depositList.getBankName());
+                summary.setBankCode(depositList.getBankCode());
                 summary.setCountTask(1);
                 summary.setTotalDeposit(depositList.getAmount());
                 summary.setTotalBonus(depositList.getBonus());
@@ -157,6 +158,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                 summary.setCountTask(value.getCountTask() + 1);
                 summary.setTotalDeposit(value.getTotalDeposit().add(depositList.getAmount()));
                 summary.setTotalBonus(value.getTotalBonus().add(depositList.getBonus()));
+                summary.setBankCode(value.getBankCode());
 
                 map.replace(depositList.getBankName(), summary);
             }
@@ -225,8 +227,10 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         searchResponse.setId(depositHistory.getId());
         if(null == depositHistory.getBank()) {
             searchResponse.setBankName(null);
+            searchResponse.setBankCode(null);
         } else {
             searchResponse.setBankName(depositHistory.getBank().getBankName());
+            searchResponse.setBankCode(depositHistory.getBank().getBankCode());
         }
         if(null == depositHistory.getUser()) {
             searchResponse.setUsername(null);

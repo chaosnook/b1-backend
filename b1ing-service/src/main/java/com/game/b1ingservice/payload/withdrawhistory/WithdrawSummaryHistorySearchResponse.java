@@ -11,4 +11,5 @@ public class WithdrawSummaryHistorySearchResponse {
     private String bankGroup;
     private int countTask;
     private BigDecimal totalWithdraw;
+    private String bankCode;
 }

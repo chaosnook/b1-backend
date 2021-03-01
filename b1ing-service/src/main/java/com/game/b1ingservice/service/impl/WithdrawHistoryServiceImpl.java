@@ -112,6 +112,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
                 summary.setCountTask(1);
                 summary.setTotalWithdraw(withdraw.getTotalWithdraw());
                 summary.setBankGroup(withdraw.getBankGroup());
+                summary.setBankCode(withdraw.getBankCode());
 
                 map.put(withdraw.getBankName(), summary);
 
@@ -121,7 +122,8 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
                 summary.setBankName(value.getBankName());
                 summary.setCountTask(value.getCountTask() + 1);
                 summary.setTotalWithdraw(value.getTotalWithdraw().add(withdraw.getTotalWithdraw()));
-                summary.setBankGroup(withdraw.getBankGroup());
+                summary.setBankGroup(value.getBankGroup());
+                summary.setBankCode(value.getBankCode());
 
                 map.replace(withdraw.getBankName(), summary);
             }
@@ -141,8 +143,10 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
         searchResponse.setId(withdrawHistory.getId());
         if(null == withdrawHistory.getBank()) {
             searchResponse.setBankName(null);
+            searchResponse.setBankCode(null);
         } else {
             searchResponse.setBankName(withdrawHistory.getBank().getBankName());
+            searchResponse.setBankCode(withdrawHistory.getBank().getBankCode());
         }
         if(null == withdrawHistory.getUser()) {
             searchResponse.setUsername(null);
@@ -180,9 +184,11 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
         if(null == withdrawHistory.getBank()) {
             searchResponse.setBankName(null);
             searchResponse.setBankGroup(null);
+            searchResponse.setBankCode(null);
         } else {
             searchResponse.setBankName(withdrawHistory.getBank().getBankName());
             searchResponse.setBankGroup(String.valueOf(withdrawHistory.getBank().getBankGroup()));
+            searchResponse.setBankCode(withdrawHistory.getBank().getBankCode());
         }
 
         searchResponse.setTotalWithdraw(withdrawHistory.getAmount());

@@ -11,4 +11,5 @@ public class DepositSummaryHistorySearchResponse {
     private int countTask;
     private BigDecimal totalDeposit;
     private BigDecimal totalBonus;
+    private String bankCode;
 }

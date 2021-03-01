@@ -10,6 +10,7 @@ public class DepositListHistorySearchResponse {
 
     private Long id;
     private String bankName;
+    private String bankCode;
     private String username;
     private BigDecimal amount;
     private BigDecimal beforeAmount;
