@@ -1,5 +1,6 @@
 package com.game.b1ingservice.postgres.repository;
 
+import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
 import com.game.b1ingservice.postgres.entity.WithdrawHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,5 @@ public interface WithdrawHistoryRepository extends JpaRepository<WithdrawHistory
 
     List<WithdrawHistory> findTop10ByUser_IdOrderByCreatedDateDesc(Long id);
 
+    List<WithdrawHistory> findAllByUser_AgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(Agent agent, Instant instantStart, Instant instantEnd, List<String> types);
 }

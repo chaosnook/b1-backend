@@ -153,7 +153,7 @@ public class MistakeServiceImpl implements MistakeService {
         String type = req.getType();
 
         List<String> types = new ArrayList<>();
-        if (!type.equals("ALL")) {
+        if (type.equals("ALL")) {
             types.addAll(Arrays.asList(Constants.PROBLEM.CUT_CREDIT, Constants.PROBLEM.ADD_CREDIT, Constants.PROBLEM.NO_SLIP));
         } else {
             types.add(type.toUpperCase(Locale.ROOT));
@@ -164,8 +164,21 @@ public class MistakeServiceImpl implements MistakeService {
             throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
         }
 
-        List<DepositHistory> list = depositHistoryRepository.findAllByUser_AgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(agent.get(), instantStart, instantEnd, types);
-        return list.stream().map(converter).collect(Collectors.toList());
+
+        List<DepositHistory> list = new ArrayList<>();
+        List<WithdrawHistory> listWithdraw = new ArrayList<>();
+
+        if (types.contains(Constants.PROBLEM.ADD_CREDIT) || types.contains(Constants.PROBLEM.NO_SLIP)) {
+            list = depositHistoryRepository.findAllByUser_AgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(agent.get(), instantStart, instantEnd, types);
+        }
+
+        if (types.contains(Constants.PROBLEM.CUT_CREDIT)) {
+            listWithdraw = withdrawHistoryRepository.findAllByUser_AgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(agent.get(), instantStart, instantEnd, Collections.singletonList(Constants.PROBLEM.CUT_CREDIT));
+        }
+
+        List<MistakeSearchListRes> resList = list.stream().map(converter).collect(Collectors.toList());
+        resList.addAll(listWithdraw.stream().map(converterWith).collect(Collectors.toList()));
+        return resList;
     }
 
     @Override
@@ -181,10 +194,10 @@ public class MistakeServiceImpl implements MistakeService {
                 case Constants.PROBLEM.NO_SLIP:
                     noSlip = noSlip.add(res.getAmount());
                     break;
-                case Constants.PROBLEM.ADD_CREDIT:
+                case Constants.PROBLEM.CUT_CREDIT:
                     cutCredit = cutCredit.add(res.getAmount());
                     break;
-                case Constants.PROBLEM.CUT_CREDIT:
+                case Constants.PROBLEM.ADD_CREDIT:
                     addCredit = addCredit.add(res.getAmount());
                     break;
             }
@@ -201,6 +214,24 @@ public class MistakeServiceImpl implements MistakeService {
     Function<DepositHistory, MistakeSearchListRes> converter = history -> {
         MistakeSearchListRes res = new MistakeSearchListRes();
         res.setBankName(history.getMistakeType());
+        res.setUsername(history.getUser().getUsername());
+        res.setMistakeType(history.getMistakeType());
+        res.setAmount(history.getAmount());
+        res.setAfterAmount(history.getAfterAmount());
+        res.setBeforeAmount(history.getBeforeAmount());
+        res.setReason(history.getReason());
+        res.setCreatedDate(DATE_FORMAT.format(history.getCreatedDate().toEpochMilli()));
+        res.setCreatedBy(history.getAdmin().getUsername());
+
+        return res;
+    };
+
+
+    Function<WithdrawHistory, MistakeSearchListRes> converterWith = history -> {
+        MistakeSearchListRes res = new MistakeSearchListRes();
+        res.setBankName(history.getMistakeType());
+        res.setMistakeType(history.getMistakeType());
+        res.setUsername(history.getUser().getUsername());
         res.setAmount(history.getAmount());
         res.setAfterAmount(history.getAfterAmount());
         res.setBeforeAmount(history.getBeforeAmount());
