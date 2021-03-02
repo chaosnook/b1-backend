@@ -8,7 +8,7 @@ import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.*;
 
 public class Constants {
 
-    public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a");
+    public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     public static int AMB_ERROR = 999;
     public enum  ERROR
