@@ -130,6 +130,7 @@ public class MistakeServiceImpl implements MistakeService {
                     walletRepository.withDrawCredit(credit, user.getId());
 
                     WithdrawHistory withdrawHistory = new WithdrawHistory();
+                    withdrawHistory.setAmount(credit);
                     withdrawHistory.setBeforeAmount(beforeAmount);
                     withdrawHistory.setAfterAmount(afterAmount);
                     withdrawHistory.setUser(user);
