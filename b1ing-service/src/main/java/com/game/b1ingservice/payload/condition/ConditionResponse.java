@@ -5,8 +5,8 @@ import lombok.Data;
 @Data
 public class ConditionResponse {
     private Long id;
-    private int minTopup;
-    private int maxTopup;
-    private int bonus;
+    private Double minTopup;
+    private Double maxTopup;
+    private Double bonus;
     private Long agentId;
 }

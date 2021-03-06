@@ -3,8 +3,11 @@ package com.game.b1ingservice.postgres.repository;
 import com.game.b1ingservice.postgres.entity.Promotion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,4 +17,7 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long>, Jpa
     Optional<Promotion> findById(Long id);
 
     List<Promotion> findAllByAgent_PrefixAndActive(String prefix , boolean active);
+
+    @Query("select o from Promotion o where :date between o.startTime and o.endTime and o.active = true and :amount between o.minTopup and o.maxTopup")
+    List<Promotion> findByDateBetweenStartTimeAndEndTimeAndMaxTopupAndMinTopup(Date date, BigDecimal amount);
 }

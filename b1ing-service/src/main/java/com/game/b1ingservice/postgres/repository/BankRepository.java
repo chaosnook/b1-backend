@@ -32,4 +32,6 @@ public interface BankRepository extends JpaRepository<Bank, Long>, JpaSpecificat
 
     List<Bank> findByBankTypeAndActiveOrderByBankGroupAscBankOrderAsc(String bankType, Boolean isActive);
 
+
+    List<Bank> findByBankTypeAndActive(String bankType, Boolean active);
 }

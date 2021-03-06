@@ -44,7 +44,7 @@ public class BankBotScbTask {
 
     @Scheduled(cron = "0 0 12 1 1 *")
     public void scheduleFixedRateTask() {
-        List<Bank> lists = bankRepository.findAll();
+        List<Bank> lists = bankRepository.findByBankTypeAndActive("DEPOSIT", true);
         for (Bank bank : lists) {
             if (!bank.getBotIp().startsWith("100.101.1")) {
                 List<BankBotScbTransactionResponse> transactionList = fetchScbTransaction(bank);
