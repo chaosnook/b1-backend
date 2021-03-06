@@ -3,24 +3,21 @@ package com.game.b1ingservice.service.impl;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
-import com.game.b1ingservice.payload.promotion.PromotionRequest;
-import com.game.b1ingservice.payload.promotion.PromotionResponse;
-import com.game.b1ingservice.payload.promotion.PromotionUpdate;
-import com.game.b1ingservice.payload.promotion.PromotionUserRes;
-import com.game.b1ingservice.postgres.entity.AdminUser;
-import com.game.b1ingservice.postgres.entity.Agent;
-import com.game.b1ingservice.postgres.entity.Condition;
-import com.game.b1ingservice.postgres.entity.Promotion;
+import com.game.b1ingservice.payload.promotion.*;
+import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.repository.AdminUserRepository;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.PromotionRepository;
 import com.game.b1ingservice.service.ConditionService;
 import com.game.b1ingservice.service.PromotionService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,6 +126,35 @@ public class PromotionServiceImpl implements PromotionService {
         return promotionRepository.findAllByAgent_PrefixAndActive(prefix , true).stream().map(userConverter).collect(Collectors.toList());
     }
 
+    @Override
+    public List<Promotion> getEffectivePromotion(PromotionEffectiveRequest request) {
+        List<Promotion> promotionList = promotionRepository.findByDateBetweenStartTimeAndEndTimeAndMaxTopupAndMinTopup(Date.from(request.getTransactionDate()),request.getAmount());
+        return promotionList;
+    }
+
+    @Override
+    public PromotionHistory calculatePromotionBonus(Promotion promotion, PromotionEffectiveRequest request) {
+        PromotionHistory promotionHistory = new PromotionHistory();
+        promotionHistory.setPromotion(promotion);
+        if (ObjectUtils.isNotEmpty(request.getUser())){
+            promotionHistory.setUser(request.getUser());
+            promotionHistory.setAgent(request.getUser().getAgent());
+        }
+        promotionHistory.setTransactionId(request.getTransactionId());
+        promotionHistory.setTopup(request.getAmount());
+        promotionHistory.setBonus(BigDecimal.ZERO);
+        promotionHistory.setTurnOver(BigDecimal.ZERO);
+        promotion.getCondition().forEach(condition -> {
+           if (request.getAmount().compareTo(condition.getMinTopup())>=0 && request.getAmount().compareTo(condition.getMaxTopup())<=0){
+                promotionHistory.setBonus(condition.getBonus());
+           }
+        });
+
+        BigDecimal turnOver = promotionHistory.getTopup().add(promotionHistory.getBonus()).multiply(promotion.getTurnOver());
+        promotionHistory.setTurnOver(turnOver);
+        return promotionHistory;
+    }
+
     Function<Promotion, PromotionUserRes> userConverter = promotion -> {
         PromotionUserRes userRes = new PromotionUserRes();
         userRes.setId(promotion.getId());
@@ -150,11 +176,11 @@ public class PromotionServiceImpl implements PromotionService {
         promotionResponse.setUrlImage(promotion.getUrlImage());
         promotionResponse.setName(promotion.getName());
         promotionResponse.setTypePromotion(promotion.getTypePromotion());
-        promotionResponse.setMinTopup(promotion.getMinTopup());
-        promotionResponse.setMaxTopup(promotion.getMaxTopup());
-        promotionResponse.setMaxBonus(promotion.getMaxBonus());
-        promotionResponse.setTurnOver(promotion.getTurnOver());
-        promotionResponse.setMaxWithdraw(promotion.getMaxWithdraw());
+        promotionResponse.setMinTopup(promotion.getMinTopup().doubleValue());
+        promotionResponse.setMaxTopup(promotion.getMaxTopup().doubleValue());
+        promotionResponse.setMaxBonus(promotion.getMaxBonus().doubleValue());
+        promotionResponse.setTurnOver(promotion.getTurnOver().doubleValue());
+        promotionResponse.setMaxWithdraw(promotion.getMaxWithdraw().doubleValue());
         promotionResponse.setActive(promotion.isActive());
 
         Map<String, Object> configMap = new HashMap<>();

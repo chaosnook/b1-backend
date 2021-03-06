@@ -9,6 +9,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -30,18 +31,18 @@ public class Promotion extends DateAudit<String> implements Serializable {
     private String typeBonus;
     @Column(name = "type_promotion", columnDefinition = "character varying(20) not null")
     private String typePromotion;
-    @Column(name = "min_topup", columnDefinition = "smallint not null")
-    private int minTopup;
-    @Column(name = "max_topup", columnDefinition = "smallint not null")
-    private int maxTopup;
-    @Column(name = "max_bonus", columnDefinition = "smallint not null")
-    private int maxBonus;
-    @Column(name = "max_withdraw", columnDefinition = "smallint not null")
-    private int maxWithdraw;
-    @Column(name = "max_receive_bonus", columnDefinition = "smallint not null")
-    private int maxReceiveBonus;
-    @Column(name = "turn_over", columnDefinition = "smallint not null")
-    private int turnOver;
+    @Column(name = "min_topup", columnDefinition = "numeric(18,2)")
+    private BigDecimal minTopup;
+    @Column(name = "max_topup", columnDefinition = "numeric(18,2)")
+    private BigDecimal maxTopup;
+    @Column(name = "max_bonus", columnDefinition = "numeric(18,2)")
+    private BigDecimal maxBonus;
+    @Column(name = "max_withdraw", columnDefinition = "numeric(18,2)")
+    private BigDecimal maxWithdraw;
+    @Column(name = "max_receive_bonus", columnDefinition = "numeric(18,2)")
+    private BigDecimal maxReceiveBonus;
+    @Column(name = "turn_over", columnDefinition = "numeric(18,2)")
+    private BigDecimal turnOver;
     @Temporal(TemporalType.DATE)
     private Date startTime;
     @Temporal(TemporalType.DATE)
