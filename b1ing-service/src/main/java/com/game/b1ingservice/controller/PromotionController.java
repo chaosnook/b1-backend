@@ -36,7 +36,6 @@ public class PromotionController {
     @PostMapping(value = "/promotion",
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
         public ResponseEntity<?> insertPromotion(@RequestBody PromotionRequest promotionRequest, @AuthenticationPrincipal UserPrincipal principal) {
-//        public ResponseEntity<?> insertPromotion(@RequestPart MultipartFile file, @RequestPart PromotionRequest promotionRequest, @AuthenticationPrincipal UserPrincipal principal) {
             promotionValidator.validate(promotionRequest);
             promotionService.insertPromotion(promotionRequest, principal);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);

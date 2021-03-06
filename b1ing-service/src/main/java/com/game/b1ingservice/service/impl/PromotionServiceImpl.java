@@ -90,9 +90,16 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Override
     public void updatePromotion(Long id, PromotionUpdate promotionUpdate, UserPrincipal principal){
-        Optional<Promotion> opt = promotionRepository.findById(id);
+
+        Optional<Agent> opt = agentRepository.findByPrefix(principal.getPrefix());
+        Optional<AdminUser> optAdmin = adminUserRepository.findById(principal.getId());
+        if (!opt.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
+        Optional<Promotion> optionalPromotion = promotionRepository.findById(id);
         if(opt.isPresent()) {
-            Promotion promotion = opt.get();
+            Promotion promotion = optionalPromotion.get();
             promotion.setName(promotionUpdate.getName());
             promotion.setTypeBonus(promotionUpdate.getTypeBonus());
             promotion.setTypePromotion(promotionUpdate.getTypePromotion());
