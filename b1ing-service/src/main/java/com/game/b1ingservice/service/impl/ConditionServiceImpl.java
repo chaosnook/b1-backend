@@ -91,8 +91,8 @@ public class ConditionServiceImpl implements ConditionService {
     Function<Condition, ConditionResponse> converter = condition -> {
         ConditionResponse conditionResponse = new ConditionResponse();
         conditionResponse.setId(condition.getId());
-        conditionResponse.setMinTopup(condition.getMinTopup());
-        conditionResponse.setMaxTopup(condition.getMaxTopup());
+        conditionResponse.setMinTopup(condition.getMinTopup().doubleValue());
+        conditionResponse.setMaxTopup(condition.getMaxTopup().doubleValue());
 
         return conditionResponse;
 

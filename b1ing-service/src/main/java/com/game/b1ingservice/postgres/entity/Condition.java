@@ -9,6 +9,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Data
 @Entity
@@ -20,12 +21,12 @@ public class Condition extends DateAudit<String> implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "min_topup", columnDefinition = "smallint not null")
-    private int minTopup;
-    @Column(name = "max_topup", columnDefinition = "smallint not null")
-    private int maxTopup;
-    @Column(name = "bonus", columnDefinition = "smallint not null")
-    private int bonus;
+    @Column(name = "min_topup", columnDefinition = "numeric(18,2)")
+    private BigDecimal minTopup;
+    @Column(name = "max_topup", columnDefinition = "numeric(18,2)")
+    private BigDecimal maxTopup;
+    @Column(name = "bonus", columnDefinition = "numeric(18,2)")
+    private BigDecimal bonus;
 
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();

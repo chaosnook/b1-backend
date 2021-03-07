@@ -7,16 +7,15 @@ import com.game.b1ingservice.payload.amb.AmbResponse;
 import com.game.b1ingservice.payload.amb.DepositReq;
 import com.game.b1ingservice.payload.amb.DepositRes;
 import com.game.b1ingservice.payload.bankbot.*;
-import com.game.b1ingservice.postgres.entity.Bank;
-import com.game.b1ingservice.postgres.entity.DepositHistory;
-import com.game.b1ingservice.postgres.entity.TrueWallet;
-import com.game.b1ingservice.postgres.entity.Wallet;
+import com.game.b1ingservice.payload.promotion.PromotionEffectiveRequest;
+import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.repository.BankRepository;
 import com.game.b1ingservice.postgres.repository.DepositHistoryRepository;
 import com.game.b1ingservice.postgres.repository.TrueWalletRepository;
 import com.game.b1ingservice.postgres.repository.WalletRepository;
 import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.BankBotService;
+import com.game.b1ingservice.service.PromotionService;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Date;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,6 +52,9 @@ public class BankBotServiceImpl implements BankBotService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private PromotionService promotionService;
     private static final MediaType MEDIA_JSON = MediaType.parse("application/json");
     @Override
     public void addCredit(BankBotAddCreditRequest request) {
@@ -79,7 +83,8 @@ public class BankBotServiceImpl implements BankBotService {
                 depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()));
                 depositHistory.setUser(wallet.getUser());
                 depositHistory.setBank(wallet.getBank());
-
+                BigDecimal bonus = mapPromotion(depositHistory,request.getTransactionDate());
+                depositHistory.setBonusAmount(bonus);
                 try {
                     AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory,wallet);
                     if (0 == result.getCode()){
@@ -98,6 +103,8 @@ public class BankBotServiceImpl implements BankBotService {
             } else {
                 depositHistory.setStatus(Constants.DEPOSIT_STATUS.PENDING);
                 depositHistory.setReason("Not sure which wallet");
+                BigDecimal bonus = mapPromotion(depositHistory,request.getTransactionDate());
+                depositHistory.setBonusAmount(bonus);
                 if (opt.isPresent()){
                     depositHistory.setBank(opt.get());
                 }
@@ -130,6 +137,8 @@ public class BankBotServiceImpl implements BankBotService {
                 depositHistory.setUser(wallet.getUser());
                 depositHistory.setTrueWallet(wallet.getTrueWallet());
                 depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
+                BigDecimal bonus = mapPromotion(depositHistory,request.getTransactionDate());
+                depositHistory.setBonusAmount(bonus);
                 try {
 
                     AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory,wallet);
@@ -148,6 +157,8 @@ public class BankBotServiceImpl implements BankBotService {
             } else {
                 depositHistory.setStatus(Constants.DEPOSIT_STATUS.PENDING);
                 depositHistory.setReason("Not sure which wallet");
+                BigDecimal bonus = mapPromotion(depositHistory,request.getTransactionDate());
+                depositHistory.setBonusAmount(bonus);
                 if (opt.isPresent()){
                     depositHistory.setTrueWallet(opt.get());
                 }
@@ -190,5 +201,23 @@ public class BankBotServiceImpl implements BankBotService {
     private AmbResponse<DepositRes> sendToAskMeBet(DepositHistory depositHistory,Wallet wallet){
         DepositReq depositReq = DepositReq.builder().amount(depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build();
         return ambService.deposit(depositReq, wallet.getUser().getUsername(),wallet.getUser().getAgent());
+    }
+    private BigDecimal mapPromotion(DepositHistory depositHistory, Instant transactionDate){
+        PromotionEffectiveRequest effectiveRequest = new PromotionEffectiveRequest();
+        effectiveRequest.setAmount(depositHistory.getAmount());
+        effectiveRequest.setTransactionId(depositHistory.getTransactionId());
+        effectiveRequest.setTransactionDate(transactionDate);
+        effectiveRequest.setUser(depositHistory.getUser());
+        BigDecimal bonus = BigDecimal.ZERO;
+        List<Promotion> promotionList = promotionService.getEffectivePromotion(effectiveRequest);
+
+        List<PromotionHistory> promotionHistories = new ArrayList<>();
+
+        for (Promotion promotion : promotionList) {
+            PromotionHistory history = promotionService.calculatePromotionBonus(promotion, effectiveRequest);
+            bonus.add(history.getBonus());
+            promotionHistories.add(history);
+        }
+        return bonus;
     }
 }

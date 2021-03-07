@@ -242,4 +242,12 @@ public class Constants {
         public static final String ADD_CREDIT = "ADD_CREDIT";
     }
 
+    public static class PROMOTION_TYPE {
+        public static final String ALLDAY = "ALLDAY";
+        public static final String NEWUSER = "NEWUSER";
+        public static final String FIRSTTIME = "FIRSTTIME";
+        public static final String GOLDTIME = "GOLDTIME";
+        public static final String SEVENDAYINROW = "7DAYINROW";
+    }
+
 }

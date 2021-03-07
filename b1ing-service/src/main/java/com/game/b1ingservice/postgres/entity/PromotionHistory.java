@@ -10,6 +10,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Data
 @DynamicUpdate
@@ -31,7 +32,7 @@ public class PromotionHistory extends DateAudit<String> implements Serializable 
     @JsonIgnore
     @ToString.Exclude
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private WebUser user;
 
     @JsonIgnore
@@ -40,15 +41,17 @@ public class PromotionHistory extends DateAudit<String> implements Serializable 
     @ManyToOne(fetch = FetchType.LAZY)
     private Agent agent;
 
-    @Column(name = "topUp", columnDefinition = "smallint not null")
-    private int topup;
+    @Column(name = "topUp", columnDefinition = "numeric(18,2)")
+    private BigDecimal topup;
 
-    @Column(name = "bonus", columnDefinition = "smallint not null")
-    private int bonus;
+    @Column(name = "bonus", columnDefinition = "numeric(18,2)")
+    private BigDecimal bonus;
 
-    @Column(name = "turn_over", columnDefinition = "smallint not null")
-    private int turnOver;
+    @Column(name = "turn_over", columnDefinition = "numeric(18,2)")
+    private BigDecimal turnOver;
 
+    @Column(name = "transaction_id", columnDefinition = "character varying(50) not null")
+    private String transactionId;
 
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
