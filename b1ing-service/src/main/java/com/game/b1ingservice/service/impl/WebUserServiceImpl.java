@@ -64,6 +64,10 @@ public class WebUserServiceImpl implements WebUserService {
     @Autowired
     private AffiliateHistoryRepository affiliateHistoryRepository;
 
+
+    @Autowired
+    private AffiliateUserRepository affiliateUserRepository;
+
     @Autowired
     private WebUserJdbcRepository webUserJdbcRepository;
 
@@ -136,18 +140,16 @@ public class WebUserServiceImpl implements WebUserService {
     }
 
     private void insertAffiliateHistory(String affiliate, WebUser userResp) {
-
-        AffiliateHistory affiliateHistory = new AffiliateHistory();
+        AffiliateUser affiliateUser = new AffiliateUser();
         Optional<WebUser> opt = webUserRepository.findByUsernameOrTel(affiliate, affiliate);
         if (opt.isPresent()) {
-            WebUser affiliateUser = opt.get();
-            affiliateHistory.setAffiliateUserTd(affiliateUser.getId());
+            WebUser webUser = opt.get();
+            affiliateUser.setAffiliateUserTd(webUser.getId());
         }
-        affiliateHistory.setAffiliate(affiliate);
-        affiliateHistory.setUser(userResp);
-        affiliateHistory.setPoint(BigDecimal.valueOf(0L));
+        affiliateUser.setAffiliate(affiliate);
+        affiliateUser.setUser(userResp);
 
-        affiliateHistoryRepository.save(affiliateHistory);
+        affiliateUserRepository.save(affiliateUser);
     }
 
     @Override
@@ -171,8 +173,9 @@ public class WebUserServiceImpl implements WebUserService {
             WebUser userResp = webUserRepository.save(user);
 
             if (!StringUtils.isEmpty(req.getAffiliate())) {
-                Optional<AffiliateHistory> optAffiliateHistory = affiliateHistoryRepository.findByAffiliateAndUser_Id(req.getAffiliate(), id);
+                Optional<AffiliateHistory> optAffiliateHistory = affiliateUserRepository.findFirstByAffiliateAndUser_Id(req.getAffiliate(), id);
                 if(!optAffiliateHistory.isPresent()) {
+                    affiliateUserRepository.removeOleAffiliate(id);
                     insertAffiliateHistory(req.getAffiliate(), userResp);
                 }
             }
