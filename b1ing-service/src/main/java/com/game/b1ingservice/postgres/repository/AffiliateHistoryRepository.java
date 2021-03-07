@@ -10,5 +10,4 @@ import java.util.Optional;
 @Repository
 public interface AffiliateHistoryRepository extends JpaRepository<AffiliateHistory, Long>, JpaSpecificationExecutor<AffiliateHistory> {
 
-    Optional<AffiliateHistory> findByAffiliateAndUser_Id(String affiliate, Long userId);
 }

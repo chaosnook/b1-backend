@@ -53,8 +53,9 @@ public class WebUser extends DateAudit<String> implements Serializable {
     @OneToOne(mappedBy = "user", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
     private Wallet wallet;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
-    private List<AffiliateHistory> affiliateHistory;
+    private List<AffiliateUser> affiliateUsers;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
     private List<DepositHistory> depositHistory;
