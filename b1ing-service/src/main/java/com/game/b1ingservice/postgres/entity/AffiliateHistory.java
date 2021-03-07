@@ -24,7 +24,7 @@ public class AffiliateHistory extends DateAudit<String> implements Serializable 
     @Column(name = "point", columnDefinition = "numeric(18,2)")
     private BigDecimal point;
 
-    @Column(name = "user_id", columnDefinition = "not null")
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @Column(name = "remark", columnDefinition = "character varying(255)")

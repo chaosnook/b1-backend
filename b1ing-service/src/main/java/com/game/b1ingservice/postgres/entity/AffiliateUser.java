@@ -20,7 +20,7 @@ public class AffiliateUser extends DateAudit<String> implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "affiliate_user_id", columnDefinition = "not null")
+    @Column(name = "affiliate_user_id", nullable = false)
     private Long affiliateUserTd;
 
     @Column(name = "affiliate", columnDefinition = "character varying(255)")
