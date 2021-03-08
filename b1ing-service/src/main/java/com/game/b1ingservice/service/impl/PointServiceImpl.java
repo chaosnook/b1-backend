@@ -17,6 +17,7 @@ import com.game.b1ingservice.service.PointHistoryService;
 import com.game.b1ingservice.service.PointService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,6 +26,9 @@ import java.math.RoundingMode;
 @Slf4j
 @Service
 public class PointServiceImpl implements PointService {
+
+    @Value("${agent.point.turnover:2}")
+    private Integer pointTurnover;
 
     @Autowired
     private WalletRepository walletRepository;
@@ -133,7 +137,7 @@ public class PointServiceImpl implements PointService {
             AmbResponse<DepositRes> deposit = ambService.deposit(DepositReq.builder().amount(point.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build(), username, agent);
 
             if (deposit.getCode() == 0) {
-                updated = walletRepository.transferPointToCredit(point, point, userId);
+                updated = walletRepository.transferPointToCredit(point, point, point, pointTurnover, userId);
             } else {
                 updated = deposit.getCode();
             }

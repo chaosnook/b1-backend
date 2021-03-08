@@ -9,12 +9,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface AffiliateUserRepository extends JpaRepository<AffiliateUser, Long>, JpaSpecificationExecutor<AffiliateUser> {
 
-    Optional<AffiliateHistory> findFirstByAffiliateAndUser_Id(String affiliate, Long id);
+    Optional<AffiliateUser> findFirstByAffiliateAndUser_Id(String affiliate, Long id);
+
+    List<AffiliateUser> findAllByUser_Id(Long id);
 
 
     @Transactional

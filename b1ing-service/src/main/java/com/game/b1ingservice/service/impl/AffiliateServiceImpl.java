@@ -5,14 +5,8 @@ import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.affiliate.AffConditionRequest;
 import com.game.b1ingservice.payload.affiliate.AffiliateDTO;
 import com.game.b1ingservice.payload.affiliate.AffiliateResult;
-import com.game.b1ingservice.postgres.entity.Affiliate;
-import com.game.b1ingservice.postgres.entity.AffiliateCondition;
-import com.game.b1ingservice.postgres.entity.AffiliateHistory;
-import com.game.b1ingservice.postgres.entity.Agent;
-import com.game.b1ingservice.postgres.repository.AffiliateConditionRepository;
-import com.game.b1ingservice.postgres.repository.AffiliateHistoryRepository;
-import com.game.b1ingservice.postgres.repository.AffiliateRepository;
-import com.game.b1ingservice.postgres.repository.AgentRepository;
+import com.game.b1ingservice.postgres.entity.*;
+import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AffiliateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,17 +32,63 @@ public class AffiliateServiceImpl implements AffiliateService {
     private AffiliateConditionRepository affiliateConditionRepository;
 
     @Autowired
-    private AffiliateHistoryRepository affiliateHistoryRepository;
+    private AffiliateUserRepository affiliateUserRepository;
+
+    @Autowired
+    private WebUserRepository webUserRepository;
 
     @Override
-    public AffiliateResult registerAffiliate(Long userReg, Long userAff, String prefix) {
+    public AffiliateResult registerAffiliate(WebUser userResp, String affiliate) {
         AffiliateResult result = new AffiliateResult();
-//        Optional<AffiliateHistory> affiliateHistory =  affiliateHistoryRepository.findFirstByAndUser_Id(userReg);
-//        if (affiliateHistory.isPresent()) {
-//            AffiliateHistory history = new AffiliateHistory();
-//        }
+        try {
+            AffiliateUser affiliateUser = new AffiliateUser();
+            Optional<WebUser> opt = webUserRepository.findByUsernameOrTel(affiliate, affiliate);
+            if (opt.isPresent()) {
+                WebUser webUser = opt.get();
+                affiliateUser.setAffiliateUserTd(webUser.getId());
+            }
+            affiliateUser.setAffiliate(affiliate);
+            affiliateUser.setUser(userResp);
+            affiliateUserRepository.save(affiliateUser);
+
+            result.setStatus(true);
+        } catch (Exception e) {
+            log.error("registerAffiliate", e);
+            result.setStatus(false);
+        }
+
         return result;
     }
+
+    public AffiliateResult earnPoint(Long userDepos, BigDecimal credit, String prefix) {
+        AffiliateResult result = new AffiliateResult();
+        List<AffiliateUser> users = affiliateUserRepository.findAllByUser_Id(userDepos);
+        if (!users.isEmpty()) {
+            Affiliate affiliate = affiliateRepository.findFirstByAgent_Prefix(prefix);
+            if (affiliate != null) {
+
+                String type = affiliate.getTypeBonus();
+
+                List<AffiliateCondition> conditionList = affiliate.getCondition();
+
+                affiliate.getCondition().forEach(condition -> {
+                    if (credit.compareTo(condition.getMinTopup()) >= 0 && credit.compareTo(condition.getMaxTopup()) <= 0) {
+
+                    }
+                });
+
+
+                for (AffiliateUser user : users) {
+                    Long affUserId = user.getAffiliateUserTd();
+
+                }
+            }
+
+        }
+
+        return result;
+    }
+
 
     @Transactional
     @Override
@@ -127,4 +167,6 @@ public class AffiliateServiceImpl implements AffiliateService {
         }
         return affRes;
     }
+
+
 }

@@ -42,6 +42,7 @@ public class AffiliateController {
     @PutMapping(value = "/affiliate",
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> updateAffiliate(@RequestBody AffiliateDTO request, @AuthenticationPrincipal UserPrincipal principal) {
+        affiliateValidator.validate(request, principal);
         affiliateService.createOrUpdateAffiliate(request, principal.getPrefix());
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }

@@ -22,6 +22,7 @@ import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AMBService;
+import com.game.b1ingservice.service.AffiliateService;
 import com.game.b1ingservice.service.WalletService;
 import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.utils.AESUtils;
@@ -83,6 +84,9 @@ public class WebUserServiceImpl implements WebUserService {
     @Autowired
     private WalletRepository walletRepository;
 
+    @Autowired
+    private AffiliateService affiliateService;
+
     private ObjectMapper mapper = new ObjectMapper();
 
     @Override
@@ -124,7 +128,7 @@ public class WebUserServiceImpl implements WebUserService {
         WebUser userResp = webUserRepository.save(user);
 
         if (!StringUtils.isEmpty(req.getAffiliate())) {
-            insertAffiliateHistory(req.getAffiliate(), userResp);
+            affiliateService.registerAffiliate(userResp, req.getAffiliate());
         }
 
         WalletRequest walletRequest = new WalletRequest();
@@ -137,19 +141,6 @@ public class WebUserServiceImpl implements WebUserService {
         resp.setPassword(req.getPassword());
 
         return convert(userResp, opt.get());
-    }
-
-    private void insertAffiliateHistory(String affiliate, WebUser userResp) {
-        AffiliateUser affiliateUser = new AffiliateUser();
-        Optional<WebUser> opt = webUserRepository.findByUsernameOrTel(affiliate, affiliate);
-        if (opt.isPresent()) {
-            WebUser webUser = opt.get();
-            affiliateUser.setAffiliateUserTd(webUser.getId());
-        }
-        affiliateUser.setAffiliate(affiliate);
-        affiliateUser.setUser(userResp);
-
-        affiliateUserRepository.save(affiliateUser);
     }
 
     @Override
@@ -173,10 +164,10 @@ public class WebUserServiceImpl implements WebUserService {
             WebUser userResp = webUserRepository.save(user);
 
             if (!StringUtils.isEmpty(req.getAffiliate())) {
-                Optional<AffiliateHistory> optAffiliateHistory = affiliateUserRepository.findFirstByAffiliateAndUser_Id(req.getAffiliate(), id);
-                if(!optAffiliateHistory.isPresent()) {
+                Optional<AffiliateUser> affiliateUser = affiliateUserRepository.findFirstByAffiliateAndUser_Id(req.getAffiliate(), id);
+                if(!affiliateUser.isPresent()) {
                     affiliateUserRepository.removeOleAffiliate(id);
-                    insertAffiliateHistory(req.getAffiliate(), userResp);
+                    affiliateService.registerAffiliate(userResp, req.getAffiliate());
                 }
             }
 
