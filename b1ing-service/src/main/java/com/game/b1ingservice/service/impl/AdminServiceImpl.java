@@ -17,6 +17,7 @@ import com.game.b1ingservice.postgres.jdbc.dto.*;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.AdminService;
+import com.game.b1ingservice.service.AffiliateService;
 import com.game.b1ingservice.service.BankBotService;
 import com.game.b1ingservice.utils.JwtTokenUtil;
 import com.game.b1ingservice.utils.ResponseHelper;
@@ -61,6 +62,8 @@ public class AdminServiceImpl implements AdminService {
     private AMBService ambService;
     @Autowired
     private BankBotService bankBotService;
+    @Autowired
+    private AffiliateService affiliateService;
     @Autowired
     ProfitLossJdbcRepository profitLossJdbcRepository;
 
@@ -166,11 +169,12 @@ public class AdminServiceImpl implements AdminService {
             if (opt2.isPresent()) {
                 Wallet wallet = opt2.get();
                 BigDecimal beforAmount = wallet.getCredit();
+                BigDecimal credit = req.getCredit().setScale(2, RoundingMode.HALF_DOWN);
                 Bank bank = wallet.getBank();
-                BigDecimal afterAmount = beforAmount.add(req.getCredit());
+                BigDecimal afterAmount = beforAmount.add(credit);
 
                 DepositHistory depositHistory = new DepositHistory();
-                depositHistory.setAmount(req.getCredit());
+                depositHistory.setAmount(credit);
                 depositHistory.setBeforeAmount(beforAmount);
                 depositHistory.setAfterAmount(afterAmount);
                 depositHistory.setUser(webUser);
@@ -186,12 +190,14 @@ public class AdminServiceImpl implements AdminService {
                 depositHistoryRepository.save(depositHistory);
 
                 AmbResponse<DepositRes> ambResponse = ambService.deposit(DepositReq.builder()
-                    .amount(req.getCredit().setScale(2, RoundingMode.HALF_DOWN).toPlainString())
+                    .amount(credit.toPlainString())
                     .build(), req.getUsername(), wallet.getUser().getAgent());
 
                 String errorMessage = "";
                 if (ambResponse.getCode() == 0) {
-                    walletRepository.depositCredit(afterAmount, webUser.getId());
+                    walletRepository.depositCredit(credit, webUser.getId());
+                    // check affiliate
+                    affiliateService.earnPoint(webUser.getId(), credit, principal.getPrefix());
                     depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
                 } else {
                     //if error

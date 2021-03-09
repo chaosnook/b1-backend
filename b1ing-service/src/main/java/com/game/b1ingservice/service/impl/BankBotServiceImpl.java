@@ -14,6 +14,7 @@ import com.game.b1ingservice.postgres.repository.DepositHistoryRepository;
 import com.game.b1ingservice.postgres.repository.TrueWalletRepository;
 import com.game.b1ingservice.postgres.repository.WalletRepository;
 import com.game.b1ingservice.service.AMBService;
+import com.game.b1ingservice.service.AffiliateService;
 import com.game.b1ingservice.service.BankBotService;
 import com.game.b1ingservice.service.PromotionService;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +56,10 @@ public class BankBotServiceImpl implements BankBotService {
 
     @Autowired
     private PromotionService promotionService;
+
+    @Autowired
+    private AffiliateService affiliateService;
+
     private static final MediaType MEDIA_JSON = MediaType.parse("application/json");
     @Override
     public void addCredit(BankBotAddCreditRequest request) {
@@ -90,6 +95,9 @@ public class BankBotServiceImpl implements BankBotService {
                     if (0 == result.getCode()){
                         depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
                         walletRepository.depositCredit(request.getAmount(), wallet.getUser().getId());
+                        // check affiliate
+                        affiliateService.earnPoint(wallet.getUser().getId(), request.getAmount(), wallet.getUser().getAgent().getPrefix());
+
                     }else {
                         depositHistory.setStatus(Constants.DEPOSIT_STATUS.ERROR);
                         depositHistory.setReason("Can't add credit at amb api");
@@ -145,6 +153,10 @@ public class BankBotServiceImpl implements BankBotService {
                     if (0 == result.getCode()){
                         depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
                         walletRepository.depositCredit(request.getAmount(), wallet.getUser().getId());
+
+                        // check affiliate
+                        affiliateService.earnPoint(wallet.getUser().getId(), request.getAmount(), wallet.getUser().getAgent().getPrefix());
+
                     }else {
                         depositHistory.setStatus(Constants.DEPOSIT_STATUS.ERROR);
                         depositHistory.setReason("Can't add credit at amb api");
