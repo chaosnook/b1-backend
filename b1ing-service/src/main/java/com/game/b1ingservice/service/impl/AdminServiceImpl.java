@@ -385,4 +385,19 @@ public class AdminServiceImpl implements AdminService {
         response.setRole(admin.getRole().getRoleCode());
         return response;
     };
+
+    @Override
+    public void withdrawManual(WithdrawManualReq req, UserPrincipal principal) {
+
+        String reason = "Withdraw Manual";
+        withdrawHistoryRepository.updateInfoWithdrawManual(Constants.WITHDRAW_STATUS.SUCCESS, reason, req.getId(), req.getAmount());
+
+    }
+
+    @Override
+    public void approve(ApproveReq req, UserPrincipal principal) {
+
+        withdrawHistoryRepository.updateStatus(Constants.WITHDRAW_STATUS.SUCCESS, req.getId(), req.getAmount());
+
+    }
 }

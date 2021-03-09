@@ -6,6 +6,7 @@ import lombok.Data;
 public class DepositHistoryByUserIdResp {
 
     private String bankName;
+    private String bankCode;
     private String amount;
     private String bonus;
     private String addCredit;
