@@ -1,10 +1,7 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
-import com.game.b1ingservice.payload.withdrawhistory.WithdrawHistoryByUserIdResp;
-import com.game.b1ingservice.payload.withdrawhistory.WithdrawHistorySearchRequest;
-import com.game.b1ingservice.payload.withdrawhistory.WithdrawListHistorySearchResponse;
-import com.game.b1ingservice.payload.withdrawhistory.WithdrawSummaryHistorySearchResponse;
+import com.game.b1ingservice.payload.withdrawhistory.*;
 import com.game.b1ingservice.service.WithdrawHistoryService;
 import com.game.b1ingservice.specification.SearchWithdrawHistorySpecification;
 import com.game.b1ingservice.utils.ResponseHelper;
@@ -41,5 +38,11 @@ public class WithdrawHistoryController {
     public ResponseEntity<?> withdrawHistory(@PathVariable Long id) {
         List<WithdrawHistoryByUserIdResp> result = withdrawHistoryService.findListByUserId(id);
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, result);
+    }
+
+    @PutMapping(value = "/withdrawHistory/updateStatus", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> updateStatus(@RequestBody WithdrawHistoryUpdateStatusReq req) {
+        withdrawHistoryService.updateStatus(req);
+        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 }

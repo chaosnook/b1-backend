@@ -3,6 +3,7 @@ package com.game.b1ingservice.service.impl;
 import com.game.b1ingservice.payload.withdraw.WithdrawHisUserReq;
 import com.game.b1ingservice.payload.withdraw.WithdrawHisUserRes;
 import com.game.b1ingservice.payload.withdrawhistory.WithdrawHistoryByUserIdResp;
+import com.game.b1ingservice.payload.withdrawhistory.WithdrawHistoryUpdateStatusReq;
 import com.game.b1ingservice.payload.withdrawhistory.WithdrawListHistorySearchResponse;
 import com.game.b1ingservice.payload.withdrawhistory.WithdrawSummaryHistorySearchResponse;
 import com.game.b1ingservice.postgres.entity.WithdrawHistory;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
@@ -197,6 +199,11 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
 
         return searchResponse;
     };
+
+    @Override
+    public void updateStatus(WithdrawHistoryUpdateStatusReq req) {
+        withdrawHistoryRepository.updateStatus(req.getStatus(), req.getId(), req.getAmount());
+    }
 
 
 }
