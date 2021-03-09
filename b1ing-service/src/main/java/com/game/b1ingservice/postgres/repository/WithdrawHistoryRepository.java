@@ -23,8 +23,15 @@ public interface WithdrawHistoryRepository extends JpaRepository<WithdrawHistory
 
     List<WithdrawHistory> findAllByUser_AgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(Agent agent, Instant instantStart, Instant instantEnd, List<String> types);
 
+    List<WithdrawHistory> findByIdAndAmount(Long id, BigDecimal amount);
+
     @Transactional
     @Modifying
     @Query(value = "UPDATE withdraw_history SET status = ? WHERE id = ? AND amount = ?", nativeQuery = true)
     int updateStatus(String status, Long id, BigDecimal amount);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE withdraw_history SET status = ?, reason = ? WHERE id = ? AND amount = ?", nativeQuery = true)
+    int updateInfoWithdrawManual(String status, String reason, Long id, BigDecimal amount);
 }
