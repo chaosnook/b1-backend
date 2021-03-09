@@ -42,6 +42,8 @@ public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecif
 
     Wallet findFirstByUser_UsernameAndUser_Agent_Prefix(String username , String prefix);
 
+    Wallet findFirstByUser_IdAndUser_Agent_Prefix(Long userId , String prefix);
+
     @Transactional
     @Modifying
     @Query(value = "UPDATE wallet SET deposit_bank_id = null WHERE deposit_bank_id = ? ", nativeQuery = true)

@@ -30,6 +30,12 @@ public class PointHistory extends DateAudit<String> implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private WebUser user;
 
+    @ToString.Exclude
+    @JsonIgnore
+    @JoinColumn(name = "deposit_user_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private WebUser userDep;
+
     @Column(name = "amount", columnDefinition = "numeric(18,2)")
     private BigDecimal amount;
 

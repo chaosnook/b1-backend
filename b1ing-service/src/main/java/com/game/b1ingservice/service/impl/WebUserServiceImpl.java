@@ -284,6 +284,11 @@ public class WebUserServiceImpl implements WebUserService {
     }
 
     @Override
+    public WebUser getById(Long depositUser) {
+        return webUserRepository.findById(depositUser).orElse(null);
+    }
+
+    @Override
     public boolean verifyTel(String tel, String prefix) {
         Optional<WebUser> webUser = webUserRepository.findByTelAndAgent_Prefix(tel, prefix);
         return webUser.isPresent();

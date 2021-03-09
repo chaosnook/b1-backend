@@ -1,5 +1,6 @@
 package com.game.b1ingservice.postgres.jdbc.dto;
 
+import com.game.b1ingservice.postgres.entity.WebUser;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -14,5 +15,5 @@ public class PointHistoryDTO {
     private String type;
     private String status;
     private String reason;
-
+    private WebUser webUserDep;
 }

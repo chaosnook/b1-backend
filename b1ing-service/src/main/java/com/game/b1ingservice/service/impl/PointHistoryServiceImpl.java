@@ -27,6 +27,8 @@ public class PointHistoryServiceImpl implements PointHistoryService {
         history.setBeforeAmount(pointHistoryDTO.getBeforeAmount());
         history.setStatus(Constants.POINT_TRANS_STATUS.PENDING);
         history.setType(pointHistoryDTO.getType());
+
+        history.setUserDep(pointHistoryDTO.getWebUserDep());
         pointHistoryRepository.save(history);
 
         pointHistoryDTO.setId(history.getId());

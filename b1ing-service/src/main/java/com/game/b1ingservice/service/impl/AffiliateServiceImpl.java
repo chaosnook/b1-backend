@@ -5,9 +5,11 @@ import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.affiliate.AffConditionRequest;
 import com.game.b1ingservice.payload.affiliate.AffiliateDTO;
 import com.game.b1ingservice.payload.affiliate.AffiliateResult;
+import com.game.b1ingservice.payload.point.PointTransRequest;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AffiliateService;
+import com.game.b1ingservice.service.PointService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,12 @@ public class AffiliateServiceImpl implements AffiliateService {
     @Autowired
     private WebUserRepository webUserRepository;
 
+    @Autowired
+    private WalletRepository walletRepository;
+
+    @Autowired
+    private PointService pointService;
+
     @Override
     public AffiliateResult registerAffiliate(WebUser userResp, String affiliate) {
         AffiliateResult result = new AffiliateResult();
@@ -60,6 +68,7 @@ public class AffiliateServiceImpl implements AffiliateService {
         return result;
     }
 
+    @Override
     public AffiliateResult earnPoint(Long userDepos, BigDecimal credit, String prefix) {
         AffiliateResult result = new AffiliateResult();
         List<AffiliateUser> users = affiliateUserRepository.findAllByUser_Id(userDepos);
@@ -67,20 +76,48 @@ public class AffiliateServiceImpl implements AffiliateService {
             Affiliate affiliate = affiliateRepository.findFirstByAgent_Prefix(prefix);
             if (affiliate != null) {
 
-                String type = affiliate.getTypeBonus();
-
                 List<AffiliateCondition> conditionList = affiliate.getCondition();
 
-                affiliate.getCondition().forEach(condition -> {
-                    if (credit.compareTo(condition.getMinTopup()) >= 0 && credit.compareTo(condition.getMaxTopup()) <= 0) {
+                AffiliateCondition con = null;
+                AffiliateCondition conMax = null;
 
+                //====== check condition
+                for (AffiliateCondition current : conditionList) {
+                    if (credit.compareTo(current.getMinTopup()) >= 0 && credit.compareTo(current.getMaxTopup()) <= 0) {
+                        con = current;
                     }
-                });
+                    if (conMax == null) {
+                        conMax = current;
+                    } else {
+                        if (conMax.getMaxTopup().compareTo(current.getMaxTopup()) < 0) {
+                            conMax = current;
+                        }
+                    }
+                }
 
+                // ============= check max
+                if (con == null && conMax != null && credit.compareTo(conMax.getMaxTopup()) >= 0) {
+                    con = conMax;
+                }
+
+                if (con == null) {
+                    result.setStatus(false);
+                    return result;
+                }
+
+                String type = affiliate.getTypeBonus();
+                BigDecimal bonusNo = BigDecimal.ZERO;
+
+                if (Constants.AFFILIATE_TYPE.FIX.equalsIgnoreCase(type)) {
+                    bonusNo = con.getBonus();
+                } else if (Constants.AFFILIATE_TYPE.PERCENT.equalsIgnoreCase(type)) {
+                    BigDecimal perce = con.getBonus();
+                    bonusNo = credit.multiply(perce.divide(BigDecimal.valueOf(100), 2, BigDecimal.ROUND_HALF_UP));
+                }
 
                 for (AffiliateUser user : users) {
                     Long affUserId = user.getAffiliateUserTd();
-
+                    pointService.earnPoint(bonusNo.setScale(2, BigDecimal.ROUND_HALF_UP),userDepos , affUserId, prefix);
                 }
             }
 
