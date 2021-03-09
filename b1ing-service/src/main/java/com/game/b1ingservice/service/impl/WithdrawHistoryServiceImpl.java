@@ -56,8 +56,10 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
                 WithdrawHistoryByUserIdResp withdraw = new WithdrawHistoryByUserIdResp();
                 if(null == withdrawDto.getBank()) {
                     withdraw.setBankName(null);
+                    withdraw.setBankCode(null);
                 } else {
                     withdraw.setBankName(withdrawDto.getBank().getBankName());
+                    withdraw.setBankCode(withdrawDto.getBank().getBankCode());
                 }
                 withdraw.setType(withdrawDto.getType());
                 withdraw.setAmount(withdrawDto.getAmount().toString());
