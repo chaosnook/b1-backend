@@ -9,6 +9,7 @@ import com.game.b1ingservice.payload.point.PointTransRequest;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AffiliateService;
+import com.game.b1ingservice.service.PointHistoryService;
 import com.game.b1ingservice.service.PointService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class AffiliateServiceImpl implements AffiliateService {
     private WebUserRepository webUserRepository;
 
     @Autowired
-    private WalletRepository walletRepository;
+    private PointHistoryService pointHistoryService;
 
     @Autowired
     private PointService pointService;
@@ -73,7 +74,7 @@ public class AffiliateServiceImpl implements AffiliateService {
         AffiliateResult result = new AffiliateResult();
         List<AffiliateUser> users = affiliateUserRepository.findAllByUser_Id(userDepos);
         if (!users.isEmpty()) {
-            Affiliate affiliate = affiliateRepository.findFirstByAgent_Prefix(prefix);
+            Affiliate affiliate = affiliateRepository.findFirstByAgent_PrefixAndActiveTrue(prefix);
             if (affiliate != null) {
 
                 List<AffiliateCondition> conditionList = affiliate.getCondition();
@@ -117,7 +118,15 @@ public class AffiliateServiceImpl implements AffiliateService {
 
                 for (AffiliateUser user : users) {
                     Long affUserId = user.getAffiliateUserTd();
-                    pointService.earnPoint(bonusNo.setScale(2, BigDecimal.ROUND_HALF_UP),userDepos , affUserId, prefix);
+                   boolean isForever =  affiliate.isForever();
+                   if (!isForever) {
+                       if (pointHistoryService.checkNonForever(userDepos, affUserId) == 0) {
+                           pointService.earnPoint(bonusNo.setScale(2, BigDecimal.ROUND_HALF_UP),userDepos , affUserId, prefix);
+                       }
+                   } else {
+                       pointService.earnPoint(bonusNo.setScale(2, BigDecimal.ROUND_HALF_UP),userDepos , affUserId, prefix);
+                   }
+
                 }
             }
 
@@ -180,6 +189,7 @@ public class AffiliateServiceImpl implements AffiliateService {
         Affiliate affiliate = affiliateRepository.findFirstByAgent_Prefix(prefix);
         AffiliateDTO affRes = new AffiliateDTO();
         if (affiliate != null) {
+            affRes.setId(affiliate.getId());
             affRes.setMaxBonus(affiliate.getMaxBonus());
             affRes.setMaxWallet(affiliate.getMaxWallet());
             affRes.setMaxWithdraw(affiliate.getMaxWithdraw());
