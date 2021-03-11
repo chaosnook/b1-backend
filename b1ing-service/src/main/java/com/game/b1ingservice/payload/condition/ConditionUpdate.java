@@ -7,11 +7,13 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class ConditionResponse {
+public class ConditionUpdate {
     private Long id;
+    @JsonDeserialize(using = MoneyDeserializer.class)
     private BigDecimal minTopup;
     @JsonDeserialize(using = MoneyDeserializer.class)
     private BigDecimal maxTopup;
     @JsonDeserialize(using = MoneyDeserializer.class)
     private BigDecimal bonus;
+    private Long promotionId;
 }
