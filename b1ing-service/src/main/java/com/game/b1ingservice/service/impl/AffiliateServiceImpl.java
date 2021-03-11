@@ -4,6 +4,7 @@ import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.affiliate.AffConditionRequest;
 import com.game.b1ingservice.payload.affiliate.AffiliateDTO;
+import com.game.b1ingservice.payload.affiliate.AffiliateImgResponse;
 import com.game.b1ingservice.payload.affiliate.AffiliateResult;
 import com.game.b1ingservice.payload.point.PointTransRequest;
 import com.game.b1ingservice.postgres.entity.*;
@@ -14,6 +15,7 @@ import com.game.b1ingservice.service.PointService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
@@ -116,16 +118,20 @@ public class AffiliateServiceImpl implements AffiliateService {
                     bonusNo = credit.multiply(perce.divide(BigDecimal.valueOf(100), 2, BigDecimal.ROUND_HALF_UP));
                 }
 
+                if (bonusNo.compareTo(affiliate.getMaxBonus()) > 0) {
+                    bonusNo = affiliate.getMaxBonus();
+                }
+
                 for (AffiliateUser user : users) {
                     Long affUserId = user.getAffiliateUserTd();
-                   boolean isForever =  affiliate.isForever();
-                   if (!isForever) {
-                       if (pointHistoryService.checkNonForever(userDepos, affUserId) == 0) {
-                           pointService.earnPoint(bonusNo.setScale(2, BigDecimal.ROUND_HALF_UP),userDepos , affUserId, prefix);
-                       }
-                   } else {
-                       pointService.earnPoint(bonusNo.setScale(2, BigDecimal.ROUND_HALF_UP),userDepos , affUserId, prefix);
-                   }
+                    boolean isForever = affiliate.isForever();
+                    if (!isForever) {
+                        if (pointHistoryService.checkNonForever(userDepos, affUserId) == 0) {
+                            pointService.earnPoint(bonusNo.setScale(2, BigDecimal.ROUND_HALF_UP), userDepos, affUserId, prefix);
+                        }
+                    } else {
+                        pointService.earnPoint(bonusNo.setScale(2, BigDecimal.ROUND_HALF_UP), userDepos, affUserId, prefix);
+                    }
 
                 }
             }
@@ -213,6 +219,20 @@ public class AffiliateServiceImpl implements AffiliateService {
             }
         }
         return affRes;
+    }
+
+    @Override
+    public AffiliateImgResponse getImage(String prefix) {
+        AffiliateImgResponse response = new AffiliateImgResponse();
+        Affiliate affiliate = affiliateRepository.findFirstByAgent_Prefix(prefix);
+        if (affiliate != null) {
+            response.setImage(ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/api/file/downloadFile/")
+                    .path(affiliate.getImg())
+                    .toUriString());
+        }
+
+        return response;
     }
 
 
