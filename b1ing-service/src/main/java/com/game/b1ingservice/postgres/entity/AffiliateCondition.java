@@ -13,29 +13,30 @@ import java.math.BigDecimal;
 
 @Data
 @Entity
-@Table(name = "affiliate_history")
+@Table(name = "affiliate_condition")
 @Where(clause = "delete_flag = 0")
-public class AffiliateHistory extends DateAudit<String> implements Serializable {
+public class AffiliateCondition extends DateAudit<String> implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "point", columnDefinition = "numeric(18,2)")
-    private BigDecimal point;
+    @Column(name = "min_topup", columnDefinition = "numeric(18,2) not null")
+    private BigDecimal minTopup;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "max_topup", columnDefinition = "numeric(18,2) not null")
+    private BigDecimal maxTopup;
 
-    @Column(name = "remark", columnDefinition = "character varying(255)")
-    private String remark;
-
-    @JsonIgnore
-    @ToString.Exclude
-    @JoinColumn(name = "affiliate_user_id", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private WebUser userAffiliate;
+    @Column(name = "bonus", columnDefinition = "numeric(18,2) not null")
+    private BigDecimal bonus;
 
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
+
+    @ToString.Exclude
+    @JsonIgnore
+    @JoinColumn(name = "affiliate_id", referencedColumnName = "id")
+    @ManyToOne
+    private Affiliate affiliate;
+
 }

@@ -22,6 +22,7 @@ import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AMBService;
+import com.game.b1ingservice.service.AffiliateService;
 import com.game.b1ingservice.service.WalletService;
 import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.utils.AESUtils;
@@ -64,6 +65,10 @@ public class WebUserServiceImpl implements WebUserService {
     @Autowired
     private AffiliateHistoryRepository affiliateHistoryRepository;
 
+
+    @Autowired
+    private AffiliateUserRepository affiliateUserRepository;
+
     @Autowired
     private WebUserJdbcRepository webUserJdbcRepository;
 
@@ -78,6 +83,9 @@ public class WebUserServiceImpl implements WebUserService {
 
     @Autowired
     private WalletRepository walletRepository;
+
+    @Autowired
+    private AffiliateService affiliateService;
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -120,7 +128,7 @@ public class WebUserServiceImpl implements WebUserService {
         WebUser userResp = webUserRepository.save(user);
 
         if (!StringUtils.isEmpty(req.getAffiliate())) {
-            insertAffiliateHistory(req.getAffiliate(), userResp);
+            affiliateService.registerAffiliate(userResp, req.getAffiliate());
         }
 
         WalletRequest walletRequest = new WalletRequest();
@@ -133,21 +141,6 @@ public class WebUserServiceImpl implements WebUserService {
         resp.setPassword(req.getPassword());
 
         return convert(userResp, opt.get());
-    }
-
-    private void insertAffiliateHistory(String affiliate, WebUser userResp) {
-
-        AffiliateHistory affiliateHistory = new AffiliateHistory();
-        Optional<WebUser> opt = webUserRepository.findByUsernameOrTel(affiliate, affiliate);
-        if (opt.isPresent()) {
-            WebUser affiliateUser = opt.get();
-            affiliateHistory.setAffiliateUserTd(affiliateUser.getId());
-        }
-        affiliateHistory.setAffiliate(affiliate);
-        affiliateHistory.setUser(userResp);
-        affiliateHistory.setPoint(BigDecimal.valueOf(0L));
-
-        affiliateHistoryRepository.save(affiliateHistory);
     }
 
     @Override
@@ -171,9 +164,10 @@ public class WebUserServiceImpl implements WebUserService {
             WebUser userResp = webUserRepository.save(user);
 
             if (!StringUtils.isEmpty(req.getAffiliate())) {
-                Optional<AffiliateHistory> optAffiliateHistory = affiliateHistoryRepository.findByAffiliateAndUser_Id(req.getAffiliate(), id);
-                if(!optAffiliateHistory.isPresent()) {
-                    insertAffiliateHistory(req.getAffiliate(), userResp);
+                Optional<AffiliateUser> affiliateUser = affiliateUserRepository.findFirstByAffiliateAndUser_Id(req.getAffiliate(), id);
+                if(!affiliateUser.isPresent()) {
+                    affiliateUserRepository.removeOleAffiliate(id);
+                    affiliateService.registerAffiliate(userResp, req.getAffiliate());
                 }
             }
 
@@ -287,6 +281,11 @@ public class WebUserServiceImpl implements WebUserService {
         WebUser user = webUser.get();
         user.setIsBonus(webUserUpdate.getIsBonus());
         webUserRepository.save(user);
+    }
+
+    @Override
+    public WebUser getById(Long depositUser) {
+        return webUserRepository.findById(depositUser).orElse(null);
     }
 
     @Override

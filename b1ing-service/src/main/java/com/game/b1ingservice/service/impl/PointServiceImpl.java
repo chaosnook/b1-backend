@@ -15,8 +15,10 @@ import com.game.b1ingservice.postgres.repository.WalletRepository;
 import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.PointHistoryService;
 import com.game.b1ingservice.service.PointService;
+import com.game.b1ingservice.service.WebUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -26,11 +28,17 @@ import java.math.RoundingMode;
 @Service
 public class PointServiceImpl implements PointService {
 
+    @Value("${agent.point.turnover:2}")
+    private Integer pointTurnover;
+
     @Autowired
     private WalletRepository walletRepository;
 
     @Autowired
     private PointHistoryService pointHistoryService;
+
+    @Autowired
+    private WebUserService webUserService;
 
     @Autowired
     private AMBService ambService;
@@ -80,20 +88,22 @@ public class PointServiceImpl implements PointService {
     }
 
     @Override
-    public PointTransResponse earnPoint(PointTransRequest transRequest, String username, String prefix) {
-        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
+    public PointTransResponse earnPoint(BigDecimal point, Long depositUser, Long userId, String prefix) {
+        Wallet wallet = walletRepository.findFirstByUser_IdAndUser_Agent_Prefix(userId, prefix);
         if (wallet == null) {
             throw new ErrorMessageException(Constants.ERROR.ERR_00011);
         }
 
         WebUser webUser = wallet.getUser();
-        BigDecimal point = transRequest.getPoint();
+        WebUser webUserDep = webUserService.getById(depositUser);
 
         PointHistoryDTO historyDTO = new PointHistoryDTO();
         historyDTO.setStatus(Constants.POINT_TRANS_STATUS.PENDING);
         historyDTO.setType(Constants.POINT_TYPE.EARN_POINT);
         historyDTO.setAmount(point);
         historyDTO.setBeforeAmount(wallet.getPoint());
+        historyDTO.setWebUserDep(webUserDep);
+
         historyDTO = pointHistoryService.create(historyDTO, webUser);
 
         if (wallet.getPoint().compareTo(point) < 0) {
@@ -133,7 +143,7 @@ public class PointServiceImpl implements PointService {
             AmbResponse<DepositRes> deposit = ambService.deposit(DepositReq.builder().amount(point.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build(), username, agent);
 
             if (deposit.getCode() == 0) {
-                updated = walletRepository.transferPointToCredit(point, point, userId);
+                updated = walletRepository.transferPointToCredit(point, point, point, pointTurnover, userId);
             } else {
                 updated = deposit.getCode();
             }

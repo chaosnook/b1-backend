@@ -45,4 +45,5 @@ public class DepositHistoryController {
         List<DepositHistoryByUserIdResp> result = depositHistoryService.findListByUserId(id);
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, result);
     }
+
 }

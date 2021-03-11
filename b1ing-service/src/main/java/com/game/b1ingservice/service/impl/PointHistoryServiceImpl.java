@@ -19,6 +19,11 @@ public class PointHistoryServiceImpl implements PointHistoryService {
     private PointHistoryRepository pointHistoryRepository;
 
     @Override
+    public int checkNonForever(Long userDepos, Long affUserId) {
+        return pointHistoryRepository.countByUserAndUserDep(affUserId, userDepos);
+    }
+
+    @Override
     public PointHistoryDTO create(PointHistoryDTO pointHistoryDTO, WebUser webUser) {
         PointHistory history = new PointHistory();
         history.setUser(webUser);
@@ -27,6 +32,8 @@ public class PointHistoryServiceImpl implements PointHistoryService {
         history.setBeforeAmount(pointHistoryDTO.getBeforeAmount());
         history.setStatus(Constants.POINT_TRANS_STATUS.PENDING);
         history.setType(pointHistoryDTO.getType());
+
+        history.setUserDep(pointHistoryDTO.getWebUserDep());
         pointHistoryRepository.save(history);
 
         pointHistoryDTO.setId(history.getId());

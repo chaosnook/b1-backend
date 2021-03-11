@@ -129,7 +129,12 @@ public class Constants {
         ERR_09010("max receive bonus ห้ามว่าง"),
         ERR_09011("ไม่พบโปรโมชัน"),
 
-        ERR_10001("ไม่สามารถตัด credit ได้")
+        ERR_10001("ไม่สามารถตัด credit ได้"),
+
+        ERR_11001("bonus ของ condition ห้ามว่าง"),
+        ERR_11002("max ของ condition ห้ามว่าง"),
+        ERR_11003("min ของ condition ห้ามว่าง"),
+        ERR_11004("ประเภทโบนัท ไม่ถูกต้อง"),
         ;
 
         public String msg;
@@ -245,6 +250,11 @@ public class Constants {
         public static final String FIRSTTIME = "FIRSTTIME";
         public static final String GOLDTIME = "GOLDTIME";
         public static final String SEVENDAYINROW = "7DAYINROW";
+    }
+
+    public static class AFFILIATE_TYPE {
+        public static final String FIX = "FIX";
+        public static final String PERCENT = "PERCENT";
     }
 
 }

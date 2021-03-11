@@ -12,6 +12,7 @@ import com.game.b1ingservice.payload.thieve.ThieveResponse;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AMBService;
+import com.game.b1ingservice.service.AffiliateService;
 import com.game.b1ingservice.service.MistakeService;
 import com.game.b1ingservice.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +53,9 @@ public class MistakeServiceImpl implements MistakeService {
     @Autowired
     private AdminUserRepository adminUserRepository;
 
+    @Autowired
+    private AffiliateService affiliateService;
+
     @Override
     public void createMistake(MistakeReq mistakeReq, UserPrincipal principal) {
         Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Prefix(mistakeReq.getUsername(), principal.getPrefix());
@@ -84,6 +88,8 @@ public class MistakeServiceImpl implements MistakeService {
                 if (ambResponse.getCode() == 0) {
                     walletRepository.depositCredit(credit, user.getId());
 
+                    // check affiliate
+                    affiliateService.earnPoint(wallet.getUser().getId(), credit, wallet.getUser().getAgent().getPrefix());
 
                     DepositHistory depositHistory = new DepositHistory();
                     depositHistory.setAmount(credit);
@@ -106,6 +112,9 @@ public class MistakeServiceImpl implements MistakeService {
 
                 if (ambResponse.getCode() == 0) {
                     walletRepository.depositCreditAndTurnOver(credit, credit, mistakeReq.getTurnOver(), user.getId());
+
+                    // check affiliate
+                    affiliateService.earnPoint(wallet.getUser().getId(), credit, wallet.getUser().getAgent().getPrefix());
 
                     DepositHistory depositHistory = new DepositHistory();
                     depositHistory.setAmount(credit);

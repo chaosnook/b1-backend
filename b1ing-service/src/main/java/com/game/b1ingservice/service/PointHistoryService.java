@@ -5,6 +5,8 @@ import com.game.b1ingservice.postgres.jdbc.dto.PointHistoryDTO;
 
 public interface PointHistoryService {
 
+    int checkNonForever(Long userDepos, Long affUserId);
+
     PointHistoryDTO create(PointHistoryDTO pointHistoryDTO, WebUser webUser);
 
     void updateStatus(PointHistoryDTO pointHistoryDTO);

@@ -112,8 +112,10 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                 DepositHistoryByUserIdResp deposit = new DepositHistoryByUserIdResp();
                 if(null == depositDto.getBank()) {
                     deposit.setBankName(null);
+                    deposit.setBankCode(null);
                 } else {
                     deposit.setBankName(depositDto.getBank().getBankName());
+                    deposit.setBankCode(depositDto.getBank().getBankCode());
                 }
                 deposit.setAmount(depositDto.getAmount().toString());
                 deposit.setBonus(depositDto.getBonusAmount().toString());

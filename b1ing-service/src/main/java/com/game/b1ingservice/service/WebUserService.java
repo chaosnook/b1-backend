@@ -34,4 +34,5 @@ public interface WebUserService {
 
     void updateUserWebProfile(String username, String prefix, WebUserProfileUpdate webUserUpdate);
 
+    WebUser getById(Long depositUser);
 }
