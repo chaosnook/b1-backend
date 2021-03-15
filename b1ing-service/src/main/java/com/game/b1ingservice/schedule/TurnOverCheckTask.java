@@ -46,18 +46,18 @@ public class TurnOverCheckTask {
     public void scheduleTurnOverCheckTask() {
         try {
             // Get start end date
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(new Date());
-            Date start;
-            Date end;
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            if (hour < 11) {
-                start = atAMBStartOfDay(-1);
-                end = atAmbEndOfDay(0);
-            } else {
-                start = atAMBStartOfDay(0);
-                end = atAmbEndOfDay(+1);
-            }
+//            Calendar calendar = Calendar.getInstance();
+//            calendar.setTime(new Date());
+//            Date start;
+//            Date end;
+//            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+//            if (hour < 11) {
+//                start = atAMBStartOfDay(-1);
+//                end = atAmbEndOfDay(0);
+//            } else {
+//                start = atAMBStartOfDay(0);
+//                end = atAmbEndOfDay(+1);
+//            }
 
             List<Agent> agents = agentService.getAllAgent();
             for (Agent agent : agents) {
@@ -92,19 +92,21 @@ public class TurnOverCheckTask {
                             amount = amount.add(MULTI_PLAYER.getAmount());
 
 
-                            WinLoseHistory history = winLoseHistoryRepository.findFirstByUserIdAndLastDateBetweenOrderByIdDesc(winLoseReq.getId(), start, end);
+                            WinLoseHistory history = winLoseHistoryRepository.findFirstByUserIdOrderByIdDesc(winLoseReq.getId());
 
                             BigDecimal beforeAmount = BigDecimal.ZERO;
                             if (history != null) {
-                                beforeAmount = history.getAfterAmount();
+                                beforeAmount = history.getAmount();
                             }
 
                             BigDecimal afterAmount = amount.subtract(beforeAmount);
                             // Create new WinLoseHistory
                             WinLoseHistory newHis = new WinLoseHistory();
+
                             newHis.setAmount(amount);
                             newHis.setBeforeAmount(beforeAmount);
                             newHis.setAfterAmount(afterAmount);
+
                             newHis.setAgent(agent);
                             newHis.setLastDate(new Date());
                             newHis.setUserId(winLoseReq.getId());
