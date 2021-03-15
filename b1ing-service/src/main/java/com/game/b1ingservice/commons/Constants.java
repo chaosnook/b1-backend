@@ -135,6 +135,11 @@ public class Constants {
         ERR_11002("max ของ condition ห้ามว่าง"),
         ERR_11003("min ของ condition ห้ามว่าง"),
         ERR_11004("ประเภทโบนัท ไม่ถูกต้อง"),
+
+        ERR_12001("min topup ห้ามมากกว่า max topup "),
+        ERR_12002("min topup ห้ามเท่ากับ max topup"),
+        ERR_12003("เงี่อนไข min topup ห้ามน้อยกว่า promotion min topup"),
+        ERR_12004("เงื่อนไข max topup ห้ามมากกว่า prmotion max topup"),
         ;
 
         public String msg;

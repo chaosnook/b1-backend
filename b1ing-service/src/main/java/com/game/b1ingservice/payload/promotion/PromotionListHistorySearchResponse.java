@@ -11,4 +11,11 @@ public class PromotionListHistorySearchResponse {
     private String name;
     private int countPromotion;
     private BigDecimal totalBonus;
+
+    private int version;
+    private String createdDate;
+    private String updatedDate;
+    private String createdBy;
+    private String updatedBy;
+    private Integer deleteFlag;
 }

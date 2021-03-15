@@ -6,6 +6,7 @@ import com.game.b1ingservice.payload.promotion.PromotionRequest;
 import com.game.b1ingservice.payload.promotion.PromotionUpdate;
 import com.game.b1ingservice.service.PromotionService;
 import com.game.b1ingservice.utils.ResponseHelper;
+import com.game.b1ingservice.validator.condition.ConditionValidator;
 import com.game.b1ingservice.validator.promotion.PromotionUpdateValidator;
 import com.game.b1ingservice.validator.promotion.PromotionValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,9 @@ public class PromotionController {
 
     @Autowired
     PromotionService promotionService;
+
+    @Autowired
+    ConditionValidator conditionValidator;
 
     //insert promotion
     @PostMapping(value = "/promotion",
