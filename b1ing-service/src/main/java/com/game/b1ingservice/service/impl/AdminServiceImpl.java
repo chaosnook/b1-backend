@@ -196,6 +196,7 @@ public class AdminServiceImpl implements AdminService {
                 String errorMessage = "";
                 if (ambResponse.getCode() == 0) {
                     walletRepository.depositCredit(credit, webUser.getId());
+                    webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), webUser.getId());
                     // check affiliate
                     affiliateService.earnPoint(webUser.getId(), credit, principal.getPrefix());
                     depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);

@@ -16,6 +16,8 @@ public interface AgentService {
     List<AgentResponse> getAgentList();
     AgentResponse getAgentByPrefix(String prefix);
 
+    List<Agent> getAllAgent();
+
     void update(AgentRequest agentRequest, UserPrincipal principal);
 
     Page<AgentResponse> findByCriteria(Specification<Agent> specification, Pageable pageable);

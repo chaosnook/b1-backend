@@ -205,6 +205,37 @@ public class AMBServiceImpl implements AMBService {
     }
 
     @Override
+    public AmbResponse<WinLoseResponse> getWinLose(WinLoseReq winLoseReq, Agent agent) {
+        AmbResponse<WinLoseResponse> ambResponse = new AmbResponse<>();
+        try {
+            Request request = new Request.Builder()
+                    .url(String.format("%s/winLose/%s/%s/%s", urlApi, agent.getKey(), winLoseReq.getUsername(), winLoseReq.getDepositRef()))
+                    .method("GET", null)
+                    .build();
+
+            try (Response response = client.newCall(request).execute()) {
+
+                log.info("getWinLose {} : {}", winLoseReq, response);
+
+                if (response.code() != 200) {
+                    ambResponse.setCode(AMB_ERROR);
+                    return ambResponse;
+                }
+
+                String res = response.body().string();
+                log.info("getWinLose response {} ", res);
+                return objectMapper.readValue(res, new TypeReference<AmbResponse<WinLoseResponse>>() {
+                });
+            }
+        } catch (Exception e) {
+            log.error("getCredit", e);
+            ambResponse.setCode(AMB_ERROR);
+        }
+
+        return ambResponse;
+    }
+
+    @Override
     public AmbResponse<GetCreditRes> getCredit(String username, Agent agent) {
         AmbResponse<GetCreditRes> ambResponse = new AmbResponse<>();
         try {

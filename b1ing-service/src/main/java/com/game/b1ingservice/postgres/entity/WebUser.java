@@ -41,6 +41,9 @@ public class WebUser extends DateAudit<String> implements Serializable {
     @Column(name = "is_bonus", columnDefinition = "character varying(50)")
     private String isBonus;
 
+    @Column(name = "deposit_ref")
+    private String depositRef;
+
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
 

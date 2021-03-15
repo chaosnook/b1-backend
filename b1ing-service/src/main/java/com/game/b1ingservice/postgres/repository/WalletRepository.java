@@ -90,4 +90,12 @@ public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecif
 
     @Query(value = "select o from Wallet o where o.trueWallet.botIp = :botIp and o.user.tel = :mobile")
     List<Wallet> findWalletByTrueMobile(String botIp, String mobile);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE wallet SET turn_over = turn_over - ?  WHERE user_id = ? ", nativeQuery = true)
+    void minusTurnOver(BigDecimal afterAmount, Long id);
+
+    @Query(value = "select turn_over from wallet where  user_id = ?" , nativeQuery = true)
+    BigDecimal getTurnOver(Long id);
 }

@@ -41,6 +41,11 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
+    public List<Agent> getAllAgent() {
+        return agentRepository.findAll();
+    }
+
+    @Override
     public void update(AgentRequest agentReq, UserPrincipal principal) {
         Optional<Agent> agentOpt = agentRepository.findByPrefix(agentReq.getPrefix());
         if (agentOpt.isPresent()) {

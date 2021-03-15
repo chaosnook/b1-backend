@@ -12,6 +12,7 @@ import com.game.b1ingservice.postgres.entity.Wallet;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.jdbc.dto.PointHistoryDTO;
 import com.game.b1ingservice.postgres.repository.WalletRepository;
+import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.PointHistoryService;
 import com.game.b1ingservice.service.PointService;
@@ -42,6 +43,9 @@ public class PointServiceImpl implements PointService {
 
     @Autowired
     private AMBService ambService;
+
+    @Autowired
+    private WebUserRepository webUserRepository;
 
     @Override
     public PointTransResponse pointTransfer(PointTransRequest transRequest, String username, String prefix) {
@@ -143,6 +147,7 @@ public class PointServiceImpl implements PointService {
             AmbResponse<DepositRes> deposit = ambService.deposit(DepositReq.builder().amount(point.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build(), username, agent);
 
             if (deposit.getCode() == 0) {
+                webUserRepository.updateDepositRef(deposit.getResult().getRef(), userId);
                 updated = walletRepository.transferPointToCredit(point, point, point, pointTurnover, userId);
             } else {
                 updated = deposit.getCode();

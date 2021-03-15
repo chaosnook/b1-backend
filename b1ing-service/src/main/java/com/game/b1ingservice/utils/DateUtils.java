@@ -16,6 +16,7 @@ public class DateUtils {
     public static final FastDateFormat DDMMYYYY = FastDateFormat.getInstance("dd/MM/yyyy");
     public static final FastDateFormat DDMMYYYHHmm = FastDateFormat.getInstance("dd/MM/yyyy HH:mm");
     public static final FastDateFormat DDMMYYYHHmmss = FastDateFormat.getInstance("dd/MM/yyyy HH:mm:ss");
+
     public static String nowDateFormat(String format) {
         return new SimpleDateFormat(format).format(nowDateUtil());
     }
@@ -107,9 +108,31 @@ public class DateUtils {
     public static Date atEndOfDay(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        calendar.set(Calendar.HOUR_OF_DAY,23);
-        calendar.set(Calendar.MINUTE,59);
-        calendar.set(Calendar.SECOND,59);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        return calendar.getTime();
+    }
+
+    public static Date atAMBStartOfDay(int date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DATE, date);
+        calendar.set(Calendar.HOUR_OF_DAY, 11);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
+
+    public static Date atAmbEndOfDay(int date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DATE, date);
+        calendar.set(Calendar.HOUR_OF_DAY, 11);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
     }
 
