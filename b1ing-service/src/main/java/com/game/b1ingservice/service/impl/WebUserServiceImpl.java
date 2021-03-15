@@ -1,13 +1,12 @@
 package com.game.b1ingservice.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.admin.LoginRequest;
-import com.game.b1ingservice.payload.amb.AmbResponse;
-import com.game.b1ingservice.payload.amb.CreateUserReq;
-import com.game.b1ingservice.payload.amb.CreateUserRes;
-import com.game.b1ingservice.payload.amb.ResetPasswordReq;
+import com.game.b1ingservice.payload.amb.*;
+import com.game.b1ingservice.payload.bankbot.BankBotScbTransactionResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.userinfo.UserInfoResponse;
 import com.game.b1ingservice.payload.userinfo.UserProfile;
@@ -146,7 +145,7 @@ public class WebUserServiceImpl implements WebUserService {
     @Override
     public void updateUser(Long id, WebUserUpdate req) {
         Optional<WebUser> optUsername = webUserRepository.findByIdNotAndUsername(id, req.getUsername());
-        if(optUsername.isPresent()) {
+        if (optUsername.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01119);
         }
         Optional<WebUser> opt = webUserRepository.findById(id);
@@ -165,7 +164,7 @@ public class WebUserServiceImpl implements WebUserService {
 
             if (!StringUtils.isEmpty(req.getAffiliate())) {
                 Optional<AffiliateUser> affiliateUser = affiliateUserRepository.findFirstByAffiliateAndUser_Id(req.getAffiliate(), id);
-                if(!affiliateUser.isPresent()) {
+                if (!affiliateUser.isPresent()) {
                     affiliateUserRepository.removeOleAffiliate(id);
                     affiliateService.registerAffiliate(userResp, req.getAffiliate());
                 }
@@ -286,6 +285,16 @@ public class WebUserServiceImpl implements WebUserService {
     @Override
     public WebUser getById(Long depositUser) {
         return webUserRepository.findById(depositUser).orElse(null);
+    }
+
+    @Override
+    public List<WinLoseReq> getAllUser(Long agentId) {
+        List<Map>  objects =  webUserRepository.getAllUser(agentId);
+        if (objects.size() == 0) {
+            return new ArrayList<>();
+        }
+        return mapper.convertValue(webUserRepository.getAllUser(agentId), new TypeReference<List<WinLoseReq>>() {
+        });
     }
 
     @Override

@@ -9,10 +9,7 @@ import com.game.b1ingservice.payload.amb.DepositRes;
 import com.game.b1ingservice.payload.bankbot.*;
 import com.game.b1ingservice.payload.promotion.PromotionEffectiveRequest;
 import com.game.b1ingservice.postgres.entity.*;
-import com.game.b1ingservice.postgres.repository.BankRepository;
-import com.game.b1ingservice.postgres.repository.DepositHistoryRepository;
-import com.game.b1ingservice.postgres.repository.TrueWalletRepository;
-import com.game.b1ingservice.postgres.repository.WalletRepository;
+import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.AffiliateService;
 import com.game.b1ingservice.service.BankBotService;
@@ -60,6 +57,9 @@ public class BankBotServiceImpl implements BankBotService {
     @Autowired
     private AffiliateService affiliateService;
 
+    @Autowired
+    private WebUserRepository webUserRepository;
+
     private static final MediaType MEDIA_JSON = MediaType.parse("application/json");
     @Override
     public void addCredit(BankBotAddCreditRequest request) {
@@ -95,6 +95,7 @@ public class BankBotServiceImpl implements BankBotService {
                     if (0 == result.getCode()){
                         depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
                         walletRepository.depositCredit(request.getAmount(), wallet.getUser().getId());
+                        webUserRepository.updateDepositRef(result.getResult().getRef(), wallet.getUser().getId());
                         // check affiliate
                         affiliateService.earnPoint(wallet.getUser().getId(), request.getAmount(), wallet.getUser().getAgent().getPrefix());
 
@@ -153,7 +154,7 @@ public class BankBotServiceImpl implements BankBotService {
                     if (0 == result.getCode()){
                         depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
                         walletRepository.depositCredit(request.getAmount(), wallet.getUser().getId());
-
+                        webUserRepository.updateDepositRef(result.getResult().getRef(), wallet.getUser().getId());
                         // check affiliate
                         affiliateService.earnPoint(wallet.getUser().getId(), request.getAmount(), wallet.getUser().getAgent().getPrefix());
 

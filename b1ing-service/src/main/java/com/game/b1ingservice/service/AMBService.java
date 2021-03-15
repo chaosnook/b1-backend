@@ -15,6 +15,8 @@ public interface AMBService {
 
     AmbResponse<GameStatusRes> getGameStatus(GameStatusReq gameStatusReq, Agent agent);
 
+    AmbResponse<WinLoseResponse> getWinLose(WinLoseReq winLoseReq, Agent agent);
+
     AmbResponse<GetCreditRes> getCredit(String username, Agent agent);
 
     GameLinkRes getGameLink(String username, String prefix);

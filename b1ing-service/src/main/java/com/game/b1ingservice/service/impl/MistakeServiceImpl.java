@@ -87,7 +87,7 @@ public class MistakeServiceImpl implements MistakeService {
                         .amount(credit.toPlainString()).build(), username, agent);
                 if (ambResponse.getCode() == 0) {
                     walletRepository.depositCredit(credit, user.getId());
-
+                    webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), user.getId());
                     // check affiliate
                     affiliateService.earnPoint(wallet.getUser().getId(), credit, wallet.getUser().getAgent().getPrefix());
 
@@ -112,7 +112,7 @@ public class MistakeServiceImpl implements MistakeService {
 
                 if (ambResponse.getCode() == 0) {
                     walletRepository.depositCreditAndTurnOver(credit, credit, mistakeReq.getTurnOver(), user.getId());
-
+                    webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), user.getId());
                     // check affiliate
                     affiliateService.earnPoint(wallet.getUser().getId(), credit, wallet.getUser().getAgent().getPrefix());
 

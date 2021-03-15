@@ -1,11 +1,17 @@
 package com.game.b1ingservice.postgres.repository;
 
+import com.game.b1ingservice.payload.amb.WinLoseReq;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -23,4 +29,11 @@ public interface WebUserRepository extends JpaRepository<WebUser, Long>, JpaSpec
 
     Optional<WebUser> findByIdNotAndUsername(Long id, String username);
 
+    @Query(value = "select id, username, deposit_ref as depositRef FROM users  where agent_id = ? and delete_flag = 0 and deposit_ref is not null", nativeQuery = true)
+    List<Map> getAllUser(Long agentId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE users SET deposit_ref = ? WHERE user_id = ? ", nativeQuery = true)
+    void updateDepositRef(String ref, Long userId);
 }
