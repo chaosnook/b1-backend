@@ -8,20 +8,15 @@ import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.AgentService;
 import com.game.b1ingservice.service.WalletService;
 import com.game.b1ingservice.service.WebUserService;
-import lombok.Data;
+
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import static com.game.b1ingservice.utils.DateUtils.atAMBStartOfDay;
-import static com.game.b1ingservice.utils.DateUtils.atAmbEndOfDay;
 
 @Component
 @Slf4j
@@ -42,7 +37,7 @@ public class TurnOverCheckTask {
     @Autowired
     private WinLoseHistoryRepository winLoseHistoryRepository;
 
-    @Scheduled(cron = "${turnover..schedule.cron}")
+    @Scheduled(cron = "${turnover.schedule.cron}")
     public void scheduleTurnOverCheckTask() {
         try {
             // Get start end date

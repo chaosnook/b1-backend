@@ -24,4 +24,9 @@ public interface AdminUserRepository extends JpaRepository<AdminUser, Long>, Jpa
     @Modifying
     @Query(value = "UPDATE admins SET mistake_limit = mistake_limit + 1 WHERE id = ? ", nativeQuery = true)
     int addMistake(Long id);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE admins SET mistake_limit = 0", nativeQuery = true)
+    void clearMistakeLimit();
 }

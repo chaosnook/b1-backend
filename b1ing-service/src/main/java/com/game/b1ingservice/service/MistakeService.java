@@ -15,4 +15,6 @@ public interface MistakeService {
     List<MistakeSearchListRes> findByCriteria(MistakeSearchReq req, UserPrincipal principal);
 
     MistakeSearchSummaryRes summaryData(List<MistakeSearchListRes> resList);
+
+    void clearLimit();
 }

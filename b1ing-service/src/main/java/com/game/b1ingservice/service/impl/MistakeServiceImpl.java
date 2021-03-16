@@ -228,6 +228,11 @@ public class MistakeServiceImpl implements MistakeService {
         return summaryRes;
     }
 
+    @Override
+    public void clearLimit() {
+        adminUserRepository.clearMistakeLimit();
+    }
+
 
     private boolean checkCanLimit(List<Config> configs, Integer countMistake) {
         boolean isCheck = false;
