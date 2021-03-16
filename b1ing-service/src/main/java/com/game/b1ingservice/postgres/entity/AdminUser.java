@@ -38,7 +38,7 @@ public class AdminUser extends DateAudit<String> implements Serializable {
     private String prefix;
 
     @Column(name = "mistake_limit")
-    private Integer mistakeLimit;
+    private Integer mistakeLimit = 0;
 
 
     @Embedded

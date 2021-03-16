@@ -37,7 +37,7 @@ public class TurnOverCheckTask {
     @Autowired
     private WinLoseHistoryRepository winLoseHistoryRepository;
 
-    @Scheduled(cron = "${turnover.schedule.cron}")
+    @Scheduled(cron = "${b1ing.schedule.turnover}")
     public void scheduleTurnOverCheckTask() {
         try {
             // Get start end date
