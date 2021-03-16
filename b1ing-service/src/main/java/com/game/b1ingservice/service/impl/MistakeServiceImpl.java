@@ -8,7 +8,6 @@ import com.game.b1ingservice.payload.misktake.MistakeReq;
 import com.game.b1ingservice.payload.misktake.MistakeSearchListRes;
 import com.game.b1ingservice.payload.misktake.MistakeSearchReq;
 import com.game.b1ingservice.payload.misktake.MistakeSearchSummaryRes;
-import com.game.b1ingservice.payload.thieve.ThieveResponse;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AMBService;
@@ -76,12 +75,12 @@ public class MistakeServiceImpl implements MistakeService {
         String username = user.getUsername();
         Agent agent = user.getAgent();
 
-        //TODO Mistake limit
+        // Mistake limit
         if (!checkCanLimit(agent.getConfigs(), adminOpt.get().getMistakeLimit())) {
-            return;
+            throw new ErrorMessageException(Constants.ERROR.ERR_01134);
         }
 
-        //TODO update mistake
+        // update mistake
         adminUserRepository.addMistake(adminOpt.get().getId());
 
         Wallet wallet = user.getWallet();
@@ -231,7 +230,6 @@ public class MistakeServiceImpl implements MistakeService {
 
 
     private boolean checkCanLimit(List<Config> configs, Integer countMistake) {
-        boolean result = true;
         boolean isCheck = false;
         Integer max = 0;
         for (Config config : configs) {
@@ -245,7 +243,7 @@ public class MistakeServiceImpl implements MistakeService {
             return countMistake < max;
         }
 
-        return result;
+        return true;
     }
 
 
