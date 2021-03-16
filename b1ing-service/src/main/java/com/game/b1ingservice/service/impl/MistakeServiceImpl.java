@@ -26,6 +26,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.COUNT_WITHDRAW;
+import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.LIMIT_WITHDRAW;
 import static com.game.b1ingservice.commons.Constants.DATE_FORMAT;
 
 @Service
@@ -74,12 +76,19 @@ public class MistakeServiceImpl implements MistakeService {
         String username = user.getUsername();
         Agent agent = user.getAgent();
 
+        //TODO Mistake limit
+        if (!checkCanLimit(agent.getConfigs(), adminOpt.get().getMistakeLimit())) {
+            return;
+        }
+
+        //TODO update mistake
+        adminUserRepository.addMistake(adminOpt.get().getId());
+
         Wallet wallet = user.getWallet();
         BigDecimal beforeAmount = wallet.getCredit();
         BigDecimal afterAmount = beforeAmount.add(credit);
 
         AmbResponse<DepositRes> ambResponse;
-
 
         switch (mistakeReq.getType()) {
             case Constants.PROBLEM.NO_SLIP:
@@ -218,6 +227,25 @@ public class MistakeServiceImpl implements MistakeService {
         summaryRes.setAddCredit(addCredit);
 
         return summaryRes;
+    }
+
+
+    private boolean checkCanLimit(List<Config> configs, Integer countMistake) {
+        boolean result = true;
+        boolean isCheck = false;
+        Integer max = 0;
+        for (Config config : configs) {
+            if (config.getParameter().equals(LIMIT_WITHDRAW)) {
+                isCheck = Boolean.parseBoolean(config.getValue());
+            } else if (config.getParameter().equals(COUNT_WITHDRAW)) {
+                max = Integer.valueOf(config.getValue());
+            }
+        }
+        if (isCheck) {
+            return countMistake < max;
+        }
+
+        return result;
     }
 
 

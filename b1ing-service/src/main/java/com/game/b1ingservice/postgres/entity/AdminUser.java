@@ -36,6 +36,11 @@ public class AdminUser extends DateAudit<String> implements Serializable {
     private int active;
     @Column(name = "prefix", columnDefinition = "character varying(50)")
     private String prefix;
+
+    @Column(name = "mistake_limit")
+    private Integer mistakeLimit;
+
+
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
 
