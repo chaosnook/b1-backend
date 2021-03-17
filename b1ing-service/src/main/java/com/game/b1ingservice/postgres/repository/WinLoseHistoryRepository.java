@@ -12,4 +12,6 @@ public interface WinLoseHistoryRepository extends JpaRepository<WinLoseHistory, 
 
 
     WinLoseHistory findFirstByUserIdAndLastDateBetweenOrderByIdDesc(Long id, Date start, Date end);
+
+    WinLoseHistory findFirstByUserIdOrderByIdDesc(Long id);
 }
