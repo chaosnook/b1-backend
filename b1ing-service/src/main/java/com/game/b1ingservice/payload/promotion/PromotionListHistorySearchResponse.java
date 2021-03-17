@@ -10,6 +10,7 @@ public class PromotionListHistorySearchResponse {
     private Long id;
     private String name;
     private int countPromotion;
+    private BigDecimal sumBonus;
     private BigDecimal totalBonus;
 
     private int version;

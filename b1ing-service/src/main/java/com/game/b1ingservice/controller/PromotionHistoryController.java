@@ -4,6 +4,7 @@ import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.promotion.PromotionHistorySearchRequest;
 import com.game.b1ingservice.payload.promotion.PromotionListHistorySearchResponse;
+import com.game.b1ingservice.payload.promotion.PromotionSummaryHistorySearchResponse;
 import com.game.b1ingservice.service.PromotionHistoryService;
 import com.game.b1ingservice.specification.SearchPromotionHistorySpecification;
 import com.game.b1ingservice.utils.ResponseHelper;
@@ -26,12 +27,12 @@ public class PromotionHistoryController {
     @Autowired
     private PromotionHistoryService promotionHistoryService;
 
-//    @PostMapping(value = "/promotion-history/search",
-//             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-//    public ResponseEntity<?> searchListPromotionHistory(@RequestBody PromotionHistorySearchRequest req, @AuthenticationPrincipal UserPrincipal principal) {
-//        SearchPromotionHistorySpecification specification = new SearchPromotionHistorySpecification(req);
-//        Page<PromotionListHistorySearchResponse> searchResponse = promotionHistoryService.findByCriteria(specification, specification.getPageable());
-//        return ResponseHelper.successPage(searchResponse, "data", Constants.MESSAGE.MSG_00000.msg);
-//    }
+    @PostMapping(value = "search/summary/promotionHistory",
+             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> searchSummaryPromotionHistory(@RequestBody PromotionHistorySearchRequest req, @AuthenticationPrincipal UserPrincipal principal) {
+        SearchPromotionHistorySpecification specification = new SearchPromotionHistorySpecification(req);
+        Page<PromotionSummaryHistorySearchResponse> searchResponse = promotionHistoryService.findSummaryByCriteria(specification, specification.getPageable());
+        return ResponseHelper.successPage(searchResponse, "data", Constants.MESSAGE.MSG_00000.msg);
+    }
 
 }

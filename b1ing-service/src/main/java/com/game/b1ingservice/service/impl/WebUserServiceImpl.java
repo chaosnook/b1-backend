@@ -388,7 +388,7 @@ public class WebUserServiceImpl implements WebUserService {
             YearMonth yearMonthObject = YearMonth.of(year, month);
             int daysInMonth = yearMonthObject.lengthOfMonth();
 
-            for (int i = 1; i <= daysInMonth; i++) {
+            for (int i = 1; i < daysInMonth; i++) {
                 resObj.getLabels().add(i);
                 resObj.getData().add(0);
             }
