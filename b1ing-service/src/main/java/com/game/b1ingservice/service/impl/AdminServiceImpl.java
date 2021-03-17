@@ -222,9 +222,8 @@ public class AdminServiceImpl implements AdminService {
         Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Prefix(req.getUsername(), principal.getPrefix());
         if (opt.isPresent()) {
             WebUser webUser = opt.get();
-            Optional<Wallet> opt2 = walletRepository.findByUser_Id(webUser.getId());
-            if (opt2.isPresent()) {
-                Wallet wallet = opt2.get();
+
+                Wallet wallet = webUser.getWallet();
 
                 if (wallet.getCredit().compareTo(req.getCredit()) < 0) {
                     throw new ErrorMessageException(Constants.ERROR.ERR_01133);
@@ -233,8 +232,6 @@ public class AdminServiceImpl implements AdminService {
                 BigDecimal beforAmount = wallet.getCredit();
                 Bank bank = wallet.getBank();
                 BigDecimal afterAmount = beforAmount.subtract(req.getCredit());
-                wallet.setCredit(afterAmount);
-                walletRepository.withDrawCredit(req.getCredit(), webUser.getId());
 
                 WithdrawHistory withdrawHistory = new WithdrawHistory();
                 withdrawHistory.setAmount(req.getCredit());
@@ -257,7 +254,7 @@ public class AdminServiceImpl implements AdminService {
 
                 String errorMessage = "";
                 if (ambResponse.getCode() == 0) {
-                    walletRepository.withDrawCredit(afterAmount, webUser.getId());
+                    walletRepository.withDrawCredit(req.getCredit(), webUser.getId());
 
                     BankBotScbWithdrawCreditRequest request = new BankBotScbWithdrawCreditRequest();
                     request.setAmount(req.getCredit());
@@ -283,10 +280,8 @@ public class AdminServiceImpl implements AdminService {
                     throw new ErrorMessageException(Constants.ERROR.ERR_10001);
                 }
 
-            } else {
-                throw new ErrorMessageException(Constants.ERROR.ERR_01132);
             }
-        } else {
+        else {
             throw new ErrorMessageException(Constants.ERROR.ERR_01127);
         }
     }
