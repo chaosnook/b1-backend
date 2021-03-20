@@ -21,20 +21,20 @@ public class AffiliateHistory extends DateAudit<String> implements Serializable 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "affiliate_user_id", columnDefinition = "smallint not null")
-    private Long affiliateUserTd;
-
-    @Column(name = "affiliate", columnDefinition = "character varying(255) not null")
-    private String affiliate;
-
     @Column(name = "point", columnDefinition = "numeric(18,2)")
     private BigDecimal point;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    @Column(name = "remark", columnDefinition = "character varying(255)")
+    private String remark;
+
     @JsonIgnore
     @ToString.Exclude
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "affiliate_user_id", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private WebUser user;
+    private WebUser userAffiliate;
 
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();

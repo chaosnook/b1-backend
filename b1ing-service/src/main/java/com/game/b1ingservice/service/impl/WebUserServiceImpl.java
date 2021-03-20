@@ -1,13 +1,12 @@
 package com.game.b1ingservice.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.admin.LoginRequest;
-import com.game.b1ingservice.payload.amb.AmbResponse;
-import com.game.b1ingservice.payload.amb.CreateUserReq;
-import com.game.b1ingservice.payload.amb.CreateUserRes;
-import com.game.b1ingservice.payload.amb.ResetPasswordReq;
+import com.game.b1ingservice.payload.amb.*;
+import com.game.b1ingservice.payload.bankbot.BankBotScbTransactionResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.userinfo.UserInfoResponse;
 import com.game.b1ingservice.payload.userinfo.UserProfile;
@@ -22,6 +21,7 @@ import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AMBService;
+import com.game.b1ingservice.service.AffiliateService;
 import com.game.b1ingservice.service.WalletService;
 import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.utils.AESUtils;
@@ -64,6 +64,10 @@ public class WebUserServiceImpl implements WebUserService {
     @Autowired
     private AffiliateHistoryRepository affiliateHistoryRepository;
 
+
+    @Autowired
+    private AffiliateUserRepository affiliateUserRepository;
+
     @Autowired
     private WebUserJdbcRepository webUserJdbcRepository;
 
@@ -78,6 +82,9 @@ public class WebUserServiceImpl implements WebUserService {
 
     @Autowired
     private WalletRepository walletRepository;
+
+    @Autowired
+    private AffiliateService affiliateService;
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -120,7 +127,7 @@ public class WebUserServiceImpl implements WebUserService {
         WebUser userResp = webUserRepository.save(user);
 
         if (!StringUtils.isEmpty(req.getAffiliate())) {
-            insertAffiliateHistory(req.getAffiliate(), userResp);
+            affiliateService.registerAffiliate(userResp, req.getAffiliate());
         }
 
         WalletRequest walletRequest = new WalletRequest();
@@ -135,25 +142,10 @@ public class WebUserServiceImpl implements WebUserService {
         return convert(userResp, opt.get());
     }
 
-    private void insertAffiliateHistory(String affiliate, WebUser userResp) {
-
-        AffiliateHistory affiliateHistory = new AffiliateHistory();
-        Optional<WebUser> opt = webUserRepository.findByUsernameOrTel(affiliate, affiliate);
-        if (opt.isPresent()) {
-            WebUser affiliateUser = opt.get();
-            affiliateHistory.setAffiliateUserTd(affiliateUser.getId());
-        }
-        affiliateHistory.setAffiliate(affiliate);
-        affiliateHistory.setUser(userResp);
-        affiliateHistory.setPoint(BigDecimal.valueOf(0L));
-
-        affiliateHistoryRepository.save(affiliateHistory);
-    }
-
     @Override
     public void updateUser(Long id, WebUserUpdate req) {
         Optional<WebUser> optUsername = webUserRepository.findByIdNotAndUsername(id, req.getUsername());
-        if(optUsername.isPresent()) {
+        if (optUsername.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01119);
         }
         Optional<WebUser> opt = webUserRepository.findById(id);
@@ -171,9 +163,10 @@ public class WebUserServiceImpl implements WebUserService {
             WebUser userResp = webUserRepository.save(user);
 
             if (!StringUtils.isEmpty(req.getAffiliate())) {
-                Optional<AffiliateHistory> optAffiliateHistory = affiliateHistoryRepository.findByAffiliateAndUser_Id(req.getAffiliate(), id);
-                if(!optAffiliateHistory.isPresent()) {
-                    insertAffiliateHistory(req.getAffiliate(), userResp);
+                Optional<AffiliateUser> affiliateUser = affiliateUserRepository.findFirstByAffiliateAndUser_Id(req.getAffiliate(), id);
+                if (!affiliateUser.isPresent()) {
+                    affiliateUserRepository.removeOleAffiliate(id);
+                    affiliateService.registerAffiliate(userResp, req.getAffiliate());
                 }
             }
 
@@ -290,6 +283,21 @@ public class WebUserServiceImpl implements WebUserService {
     }
 
     @Override
+    public WebUser getById(Long depositUser) {
+        return webUserRepository.findById(depositUser).orElse(null);
+    }
+
+    @Override
+    public List<WinLoseReq> getAllUser(Long agentId) {
+        List<Map>  objects =  webUserRepository.getAllUser(agentId);
+        if (objects.size() == 0) {
+            return new ArrayList<>();
+        }
+        return mapper.convertValue(webUserRepository.getAllUser(agentId), new TypeReference<List<WinLoseReq>>() {
+        });
+    }
+
+    @Override
     public boolean verifyTel(String tel, String prefix) {
         Optional<WebUser> webUser = webUserRepository.findByTelAndAgent_Prefix(tel, prefix);
         return webUser.isPresent();
@@ -380,7 +388,7 @@ public class WebUserServiceImpl implements WebUserService {
             YearMonth yearMonthObject = YearMonth.of(year, month);
             int daysInMonth = yearMonthObject.lengthOfMonth();
 
-            for (int i = 1; i <= daysInMonth; i++) {
+            for (int i = 1; i < daysInMonth; i++) {
                 resObj.getLabels().add(i);
                 resObj.getData().add(0);
             }

@@ -1,6 +1,7 @@
 package com.game.b1ingservice.service;
 
 import com.game.b1ingservice.payload.admin.LoginRequest;
+import com.game.b1ingservice.payload.amb.WinLoseReq;
 import com.game.b1ingservice.payload.userinfo.UserInfoResponse;
 import com.game.b1ingservice.payload.userinfo.UserProfile;
 import com.game.b1ingservice.payload.webuser.WebUserRequest;
@@ -11,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public interface WebUserService {
@@ -34,4 +37,7 @@ public interface WebUserService {
 
     void updateUserWebProfile(String username, String prefix, WebUserProfileUpdate webUserUpdate);
 
+    WebUser getById(Long depositUser);
+
+    List<WinLoseReq> getAllUser(Long agentId);
 }

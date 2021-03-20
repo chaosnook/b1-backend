@@ -121,4 +121,18 @@ public class AdminController {
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, obj);
     }
 
+    @PostMapping(path = "/withdraw/manual", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> update(@RequestBody WithdrawManualReq req, @AuthenticationPrincipal UserPrincipal principal) {
+        adminService.withdrawManual(req, principal);
+        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+    }
+
+    @PostMapping(path = "/approve", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> update(@RequestBody ApproveReq req, @AuthenticationPrincipal UserPrincipal principal) {
+        adminService.approve(req, principal);
+        return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+    }
+
+
+
 }

@@ -3,10 +3,12 @@ package com.game.b1ingservice.service.impl;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.condition.ConditionResponse;
 import com.game.b1ingservice.payload.promotion.*;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.repository.AdminUserRepository;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
+import com.game.b1ingservice.postgres.repository.ConditionRepository;
 import com.game.b1ingservice.postgres.repository.PromotionRepository;
 import com.game.b1ingservice.service.ConditionService;
 import com.game.b1ingservice.service.PromotionService;
@@ -34,6 +36,9 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Autowired
     ConditionService conditionService;
+
+    @Autowired
+    ConditionRepository conditionRepository;
 
     @Autowired
     AgentRepository agentRepository;
@@ -73,6 +78,7 @@ public class PromotionServiceImpl implements PromotionService {
             condition.setMinTopup(conditionRequest.getMinTopup());
             condition.setMaxTopup(conditionRequest.getMaxTopup());
             condition.setBonus(conditionRequest.getBonus());
+            condition.setPromotion(promotion);
             return condition;
         }).collect(Collectors.toList()));
 
@@ -87,9 +93,16 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Override
     public void updatePromotion(Long id, PromotionUpdate promotionUpdate, UserPrincipal principal){
-        Optional<Promotion> opt = promotionRepository.findById(id);
-        if(opt.isPresent()) {
-            Promotion promotion = opt.get();
+
+        Optional<Agent> opt = agentRepository.findByPrefix(principal.getPrefix());
+        Optional<AdminUser> optAdmin = adminUserRepository.findById(principal.getId());
+        if (!opt.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
+        Optional<Promotion> optionalPromotion = promotionRepository.findById(id);
+        if(optionalPromotion.isPresent()) {
+            Promotion promotion = optionalPromotion.get();
             promotion.setName(promotionUpdate.getName());
             promotion.setTypeBonus(promotionUpdate.getTypeBonus());
             promotion.setTypePromotion(promotionUpdate.getTypePromotion());
@@ -100,6 +113,25 @@ public class PromotionServiceImpl implements PromotionService {
             promotion.setMaxWithdraw(promotionUpdate.getMaxWithdraw());
             promotion.setActive(promotionUpdate.isActive());
             promotion.setUrlImage(promotionUpdate.getUrlImage());
+            promotion.setAgent(opt.get());
+            promotion.setAdmin(optAdmin.get());
+
+
+
+            promotion.setCondition(promotionUpdate.getConditions().stream().map(conditionUpdate -> {
+                Condition condition;
+                if(ObjectUtils.isEmpty(conditionUpdate.getId())) {
+                    condition = new Condition();
+                } else {
+                    condition = conditionRepository.findById(conditionUpdate.getId()).orElse(new Condition());
+                }
+                condition.setPromotion(promotion);
+                condition.setMinTopup(conditionUpdate.getMinTopup());
+                condition.setMaxTopup(conditionUpdate.getMaxTopup());
+                condition.setBonus(conditionUpdate.getBonus());
+                return condition;
+            }).collect(Collectors.toList()));
+
 
             promotionRepository.save(promotion);
 
@@ -175,20 +207,41 @@ public class PromotionServiceImpl implements PromotionService {
         promotionResponse.setId(promotion.getId());
         promotionResponse.setUrlImage(promotion.getUrlImage());
         promotionResponse.setName(promotion.getName());
+        promotionResponse.setType(promotion.getType());
+        promotionResponse.setTypeBonus(promotion.getTypeBonus());
         promotionResponse.setTypePromotion(promotion.getTypePromotion());
         promotionResponse.setMinTopup(promotion.getMinTopup().doubleValue());
         promotionResponse.setMaxTopup(promotion.getMaxTopup().doubleValue());
         promotionResponse.setMaxBonus(promotion.getMaxBonus().doubleValue());
+        promotionResponse.setMaxReceiveBonus(promotion.getMaxReceiveBonus().doubleValue());
         promotionResponse.setTurnOver(promotion.getTurnOver().doubleValue());
         promotionResponse.setMaxWithdraw(promotion.getMaxWithdraw().doubleValue());
         promotionResponse.setActive(promotion.isActive());
+        promotionResponse.setUrlImage(promotion.getUrlImage());
+        promotionResponse.setAgentId(promotion.getAgent().getId());
+        promotionResponse.setAdminId(promotion.getAdmin().getId());
 
-        Map<String, Object> configMap = new HashMap<>();
-
+        promotionResponse.setConditions(promotion.getCondition().stream().map(condition -> {
+            ConditionResponse conditionResponse = new ConditionResponse();
+            conditionResponse.setId(condition.getId());
+            conditionResponse.setMinTopup(condition.getMinTopup());
+            conditionResponse.setMaxTopup(condition.getMaxTopup());
+            conditionResponse.setBonus(condition.getBonus());
+            return conditionResponse;
+        }).collect(Collectors.toList()));
 
         return promotionResponse;
 
     };
+
+//    Function<Condition, ConditionResponse> converterCondition = condition -> {
+//        ConditionResponse conditionResponse = new ConditionResponse();
+//        conditionResponse.setId(condition.getId());
+//        conditionResponse.setMinTopup(condition.getMinTopup());
+//        conditionResponse.setMaxTopup(condition.getMaxTopup());
+//
+//        return conditionResponse;
+//    };
 
 
 }

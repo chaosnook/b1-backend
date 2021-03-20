@@ -42,6 +42,8 @@ public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecif
 
     Wallet findFirstByUser_UsernameAndUser_Agent_Prefix(String username , String prefix);
 
+    Wallet findFirstByUser_IdAndUser_Agent_Prefix(Long userId , String prefix);
+
     @Transactional
     @Modifying
     @Query(value = "UPDATE wallet SET deposit_bank_id = null WHERE deposit_bank_id = ? ", nativeQuery = true)
@@ -55,8 +57,8 @@ public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecif
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE wallet SET credit = credit + ? ,point = point - ? , version=version+1 WHERE user_id = ? ", nativeQuery = true)
-    int transferPointToCredit(BigDecimal point, BigDecimal point2, Long userId) ;
+    @Query(value = "UPDATE wallet SET credit = credit + ? ,point = point - ? ,turn_over = turn_over + (?*?) , version=version+1 WHERE user_id = ? ", nativeQuery = true)
+    int transferPointToCredit(BigDecimal point, BigDecimal point2, BigDecimal point3, Integer turnover, Long userId);
 
     @Transactional
     @Modifying
@@ -88,4 +90,12 @@ public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecif
 
     @Query(value = "select o from Wallet o where o.trueWallet.botIp = :botIp and o.user.tel = :mobile")
     List<Wallet> findWalletByTrueMobile(String botIp, String mobile);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE wallet SET turn_over = turn_over - ?  WHERE user_id = ? ", nativeQuery = true)
+    void minusTurnOver(BigDecimal afterAmount, Long id);
+
+    @Query(value = "select turn_over from wallet where  user_id = ?" , nativeQuery = true)
+    BigDecimal getTurnOver(Long id);
 }

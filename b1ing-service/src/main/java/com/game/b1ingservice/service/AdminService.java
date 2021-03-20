@@ -19,6 +19,8 @@ public interface AdminService {
 
     void addCredit(AddCreditRequest req, UserPrincipal principal);
     void withdrawCredit(WithdrawRequest req, UserPrincipal principal);
+    void withdrawManual(WithdrawManualReq req, UserPrincipal principal);
+    void approve(ApproveReq req, UserPrincipal principal);
 
     ProfitReportResponse profitReport(ProfitReportRequest profitReportRequest, UserPrincipal principal);
     ProfitLossResponse profitLoss(ProfitLossRequest profitLossRequest, UserPrincipal principal);

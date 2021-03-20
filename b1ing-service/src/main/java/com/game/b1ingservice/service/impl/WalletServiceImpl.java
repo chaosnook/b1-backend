@@ -86,4 +86,14 @@ public class WalletServiceImpl implements WalletService {
 
         return response;
     }
+
+    @Override
+    public void minusTurnOver(Long id, BigDecimal afterAmount) {
+        BigDecimal turnOver =  walletRepository.getTurnOver(id);
+        if (turnOver != null && afterAmount.compareTo(turnOver) > 0) {
+                walletRepository.minusTurnOver(turnOver, id);
+                return;
+        }
+        walletRepository.minusTurnOver(afterAmount, id);
+    }
 }

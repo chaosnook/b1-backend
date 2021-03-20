@@ -6,6 +6,7 @@ import lombok.Data;
 public class WithdrawHistoryByUserIdResp {
 
     private String bankName;
+    private String bankCode;
     private String type;
     private String amount;
     private String status;

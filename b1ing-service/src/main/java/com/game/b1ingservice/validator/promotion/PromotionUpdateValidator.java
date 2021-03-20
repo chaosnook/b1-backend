@@ -52,5 +52,11 @@ public class PromotionUpdateValidator extends CommonValidator {
         if(ObjectUtils.isEmpty((req.getMaxWithdraw())))
             throw new ErrorMessageException(Constants.ERROR.ERR_06008);
 
+        if(req.getMinTopup().compareTo(req.getMaxTopup()) == 1) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_12001);
+        } else if (req.getMinTopup().compareTo(req.getMaxTopup()) == 0){
+            throw new ErrorMessageException(Constants.ERROR.ERR_12002);
+        }
+
     }
 }

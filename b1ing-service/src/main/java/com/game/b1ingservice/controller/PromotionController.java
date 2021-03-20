@@ -6,6 +6,7 @@ import com.game.b1ingservice.payload.promotion.PromotionRequest;
 import com.game.b1ingservice.payload.promotion.PromotionUpdate;
 import com.game.b1ingservice.service.PromotionService;
 import com.game.b1ingservice.utils.ResponseHelper;
+import com.game.b1ingservice.validator.condition.ConditionValidator;
 import com.game.b1ingservice.validator.promotion.PromotionUpdateValidator;
 import com.game.b1ingservice.validator.promotion.PromotionValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -14,9 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("api/admin")
@@ -32,11 +30,13 @@ public class PromotionController {
     @Autowired
     PromotionService promotionService;
 
+    @Autowired
+    ConditionValidator conditionValidator;
+
     //insert promotion
     @PostMapping(value = "/promotion",
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
         public ResponseEntity<?> insertPromotion(@RequestBody PromotionRequest promotionRequest, @AuthenticationPrincipal UserPrincipal principal) {
-//        public ResponseEntity<?> insertPromotion(@RequestPart MultipartFile file, @RequestPart PromotionRequest promotionRequest, @AuthenticationPrincipal UserPrincipal principal) {
             promotionValidator.validate(promotionRequest);
             promotionService.insertPromotion(promotionRequest, principal);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);

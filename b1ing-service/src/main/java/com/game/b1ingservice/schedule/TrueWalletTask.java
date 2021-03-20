@@ -40,7 +40,7 @@ public class TrueWalletTask {
     private BankBotService bankBotService;
     private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy HH:mm");
 
-    @Scheduled(cron = "0,18,40 * * * * *")
+//    @Scheduled(cron = "0,18,40 * * * * *")
     public void scheduleFixedRateTask() {
         log.info("{}",System.currentTimeMillis());
         List<TrueWallet> lists = trueWalletRepository.findAll();

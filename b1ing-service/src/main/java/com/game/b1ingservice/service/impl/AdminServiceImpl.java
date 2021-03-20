@@ -15,6 +15,7 @@ import com.game.b1ingservice.postgres.jdbc.dto.*;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.AdminService;
+import com.game.b1ingservice.service.AffiliateService;
 import com.game.b1ingservice.service.BankBotService;
 import com.game.b1ingservice.utils.JwtTokenUtil;
 import com.game.b1ingservice.utils.ResponseHelper;
@@ -58,6 +59,8 @@ public class AdminServiceImpl implements AdminService {
     private AMBService ambService;
     @Autowired
     private BankBotService bankBotService;
+    @Autowired
+    private AffiliateService affiliateService;
     @Autowired
     ProfitLossJdbcRepository profitLossJdbcRepository;
     @Autowired
@@ -165,11 +168,12 @@ public class AdminServiceImpl implements AdminService {
             if (opt2.isPresent()) {
                 Wallet wallet = opt2.get();
                 BigDecimal beforAmount = wallet.getCredit();
+                BigDecimal credit = req.getCredit().setScale(2, RoundingMode.HALF_DOWN);
                 Bank bank = wallet.getBank();
-                BigDecimal afterAmount = beforAmount.add(req.getCredit());
+                BigDecimal afterAmount = beforAmount.add(credit);
 
                 DepositHistory depositHistory = new DepositHistory();
-                depositHistory.setAmount(req.getCredit());
+                depositHistory.setAmount(credit);
                 depositHistory.setBeforeAmount(beforAmount);
                 depositHistory.setAfterAmount(afterAmount);
                 depositHistory.setUser(webUser);
@@ -185,12 +189,15 @@ public class AdminServiceImpl implements AdminService {
                 depositHistoryRepository.save(depositHistory);
 
                 AmbResponse<DepositRes> ambResponse = ambService.deposit(DepositReq.builder()
-                        .amount(req.getCredit().setScale(2, RoundingMode.HALF_DOWN).toPlainString())
-                        .build(), req.getUsername(), wallet.getUser().getAgent());
+                    .amount(credit.toPlainString())
+                    .build(), req.getUsername(), wallet.getUser().getAgent());
 
                 String errorMessage = "";
                 if (ambResponse.getCode() == 0) {
-                    walletRepository.depositCredit(afterAmount, webUser.getId());
+                    walletRepository.depositCredit(credit, webUser.getId());
+                    webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), webUser.getId());
+                    // check affiliate
+                    affiliateService.earnPoint(webUser.getId(), credit, principal.getPrefix());
                     depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
                 } else {
                     //if error
@@ -214,9 +221,8 @@ public class AdminServiceImpl implements AdminService {
         Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Prefix(req.getUsername(), principal.getPrefix());
         if (opt.isPresent()) {
             WebUser webUser = opt.get();
-            Optional<Wallet> opt2 = walletRepository.findByUser_Id(webUser.getId());
-            if (opt2.isPresent()) {
-                Wallet wallet = opt2.get();
+
+                Wallet wallet = webUser.getWallet();
 
                 if (wallet.getCredit().compareTo(req.getCredit()) < 0) {
                     throw new ErrorMessageException(Constants.ERROR.ERR_01133);
@@ -225,8 +231,6 @@ public class AdminServiceImpl implements AdminService {
                 BigDecimal beforAmount = wallet.getCredit();
                 Bank bank = wallet.getBank();
                 BigDecimal afterAmount = beforAmount.subtract(req.getCredit());
-                wallet.setCredit(afterAmount);
-                walletRepository.withDrawCredit(req.getCredit(), webUser.getId());
 
                 WithdrawHistory withdrawHistory = new WithdrawHistory();
                 withdrawHistory.setAmount(req.getCredit());
@@ -249,7 +253,7 @@ public class AdminServiceImpl implements AdminService {
 
                 String errorMessage = "";
                 if (ambResponse.getCode() == 0) {
-                    walletRepository.withDrawCredit(afterAmount, webUser.getId());
+                    walletRepository.withDrawCredit(req.getCredit(), webUser.getId());
 
                     BankBotScbWithdrawCreditRequest request = new BankBotScbWithdrawCreditRequest();
                     request.setAmount(req.getCredit());
@@ -257,10 +261,10 @@ public class AdminServiceImpl implements AdminService {
                     request.setBankCode(webUser.getBankName());
 
                     BankBotScbWithdrawCreditResponse depositResult = bankBotService.withDrawCredit(request);
-                    if (depositResult.getStatus()) {
+                    if (depositResult.getStatus()){
                         withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.SUCCESS);
                         withdrawHistory.setReason(depositResult.getQrString());
-                    } else {
+                    }else {
                         withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);
                         withdrawHistory.setReason(depositResult.getMessege());
                     }
@@ -275,10 +279,8 @@ public class AdminServiceImpl implements AdminService {
                     throw new ErrorMessageException(Constants.ERROR.ERR_10001);
                 }
 
-            } else {
-                throw new ErrorMessageException(Constants.ERROR.ERR_01132);
             }
-        } else {
+        else {
             throw new ErrorMessageException(Constants.ERROR.ERR_01127);
         }
     }
@@ -314,23 +316,23 @@ public class AdminServiceImpl implements AdminService {
         List<ProfitReport> listWithdrawMonth = profitReportJdbcRepository.withdrawReport(profitReportRequest, principal);
 
 
-        for (int i = 0; i < resObj.getLabels().size(); i++) {
+        for (int i = 0; i< resObj.getLabels().size(); i++) {
             int finalI = i;
-            Optional<ProfitReport> depO = listDepositMonth.stream().filter(dep -> dep.getLabels() == finalI + 1).findFirst();
+            Optional<ProfitReport> depO = listDepositMonth.stream().filter(dep -> dep.getLabels() == finalI +1).findFirst();
 
             BigDecimal depValue = new BigDecimal(0);
             if (depO.isPresent()) {
                 depValue = depO.get().getData();
             }
 
-            Optional<ProfitReport> withO = listWithdrawMonth.stream().filter(with -> with.getLabels() == finalI + 1).findFirst();
+            Optional<ProfitReport> withO = listWithdrawMonth.stream().filter(with -> with.getLabels() == finalI +1).findFirst();
 
             BigDecimal withValue = new BigDecimal(0);
             if (withO.isPresent()) {
                 withValue = withO.get().getData();
             }
 
-            resObj.getData().set(i, depValue.subtract(withValue));
+                resObj.getData().set(i, depValue.subtract(withValue));
 
         }
 
@@ -351,12 +353,12 @@ public class AdminServiceImpl implements AdminService {
         List<ProfitLoss> listDeposit = profitLossJdbcRepository.depositProfit(profitLossRequest, principal);
         List<ProfitLoss> listWithdraw = profitLossJdbcRepository.withdrawProfit(profitLossRequest, principal);
 
-        for (ProfitLoss profitLoss : listDeposit) {
+        for(ProfitLoss profitLoss: listDeposit) {
             resObj.setDeposit(profitLoss.getDeposit());
             resObj.setBonus(profitLoss.getBonus());
             resObj.setDepositBonus(profitLoss.getDepositBonus());
         }
-        for (ProfitLoss profitLoss : listWithdraw) {
+        for(ProfitLoss profitLoss: listWithdraw) {
             resObj.setWithdraw(profitLoss.getWithdraw());
             resObj.setProfitLoss(resObj.getDepositBonus().subtract(profitLoss.getWithdraw()));
         }
@@ -425,4 +427,19 @@ public class AdminServiceImpl implements AdminService {
         response.setRole(admin.getRole().getRoleCode());
         return response;
     };
+
+    @Override
+    public void withdrawManual(WithdrawManualReq req, UserPrincipal principal) {
+
+        String reason = "Withdraw Manual";
+        withdrawHistoryRepository.updateInfoWithdrawManual(Constants.WITHDRAW_STATUS.SUCCESS, reason, req.getId(), req.getAmount());
+
+    }
+
+    @Override
+    public void approve(ApproveReq req, UserPrincipal principal) {
+
+        withdrawHistoryRepository.updateStatus(Constants.WITHDRAW_STATUS.SUCCESS, req.getId(), req.getAmount());
+
+    }
 }

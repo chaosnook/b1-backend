@@ -8,10 +8,10 @@ import com.game.b1ingservice.payload.misktake.MistakeReq;
 import com.game.b1ingservice.payload.misktake.MistakeSearchListRes;
 import com.game.b1ingservice.payload.misktake.MistakeSearchReq;
 import com.game.b1ingservice.payload.misktake.MistakeSearchSummaryRes;
-import com.game.b1ingservice.payload.thieve.ThieveResponse;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AMBService;
+import com.game.b1ingservice.service.AffiliateService;
 import com.game.b1ingservice.service.MistakeService;
 import com.game.b1ingservice.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +25,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.COUNT_WITHDRAW;
+import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.LIMIT_WITHDRAW;
 import static com.game.b1ingservice.commons.Constants.DATE_FORMAT;
 
 @Service
@@ -52,6 +54,9 @@ public class MistakeServiceImpl implements MistakeService {
     @Autowired
     private AdminUserRepository adminUserRepository;
 
+    @Autowired
+    private AffiliateService affiliateService;
+
     @Override
     public void createMistake(MistakeReq mistakeReq, UserPrincipal principal) {
         Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Prefix(mistakeReq.getUsername(), principal.getPrefix());
@@ -70,12 +75,19 @@ public class MistakeServiceImpl implements MistakeService {
         String username = user.getUsername();
         Agent agent = user.getAgent();
 
+        // Mistake limit
+        if (!checkCanLimit(agent.getConfigs(), adminOpt.get().getMistakeLimit())) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_01134);
+        }
+
+        // update mistake
+        adminUserRepository.addMistake(adminOpt.get().getId());
+
         Wallet wallet = user.getWallet();
         BigDecimal beforeAmount = wallet.getCredit();
         BigDecimal afterAmount = beforeAmount.add(credit);
 
         AmbResponse<DepositRes> ambResponse;
-
 
         switch (mistakeReq.getType()) {
             case Constants.PROBLEM.NO_SLIP:
@@ -83,7 +95,9 @@ public class MistakeServiceImpl implements MistakeService {
                         .amount(credit.toPlainString()).build(), username, agent);
                 if (ambResponse.getCode() == 0) {
                     walletRepository.depositCredit(credit, user.getId());
-
+                    webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), user.getId());
+                    // check affiliate
+                    affiliateService.earnPoint(wallet.getUser().getId(), credit, wallet.getUser().getAgent().getPrefix());
 
                     DepositHistory depositHistory = new DepositHistory();
                     depositHistory.setAmount(credit);
@@ -106,6 +120,9 @@ public class MistakeServiceImpl implements MistakeService {
 
                 if (ambResponse.getCode() == 0) {
                     walletRepository.depositCreditAndTurnOver(credit, credit, mistakeReq.getTurnOver(), user.getId());
+                    webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), user.getId());
+                    // check affiliate
+                    affiliateService.earnPoint(wallet.getUser().getId(), credit, wallet.getUser().getAgent().getPrefix());
 
                     DepositHistory depositHistory = new DepositHistory();
                     depositHistory.setAmount(credit);
@@ -209,6 +226,29 @@ public class MistakeServiceImpl implements MistakeService {
         summaryRes.setAddCredit(addCredit);
 
         return summaryRes;
+    }
+
+    @Override
+    public void clearLimit() {
+        adminUserRepository.clearMistakeLimit();
+    }
+
+
+    private boolean checkCanLimit(List<Config> configs, Integer countMistake) {
+        boolean isCheck = false;
+        Integer max = 0;
+        for (Config config : configs) {
+            if (config.getParameter().equals(LIMIT_WITHDRAW)) {
+                isCheck = Boolean.parseBoolean(config.getValue());
+            } else if (config.getParameter().equals(COUNT_WITHDRAW)) {
+                max = Integer.valueOf(config.getValue());
+            }
+        }
+        if (isCheck) {
+            return countMistake < max;
+        }
+
+        return true;
     }
 
 
