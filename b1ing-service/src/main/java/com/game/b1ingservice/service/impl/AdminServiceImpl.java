@@ -1,16 +1,14 @@
 package com.game.b1ingservice.service.impl;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.admin.*;
-import com.game.b1ingservice.payload.agent.AgentResponse;
 import com.game.b1ingservice.payload.amb.*;
 import com.game.b1ingservice.payload.bankbot.BankBotScbWithdrawCreditRequest;
 import com.game.b1ingservice.payload.bankbot.BankBotScbWithdrawCreditResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
-import com.game.b1ingservice.payload.deposithistory.DepositHistoryTop20Resp;
 import com.game.b1ingservice.postgres.entity.*;
+import com.game.b1ingservice.postgres.jdbc.CountRefillJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.ProfitLossJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.ProfitReportJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.*;
@@ -30,7 +28,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.function.Function;
@@ -63,6 +60,8 @@ public class AdminServiceImpl implements AdminService {
     private BankBotService bankBotService;
     @Autowired
     ProfitLossJdbcRepository profitLossJdbcRepository;
+    @Autowired
+    CountRefillJdbcRepository countRefillJdbcRepository;
 
     @Autowired
     RoleRepository rolerepository;
@@ -186,8 +185,8 @@ public class AdminServiceImpl implements AdminService {
                 depositHistoryRepository.save(depositHistory);
 
                 AmbResponse<DepositRes> ambResponse = ambService.deposit(DepositReq.builder()
-                    .amount(req.getCredit().setScale(2, RoundingMode.HALF_DOWN).toPlainString())
-                    .build(), req.getUsername(), wallet.getUser().getAgent());
+                        .amount(req.getCredit().setScale(2, RoundingMode.HALF_DOWN).toPlainString())
+                        .build(), req.getUsername(), wallet.getUser().getAgent());
 
                 String errorMessage = "";
                 if (ambResponse.getCode() == 0) {
@@ -258,10 +257,10 @@ public class AdminServiceImpl implements AdminService {
                     request.setBankCode(webUser.getBankName());
 
                     BankBotScbWithdrawCreditResponse depositResult = bankBotService.withDrawCredit(request);
-                    if (depositResult.getStatus()){
+                    if (depositResult.getStatus()) {
                         withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.SUCCESS);
                         withdrawHistory.setReason(depositResult.getQrString());
-                    }else {
+                    } else {
                         withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);
                         withdrawHistory.setReason(depositResult.getMessege());
                     }
@@ -315,23 +314,23 @@ public class AdminServiceImpl implements AdminService {
         List<ProfitReport> listWithdrawMonth = profitReportJdbcRepository.withdrawReport(profitReportRequest, principal);
 
 
-        for (int i = 0; i< resObj.getLabels().size(); i++) {
+        for (int i = 0; i < resObj.getLabels().size(); i++) {
             int finalI = i;
-            Optional<ProfitReport> depO = listDepositMonth.stream().filter(dep -> dep.getLabels() == finalI +1).findFirst();
+            Optional<ProfitReport> depO = listDepositMonth.stream().filter(dep -> dep.getLabels() == finalI + 1).findFirst();
 
             BigDecimal depValue = new BigDecimal(0);
             if (depO.isPresent()) {
                 depValue = depO.get().getData();
             }
 
-            Optional<ProfitReport> withO = listWithdrawMonth.stream().filter(with -> with.getLabels() == finalI +1).findFirst();
+            Optional<ProfitReport> withO = listWithdrawMonth.stream().filter(with -> with.getLabels() == finalI + 1).findFirst();
 
             BigDecimal withValue = new BigDecimal(0);
             if (withO.isPresent()) {
                 withValue = withO.get().getData();
             }
 
-                resObj.getData().set(i, depValue.subtract(withValue));
+            resObj.getData().set(i, depValue.subtract(withValue));
 
         }
 
@@ -352,17 +351,58 @@ public class AdminServiceImpl implements AdminService {
         List<ProfitLoss> listDeposit = profitLossJdbcRepository.depositProfit(profitLossRequest, principal);
         List<ProfitLoss> listWithdraw = profitLossJdbcRepository.withdrawProfit(profitLossRequest, principal);
 
-        for(ProfitLoss profitLoss: listDeposit) {
+        for (ProfitLoss profitLoss : listDeposit) {
             resObj.setDeposit(profitLoss.getDeposit());
             resObj.setBonus(profitLoss.getBonus());
             resObj.setDepositBonus(profitLoss.getDepositBonus());
         }
-        for(ProfitLoss profitLoss: listWithdraw) {
+        for (ProfitLoss profitLoss : listWithdraw) {
             resObj.setWithdraw(profitLoss.getWithdraw());
             resObj.setProfitLoss(resObj.getDepositBonus().subtract(profitLoss.getWithdraw()));
         }
 
         return resObj;
+    }
+
+    @Override
+    public List<CountRefillDTO> countRefill(CountRefillRequest countRefillRequest, UserPrincipal principal) {
+        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
+
+
+        if (!agent.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
+        CountRefillResponse resObj = new CountRefillResponse();
+
+        List<CountRefillDTO> listCountDeposit = countRefillJdbcRepository.depositCount(countRefillRequest, principal);
+        List<CountRefillDTO> listCountWithdraw = countRefillJdbcRepository.withdrawCount(countRefillRequest, principal);
+
+        List<CountRefillDTO> result = new ArrayList<>();
+        for (CountRefillDTO countRefillDTOD : listCountDeposit) {
+            CountRefillDTO deposit = new CountRefillDTO();
+            deposit.setUsername(countRefillDTOD.getUsername());
+            deposit.setCountDeposit(countRefillDTOD.getCountDeposit());
+            deposit.setAllDeposit(countRefillDTOD.getAllDeposit());
+            result.add(deposit);
+        }
+        for (CountRefillDTO countRefillDTOW : listCountWithdraw) {
+            Optional<CountRefillDTO> withdrawOpt = result.stream().filter(countRefillDTO -> countRefillDTO.getUsername().equals(countRefillDTOW.getUsername())).findFirst();
+            if(withdrawOpt.isPresent()){
+                CountRefillDTO withdraw = withdrawOpt.get();
+                withdraw.setAllWithdraw(countRefillDTOW.getAllWithdraw());
+                withdraw.setCountWithdraw(countRefillDTOW.getCountWithdraw());
+            }
+            else{
+                CountRefillDTO withdraw = new CountRefillDTO();
+                withdraw.setAllWithdraw(countRefillDTOW.getAllWithdraw());
+                withdraw.setCountWithdraw(countRefillDTOW.getCountWithdraw());
+                result.add(withdraw);
+            }
+        }
+
+
+        return result;
     }
 
 
