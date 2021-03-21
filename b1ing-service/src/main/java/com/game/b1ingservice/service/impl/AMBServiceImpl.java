@@ -12,6 +12,7 @@ import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.ConfigRepository;
 import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.AMBService;
+import com.game.b1ingservice.service.LineNotifyService;
 import com.game.b1ingservice.utils.AESUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -20,12 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
+import static com.game.b1ingservice.commons.Constants.*;
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.*;
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG_TYPE.AMB_CONFIG;
-import static com.game.b1ingservice.commons.Constants.AMB_ERROR;
 
 @Slf4j
 @Service
@@ -45,6 +47,9 @@ public class AMBServiceImpl implements AMBService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private LineNotifyService lineNotifyService;
 
     @Value("${agent.b1ing.url}")
     private String urlApi;
@@ -139,6 +144,9 @@ public class AMBServiceImpl implements AMBService {
         } catch (Exception e) {
             log.error("withdraw", e);
             ambResponse.setCode(AMB_ERROR);
+        } finally {
+            lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW,username, withdrawReq.getAmount()) ,
+                    agent.getLineToken());
         }
         return ambResponse;
     }

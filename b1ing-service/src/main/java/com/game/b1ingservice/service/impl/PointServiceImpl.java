@@ -13,10 +13,7 @@ import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.jdbc.dto.PointHistoryDTO;
 import com.game.b1ingservice.postgres.repository.WalletRepository;
 import com.game.b1ingservice.postgres.repository.WebUserRepository;
-import com.game.b1ingservice.service.AMBService;
-import com.game.b1ingservice.service.PointHistoryService;
-import com.game.b1ingservice.service.PointService;
-import com.game.b1ingservice.service.WebUserService;
+import com.game.b1ingservice.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +21,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
+import static com.game.b1ingservice.commons.Constants.MESSAGE_DEPOSIT;
+import static com.game.b1ingservice.commons.Constants.MESSAGE_POINT_TRANSFER;
 
 @Slf4j
 @Service
@@ -46,6 +46,9 @@ public class PointServiceImpl implements PointService {
 
     @Autowired
     private WebUserRepository webUserRepository;
+
+    @Autowired
+    private LineNotifyService lineNotifyService;
 
     @Override
     public PointTransResponse pointTransfer(PointTransRequest transRequest, String username, String prefix) {
@@ -147,6 +150,10 @@ public class PointServiceImpl implements PointService {
             AmbResponse<DepositRes> deposit = ambService.deposit(DepositReq.builder().amount(point.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build(), username, agent);
 
             if (deposit.getCode() == 0) {
+
+                lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_POINT_TRANSFER, username, point.setScale(2, RoundingMode.HALF_DOWN)) ,
+                        agent.getLineToken());
+
                 webUserRepository.updateDepositRef(deposit.getResult().getRef(), userId);
                 updated = walletRepository.transferPointToCredit(point, point, point, pointTurnover, userId);
             } else {

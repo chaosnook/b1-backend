@@ -19,6 +19,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -115,7 +116,7 @@ public class AffiliateServiceImpl implements AffiliateService {
                     bonusNo = con.getBonus();
                 } else if (Constants.AFFILIATE_TYPE.PERCENT.equalsIgnoreCase(type)) {
                     BigDecimal perce = con.getBonus();
-                    bonusNo = credit.multiply(perce.divide(BigDecimal.valueOf(100), 2, BigDecimal.ROUND_HALF_UP));
+                    bonusNo = credit.multiply(perce.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_DOWN));
                 }
 
                 if (bonusNo.compareTo(affiliate.getMaxBonus()) > 0) {
@@ -127,10 +128,10 @@ public class AffiliateServiceImpl implements AffiliateService {
                     boolean isForever = affiliate.isForever();
                     if (!isForever) {
                         if (pointHistoryService.checkNonForever(userDepos, affUserId) == 0) {
-                            pointService.earnPoint(bonusNo.setScale(2, BigDecimal.ROUND_HALF_UP), userDepos, affUserId, prefix);
+                            pointService.earnPoint(bonusNo.setScale(2, RoundingMode.HALF_DOWN), userDepos, affUserId, prefix);
                         }
                     } else {
-                        pointService.earnPoint(bonusNo.setScale(2, BigDecimal.ROUND_HALF_UP), userDepos, affUserId, prefix);
+                        pointService.earnPoint(bonusNo.setScale(2, RoundingMode.HALF_DOWN), userDepos, affUserId, prefix);
                     }
 
                 }
@@ -166,9 +167,9 @@ public class AffiliateServiceImpl implements AffiliateService {
         }
 
         affiliate.setTypeBonus(request.getTypeBonus());
-        affiliate.setMaxBonus(request.getMaxBonus().setScale(2, BigDecimal.ROUND_HALF_UP));
-        affiliate.setMaxWallet(request.getMaxWallet().setScale(2, BigDecimal.ROUND_HALF_UP));
-        affiliate.setMaxWithdraw(request.getMaxWithdraw().setScale(2, BigDecimal.ROUND_HALF_UP));
+        affiliate.setMaxBonus(request.getMaxBonus().setScale(2, RoundingMode.HALF_DOWN));
+        affiliate.setMaxWallet(request.getMaxWallet().setScale(2, RoundingMode.HALF_DOWN));
+        affiliate.setMaxWithdraw(request.getMaxWithdraw().setScale(2, RoundingMode.HALF_DOWN));
         affiliate.setImg(request.getImg());
         affiliate.setActive(request.isActive());
         affiliate.setForever(request.isForever());
@@ -178,9 +179,9 @@ public class AffiliateServiceImpl implements AffiliateService {
         List<AffiliateCondition> conditionList = new ArrayList<>();
         for (AffConditionRequest affConditionRequest : request.getConditions()) {
             AffiliateCondition condition = new AffiliateCondition();
-            condition.setMaxTopup(affConditionRequest.getMaxTopup().setScale(2, BigDecimal.ROUND_HALF_UP));
-            condition.setMinTopup(affConditionRequest.getMinTopup().setScale(2, BigDecimal.ROUND_HALF_UP));
-            condition.setBonus(affConditionRequest.getBonus().setScale(2, BigDecimal.ROUND_HALF_UP));
+            condition.setMaxTopup(affConditionRequest.getMaxTopup().setScale(2, RoundingMode.HALF_DOWN));
+            condition.setMinTopup(affConditionRequest.getMinTopup().setScale(2, RoundingMode.HALF_DOWN));
+            condition.setBonus(affConditionRequest.getBonus().setScale(2, RoundingMode.HALF_DOWN));
             condition.setAffiliate(affiliate);
             conditionList.add(condition);
         }
