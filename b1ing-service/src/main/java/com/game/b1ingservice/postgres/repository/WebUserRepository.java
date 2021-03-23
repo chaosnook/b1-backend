@@ -1,6 +1,5 @@
 package com.game.b1ingservice.postgres.repository;
 
-import com.game.b1ingservice.payload.amb.WinLoseReq;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,6 +33,6 @@ public interface WebUserRepository extends JpaRepository<WebUser, Long>, JpaSpec
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE users SET deposit_ref = ? WHERE user_id = ? ", nativeQuery = true)
+    @Query(value = "UPDATE users SET deposit_ref = ? WHERE id = ? ", nativeQuery = true)
     void updateDepositRef(String ref, Long userId);
 }
