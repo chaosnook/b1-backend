@@ -13,5 +13,5 @@ public class CountRefillResponse {
     private BigDecimal allDeposit;
     private Integer countWithdraw;
     private BigDecimal allWithdraw;
-
+    private BigDecimal summaryAmount;
 }

@@ -388,20 +388,24 @@ public class AdminServiceImpl implements AdminService {
             deposit.setAllDeposit(countRefillDTOD.getAllDeposit());
             result.add(deposit);
         }
-        for (CountRefillDTO countRefillDTOW : listCountWithdraw) {
-            Optional<CountRefillDTO> withdrawOpt = result.stream().filter(countRefillDTO -> countRefillDTO.getUsername().equals(countRefillDTOW.getUsername())).findFirst();
-            if(withdrawOpt.isPresent()){
-                CountRefillDTO withdraw = withdrawOpt.get();
-                withdraw.setAllWithdraw(countRefillDTOW.getAllWithdraw());
-                withdraw.setCountWithdraw(countRefillDTOW.getCountWithdraw());
+
+            for (CountRefillDTO countRefillDTOW : listCountWithdraw) {
+                Optional<CountRefillDTO> withdrawOpt = result.stream().filter(countRefillDTO -> countRefillDTO.getUsername().equals(countRefillDTOW.getUsername())).findFirst();
+                if (withdrawOpt.isPresent()) {
+                    CountRefillDTO withdraw = withdrawOpt.get();
+                    withdraw.setAllWithdraw(countRefillDTOW.getAllWithdraw());
+                    withdraw.setCountWithdraw(countRefillDTOW.getCountWithdraw());
+                    withdraw.setSummaryAmount(withdraw.getAllDeposit().subtract(withdraw.getAllWithdraw()));
+                }
+                else {
+                    CountRefillDTO withdraw = new CountRefillDTO();
+                    withdraw.setAllWithdraw(countRefillDTOW.getAllWithdraw());
+                    withdraw.setCountWithdraw(countRefillDTOW.getCountWithdraw());
+                    withdraw.setSummaryAmount(withdraw.getAllDeposit().subtract(withdraw.getAllWithdraw()));
+                    result.add(withdraw);
+                }
+
             }
-            else{
-                CountRefillDTO withdraw = new CountRefillDTO();
-                withdraw.setAllWithdraw(countRefillDTOW.getAllWithdraw());
-                withdraw.setCountWithdraw(countRefillDTOW.getCountWithdraw());
-                result.add(withdraw);
-            }
-        }
 
 
         return result;

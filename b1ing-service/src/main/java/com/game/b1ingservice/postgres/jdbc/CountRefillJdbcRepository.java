@@ -31,9 +31,10 @@ public class CountRefillJdbcRepository {
                     "inner join users u on d.user_id = u.id " +
                     "where d.created_date between TO_TIMESTAMP( ? ,'YYYY-MM-DD HH24:MI:SS') " +
                     "and TO_TIMESTAMP( ? ,'YYYY-MM-DD HH24:MI:SS') " +
+                    "and u.username = ? " +
                     "group by u.username ";
 
-            deposit = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(CountRefillDTO.class), countRefillRequest.getListDateFrom(),countRefillRequest.getListDateTo());
+            deposit = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(CountRefillDTO.class), countRefillRequest.getListDateFrom(),countRefillRequest.getListDateTo(),countRefillRequest.getUsername());
         } catch (Exception e) {
             log.error("countRefill", e);
         }
@@ -47,9 +48,10 @@ public class CountRefillJdbcRepository {
                     "inner join users u on wh.user_id = u.id " +
                     "where wh.created_date between TO_TIMESTAMP( ? ,'YYYY-MM-DD HH24:MI:SS') " +
                     "and TO_TIMESTAMP( ? ,'YYYY-MM-DD HH24:MI:SS') " +
+                    "and u.username = ? " +
                     "group by u.username ";
 
-            withdraw = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(CountRefillDTO.class), countRefillRequest.getListDateFrom(),countRefillRequest.getListDateTo());
+            withdraw = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(CountRefillDTO.class), countRefillRequest.getListDateFrom(),countRefillRequest.getListDateTo(),countRefillRequest.getUsername());
         } catch (Exception e) {
             log.error("countRefill", e);
         }

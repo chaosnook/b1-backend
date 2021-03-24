@@ -11,4 +11,6 @@ public class CountRefillDTO {
     private BigDecimal allDeposit;
     private int countWithdraw;
     private BigDecimal allWithdraw;
+    private BigDecimal summaryAmount;
+
 }
