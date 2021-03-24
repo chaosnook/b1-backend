@@ -3,7 +3,10 @@ package com.game.b1ingservice.service.impl;
 import com.game.b1ingservice.payload.deposithistory.*;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
 import com.game.b1ingservice.postgres.jdbc.DepositHistoryJdbcRepository;
+import com.game.b1ingservice.postgres.jdbc.ProfitLossJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.DepositHistoryTop20Dto;
+import com.game.b1ingservice.postgres.jdbc.dto.SummaryDeposit;
+import com.game.b1ingservice.postgres.jdbc.dto.SummaryWithdraw;
 import com.game.b1ingservice.postgres.repository.DepositHistoryRepository;
 import com.game.b1ingservice.service.DepositHistoryService;
 import com.game.b1ingservice.utils.DateUtils;
@@ -12,7 +15,10 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
@@ -26,6 +32,9 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
     @Autowired
     private DepositHistoryJdbcRepository depositHistoryJdbcRepository;
+
+    @Autowired
+    private ProfitLossJdbcRepository profitLossJdbcRepository;
 
     @Override
     public Page<DepositListHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type) {
@@ -134,6 +143,49 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         }
 
         return result;
+    }
+
+    @Override
+    public ProfitAndLossResp findProfitAndLoss(ProfitAndLossRequest req) {
+
+        ProfitAndLossResp resp = new ProfitAndLossResp();
+
+        List<SummaryDeposit> listDeposit = profitLossJdbcRepository.sumDeposit(req);
+        SummaryDeposit deposit = listDeposit.get(0);
+
+        if(null == deposit.getDeposit()) {
+            resp.setDeposit(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
+        } else {
+            resp.setDeposit(deposit.getDeposit());
+        }
+
+        if(null == deposit.getBonus()) {
+            resp.setBonus("0.00(0.00%)");
+        } else {
+            String sum = (deposit.getBonus().divide(resp.getDeposit(),2 , RoundingMode.HALF_UP)).multiply(new BigDecimal(100)).toString();
+            String result = deposit.getBonus().setScale(2, RoundingMode.HALF_UP) + "(" + sum +  "%)" ;
+            resp.setBonus(result);
+        }
+
+        if(null == deposit.getDepositBonus()) {
+            resp.setDepositBonus(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
+        } else {
+            resp.setDepositBonus(deposit.getDepositBonus());
+        }
+
+        List<SummaryWithdraw> listWithdraw = profitLossJdbcRepository.sumWithdraw(req);
+        SummaryWithdraw withdraw = listWithdraw.get(0);
+        if(null == withdraw.getWithdraw()) {
+            resp.setWithdraw(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
+        } else {
+            resp.setWithdraw(withdraw.getWithdraw());
+        }
+
+        BigDecimal sum = resp.getDeposit().subtract(resp.getWithdraw()).setScale(2, RoundingMode.HALF_UP);
+        resp.setProfitAndLoss(sum);
+
+        return resp;
+
     }
 
     private Page<DepositSummaryHistorySearchResponse> summaryHistory(List<DepositListHistorySearchResponse> searchData, Pageable pageable) {

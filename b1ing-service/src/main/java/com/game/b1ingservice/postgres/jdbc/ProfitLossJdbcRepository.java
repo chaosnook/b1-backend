@@ -3,8 +3,8 @@ package com.game.b1ingservice.postgres.jdbc;
 import com.game.b1ingservice.payload.admin.ProfitLossRequest;
 import com.game.b1ingservice.payload.admin.ProfitReportRequest;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
-import com.game.b1ingservice.postgres.jdbc.dto.ProfitLoss;
-import com.game.b1ingservice.postgres.jdbc.dto.ProfitReport;
+import com.game.b1ingservice.payload.deposithistory.ProfitAndLossRequest;
+import com.game.b1ingservice.postgres.jdbc.dto.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,5 +50,49 @@ public class ProfitLossJdbcRepository {
             log.error("profitLoss", e);
         }
         return withdraw;
+    }
+
+    public List<SummaryDeposit> sumDeposit(ProfitAndLossRequest request) {
+
+        List<SummaryDeposit> summaryDeposit = new ArrayList<>();
+
+        try {
+
+           StringBuilder sql = new StringBuilder();
+           sql.append("select sum(amount) as deposit, ")
+              .append("sum(bonus_amount) as bonus, ")
+              .append("sum(amount + bonus_amount) as depositBonus ")
+              .append("from deposit_history ")
+              .append("where created_date between TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS') ")
+              .append("and TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS');");
+
+            summaryDeposit = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SummaryDeposit.class), request.getCreatedDateFrom() ,request.getCreatedDateTo());
+
+        } catch (Exception e) {
+            log.error("sumProfitLoss", e);
+        }
+        return summaryDeposit;
+
+    }
+
+    public List<SummaryWithdraw> sumWithdraw(ProfitAndLossRequest request) {
+
+        List<SummaryWithdraw> summaryWithdraw = new ArrayList<>();
+
+        try {
+
+            StringBuilder sql = new StringBuilder();
+            sql.append("select sum(amount) as withdraw ")
+                    .append("from withdraw_history ")
+                    .append("where created_date between TO_TIMESTAMP(? ,'YYYY-MM-DD HH24:MI:SS') ")
+                    .append("and TO_TIMESTAMP(? ,'YYYY-MM-DD HH24:MI:SS');");
+
+            summaryWithdraw = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SummaryWithdraw.class), request.getCreatedDateFrom() ,request.getCreatedDateTo());
+
+        } catch (Exception e) {
+            log.error("sumProfitLoss", e);
+        }
+        return summaryWithdraw;
+
     }
 }
