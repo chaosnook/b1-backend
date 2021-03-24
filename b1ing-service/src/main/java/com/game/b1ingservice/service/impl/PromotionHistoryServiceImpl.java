@@ -1,7 +1,10 @@
 package com.game.b1ingservice.service.impl;
 
+import com.game.b1ingservice.payload.promotion.PromotionListHistorySearchResponse;
 import com.game.b1ingservice.payload.promotion.PromotionSummaryHistorySearchResponse;
+import com.game.b1ingservice.payload.withdrawhistory.WithdrawListHistorySearchResponse;
 import com.game.b1ingservice.postgres.entity.PromotionHistory;
+import com.game.b1ingservice.postgres.entity.WithdrawHistory;
 import com.game.b1ingservice.postgres.repository.PromotionHistoryRepository;
 import com.game.b1ingservice.service.PromotionHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +27,6 @@ public class PromotionHistoryServiceImpl implements PromotionHistoryService {
     @Autowired
     private PromotionHistoryRepository promotionHistoryRepository;
 
-
     @Override
     public Page<PromotionSummaryHistorySearchResponse> findSummaryByCriteria(Specification<PromotionHistory> specification, Pageable pageable){
 
@@ -34,6 +37,7 @@ public class PromotionHistoryServiceImpl implements PromotionHistoryService {
     private Page<PromotionSummaryHistorySearchResponse> summaryHistory(List<PromotionSummaryHistorySearchResponse> searchData, Pageable pageable) {
 
         Map<String, PromotionSummaryHistorySearchResponse> map = new HashMap<>();
+
         for(PromotionSummaryHistorySearchResponse promotion: searchData) {
 
             PromotionSummaryHistorySearchResponse summary = new PromotionSummaryHistorySearchResponse();
@@ -43,7 +47,7 @@ public class PromotionHistoryServiceImpl implements PromotionHistoryService {
                 summary.setName(promotion.getName());
                 summary.setCountPromotion(1);
                 summary.setSumBonus(promotion.getSumBonus());
-                summary.setTotalBonus(promotion.getTotalBonus());
+//                summary.setTotalBonus(sum);
 
                 map.put(promotion.getName(), summary);
 
@@ -53,15 +57,26 @@ public class PromotionHistoryServiceImpl implements PromotionHistoryService {
                 summary.setName(value.getName());
                 summary.setCountPromotion(value.getCountPromotion() + 1);
                 summary.setSumBonus(value.getSumBonus().add(promotion.getSumBonus()));
-                summary.setTotalBonus(value.getTotalBonus().add(promotion.getTotalBonus()));
+//                summary.setTotalBonus(value.getTotalBonus().add(promotion.getTotalBonus()));
+//                summary.setTotalBonus(sum);
 
                 map.replace(promotion.getName(), summary);
             }
+
+//                summary.setTotalBonus(summary.getTotalBonus().add(promotion.getTotalBonus()));
+//                map.put(promotion.getName(), summary);
         }
 
         List<PromotionSummaryHistorySearchResponse> listSummary = new ArrayList<>();
+
+        BigDecimal sum = BigDecimal.ZERO;
+
         for (Map.Entry<String, PromotionSummaryHistorySearchResponse> entry : map.entrySet()) {
             listSummary.add(entry.getValue());
+        }
+
+        for(PromotionSummaryHistorySearchResponse total : listSummary) {
+            sum = sum.add(total.getSumBonus());
         }
 
         Page<PromotionSummaryHistorySearchResponse> searchResponse = new PageImpl<>(listSummary, pageable, listSummary.size());

@@ -21,13 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
-import static com.game.b1ingservice.commons.Constants.*;
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.*;
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG_TYPE.AMB_CONFIG;
+import static com.game.b1ingservice.commons.Constants.AMB_ERROR;
+import static com.game.b1ingservice.commons.Constants.MESSAGE_WITHDRAW;
 
 @Slf4j
 @Service
@@ -302,8 +302,8 @@ public class AMBServiceImpl implements AMBService {
 
         String password = AESUtils.decrypt(opt.get().getPassword());
 
-        String urlGame = String.format("%s?username=%s&password=%s&url=%s?prefix=%s&hash=%s", url, username, password, urlUser, prefix.toLowerCase(), hash);
-        String urlMobileGame = String.format("%s?username=%s&password=%s&url=%s?prefix=%s&hash=%s", urlMobile, username, password, urlUser, prefix.toLowerCase(), hash);
+        String urlGame = String.format("%s?username=%s&password=%s&url=%s/#?prefix=%s&hash=%s", url, username, password, urlUser, prefix, hash);
+        String urlMobileGame = String.format("%s?username=%s&password=%s&url=%s/#?prefix=%s&hash=%s", urlMobile, username, password, urlUser, prefix, hash);
 
         GameLinkRes gameLinkRes = new GameLinkRes();
         gameLinkRes.setUrlWebProduct(urlGame);
