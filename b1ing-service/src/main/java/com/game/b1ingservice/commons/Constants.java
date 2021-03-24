@@ -263,4 +263,11 @@ public class Constants {
         public static final String PERCENT = "PERCENT";
     }
 
+    public static String MESSAGE_WITHDRAW = "User %s ถอน credit จำนวน %s บาท";
+
+    public static String MESSAGE_DEPOSIT = "User %s เติม credit จำนวน %s บาท";
+
+    public static String MESSAGE_ADMIN_DEPOSIT = "User %s เติม credit จำนวน %s บาท";
+
+    public static String MESSAGE_POINT_TRANSFER = "User %s โอน point %s";
 }

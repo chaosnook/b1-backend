@@ -13,10 +13,7 @@ import com.game.b1ingservice.postgres.jdbc.ProfitLossJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.ProfitReportJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.*;
 import com.game.b1ingservice.postgres.repository.*;
-import com.game.b1ingservice.service.AMBService;
-import com.game.b1ingservice.service.AdminService;
-import com.game.b1ingservice.service.AffiliateService;
-import com.game.b1ingservice.service.BankBotService;
+import com.game.b1ingservice.service.*;
 import com.game.b1ingservice.utils.JwtTokenUtil;
 import com.game.b1ingservice.utils.ResponseHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +30,9 @@ import java.time.YearMonth;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.game.b1ingservice.commons.Constants.MESSAGE_ADMIN_DEPOSIT;
+import static com.game.b1ingservice.commons.Constants.MESSAGE_DEPOSIT;
 
 @Slf4j
 @Service
@@ -65,6 +65,9 @@ public class AdminServiceImpl implements AdminService {
     ProfitLossJdbcRepository profitLossJdbcRepository;
     @Autowired
     CountRefillJdbcRepository countRefillJdbcRepository;
+
+    @Autowired
+    private LineNotifyService lineNotifyService;
 
     @Autowired
     RoleRepository rolerepository;
@@ -188,12 +191,17 @@ public class AdminServiceImpl implements AdminService {
 
                 depositHistoryRepository.save(depositHistory);
 
+                Agent agent = wallet.getUser().getAgent();
                 AmbResponse<DepositRes> ambResponse = ambService.deposit(DepositReq.builder()
                     .amount(credit.toPlainString())
-                    .build(), req.getUsername(), wallet.getUser().getAgent());
+                    .build(), req.getUsername(), agent);
 
                 String errorMessage = "";
                 if (ambResponse.getCode() == 0) {
+
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT,principal.getUsername(), req.getUsername() , req.getCredit()) ,
+                            agent.getLineToken());
+
                     walletRepository.depositCredit(credit, webUser.getId());
                     webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), webUser.getId());
                     // check affiliate

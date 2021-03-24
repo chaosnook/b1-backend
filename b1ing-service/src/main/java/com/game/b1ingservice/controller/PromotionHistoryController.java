@@ -5,8 +5,11 @@ import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.promotion.PromotionHistorySearchRequest;
 import com.game.b1ingservice.payload.promotion.PromotionListHistorySearchResponse;
 import com.game.b1ingservice.payload.promotion.PromotionSummaryHistorySearchResponse;
+import com.game.b1ingservice.payload.withdrawhistory.WithdrawHistorySearchRequest;
+import com.game.b1ingservice.payload.withdrawhistory.WithdrawListHistorySearchResponse;
 import com.game.b1ingservice.service.PromotionHistoryService;
 import com.game.b1ingservice.specification.SearchPromotionHistorySpecification;
+import com.game.b1ingservice.specification.SearchWithdrawHistorySpecification;
 import com.game.b1ingservice.utils.ResponseHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +32,7 @@ public class PromotionHistoryController {
 
     @PostMapping(value = "search/summary/promotionHistory",
              produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> searchSummaryPromotionHistory(@RequestBody PromotionHistorySearchRequest req, @AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<?> searchSummaryPromotionHistory(@RequestBody PromotionHistorySearchRequest req) {
         SearchPromotionHistorySpecification specification = new SearchPromotionHistorySpecification(req);
         Page<PromotionSummaryHistorySearchResponse> searchResponse = promotionHistoryService.findSummaryByCriteria(specification, specification.getPageable());
         return ResponseHelper.successPage(searchResponse, "data", Constants.MESSAGE.MSG_00000.msg);

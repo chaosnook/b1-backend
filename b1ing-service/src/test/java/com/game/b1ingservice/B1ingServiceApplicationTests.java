@@ -2,6 +2,7 @@ package com.game.b1ingservice;
 
 import com.game.b1ingservice.payload.amb.DepositReq;
 import com.game.b1ingservice.service.AMBService;
+import com.game.b1ingservice.service.LineNotifyService;
 import com.game.b1ingservice.utils.AESUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

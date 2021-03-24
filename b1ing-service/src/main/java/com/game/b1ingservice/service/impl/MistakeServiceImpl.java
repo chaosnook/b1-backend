@@ -12,6 +12,7 @@ import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.AffiliateService;
+import com.game.b1ingservice.service.LineNotifyService;
 import com.game.b1ingservice.service.MistakeService;
 import com.game.b1ingservice.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.COUNT_WITHDRAW;
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.LIMIT_WITHDRAW;
 import static com.game.b1ingservice.commons.Constants.DATE_FORMAT;
+import static com.game.b1ingservice.commons.Constants.MESSAGE_ADMIN_DEPOSIT;
 
 @Service
 @Slf4j
@@ -56,6 +58,9 @@ public class MistakeServiceImpl implements MistakeService {
 
     @Autowired
     private AffiliateService affiliateService;
+
+    @Autowired
+    private LineNotifyService lineNotifyService;
 
     @Override
     public void createMistake(MistakeReq mistakeReq, UserPrincipal principal) {
@@ -94,6 +99,10 @@ public class MistakeServiceImpl implements MistakeService {
                 ambResponse = ambService.deposit(DepositReq.builder()
                         .amount(credit.toPlainString()).build(), username, agent);
                 if (ambResponse.getCode() == 0) {
+
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT,principal.getUsername(), username ,agent) ,
+                            agent.getLineToken());
+
                     walletRepository.depositCredit(credit, user.getId());
                     webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), user.getId());
                     // check affiliate
@@ -119,6 +128,10 @@ public class MistakeServiceImpl implements MistakeService {
                         .amount(credit.toPlainString()).build(), username, agent);
 
                 if (ambResponse.getCode() == 0) {
+
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT,principal.getUsername(), username ,agent) ,
+                            agent.getLineToken());
+
                     walletRepository.depositCreditAndTurnOver(credit, credit, mistakeReq.getTurnOver(), user.getId());
                     webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), user.getId());
                     // check affiliate

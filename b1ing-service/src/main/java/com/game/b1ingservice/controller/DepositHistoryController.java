@@ -46,4 +46,10 @@ public class DepositHistoryController {
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, result);
     }
 
+    @PostMapping(value = "/profitAndLoss", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> profitAndLoss(@RequestBody ProfitAndLossRequest req) {
+        ProfitAndLossResp resp = depositHistoryService.findProfitAndLoss(req);
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);
+    }
+
 }

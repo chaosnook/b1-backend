@@ -1,10 +1,8 @@
 package com.game.b1ingservice.service.impl;
 
-import com.drew.metadata.Age;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.amb.AmbResponse;
-import com.game.b1ingservice.payload.amb.CreateUserRes;
 import com.game.b1ingservice.payload.amb.WithdrawReq;
 import com.game.b1ingservice.payload.amb.WithdrawRes;
 import com.game.b1ingservice.payload.bankbot.BankBotScbWithdrawCreditRequest;
@@ -14,11 +12,7 @@ import com.game.b1ingservice.payload.withdraw.WithDrawResponse;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.repository.ConfigRepository;
 import com.game.b1ingservice.postgres.repository.WalletRepository;
-import com.game.b1ingservice.postgres.repository.WithdrawHistoryRepository;
-import com.game.b1ingservice.service.AMBService;
-import com.game.b1ingservice.service.BankBotService;
-import com.game.b1ingservice.service.WithDrawService;
-import com.game.b1ingservice.service.WithdrawHistoryService;
+import com.game.b1ingservice.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +22,7 @@ import java.math.RoundingMode;
 import java.util.Optional;
 
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.MIN_WITHDRAW_CREDIT;
+import static com.game.b1ingservice.commons.Constants.MESSAGE_WITHDRAW;
 
 
 @Slf4j
@@ -48,6 +43,10 @@ public class WithDrawServiceImpl implements WithDrawService {
 
     @Autowired
     private BankBotService bankBotService;
+
+    @Autowired
+    private LineNotifyService lineNotifyService;
+
     @Override
     public WithDrawResponse withdraw(WithDrawRequest withDrawRequest, String username, String prefix) {
         Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
@@ -56,7 +55,6 @@ public class WithDrawServiceImpl implements WithDrawService {
         }
 
         WebUser webUser = wallet.getUser();
-        Bank bank = wallet.getBank();
 
         BigDecimal creditWithDraw = withDrawRequest.getCreditWithDraw();
 
@@ -75,7 +73,8 @@ public class WithDrawServiceImpl implements WithDrawService {
             throw new ErrorMessageException(Constants.ERROR.ERR_04005);
         }
 
-        Optional<Config> minWithdrawConf = configRepository.findFirstByParameterAndAgent(MIN_WITHDRAW_CREDIT, webUser.getAgent());
+        Agent agent =  webUser.getAgent();
+        Optional<Config> minWithdrawConf = configRepository.findFirstByParameterAndAgent(MIN_WITHDRAW_CREDIT, agent);
         boolean isAuto = true;
         if (minWithdrawConf.isPresent()) {
             Config config = minWithdrawConf.get();
@@ -120,6 +119,10 @@ public class WithDrawServiceImpl implements WithDrawService {
             } else {
                 withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.PENDING_APPROVE);
             }
+
+            lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW, webUser.getUsername(), creditWithDraw.setScale(2, RoundingMode.HALF_DOWN)) ,
+                    agent.getLineToken());
+
         } else {
             withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);
         }

@@ -20,4 +20,8 @@ public interface DepositHistoryService {
 
     List<DepositHistoryByUserIdResp> findListByUserId(Long userId);
 
+    ProfitAndLossResp findProfitAndLoss(ProfitAndLossRequest req);
+
+
+
 }

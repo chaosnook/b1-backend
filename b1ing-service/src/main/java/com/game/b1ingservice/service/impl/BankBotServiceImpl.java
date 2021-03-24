@@ -10,10 +10,7 @@ import com.game.b1ingservice.payload.bankbot.*;
 import com.game.b1ingservice.payload.promotion.PromotionEffectiveRequest;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.repository.*;
-import com.game.b1ingservice.service.AMBService;
-import com.game.b1ingservice.service.AffiliateService;
-import com.game.b1ingservice.service.BankBotService;
-import com.game.b1ingservice.service.PromotionService;
+import com.game.b1ingservice.service.*;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +23,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static com.game.b1ingservice.commons.Constants.MESSAGE_ADMIN_DEPOSIT;
 
 @Service
 @Slf4j
@@ -59,6 +58,9 @@ public class BankBotServiceImpl implements BankBotService {
 
     @Autowired
     private WebUserRepository webUserRepository;
+
+    @Autowired
+    private LineNotifyService lineNotifyService;
 
     private static final MediaType MEDIA_JSON = MediaType.parse("application/json");
     @Override
@@ -94,6 +96,11 @@ public class BankBotServiceImpl implements BankBotService {
                     AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory,wallet);
                     if (0 == result.getCode()){
                         depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
+
+                        lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT,
+                                wallet.getUser().getUsername(), depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)) ,
+                                wallet.getUser().getAgent().getLineToken());
+
                         walletRepository.depositCredit(request.getAmount(), wallet.getUser().getId());
                         webUserRepository.updateDepositRef(result.getResult().getRef(), wallet.getUser().getId());
                         // check affiliate
@@ -153,6 +160,11 @@ public class BankBotServiceImpl implements BankBotService {
                     AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory,wallet);
                     if (0 == result.getCode()){
                         depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
+
+                        lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT,
+                                wallet.getUser().getUsername(), depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)) ,
+                                wallet.getUser().getAgent().getLineToken());
+
                         walletRepository.depositCredit(request.getAmount(), wallet.getUser().getId());
                         webUserRepository.updateDepositRef(result.getResult().getRef(), wallet.getUser().getId());
                         // check affiliate
