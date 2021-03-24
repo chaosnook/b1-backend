@@ -42,14 +42,12 @@ public class PromotionHistoryServiceImpl implements PromotionHistoryService {
 
             PromotionSummaryHistorySearchResponse summary = new PromotionSummaryHistorySearchResponse();
 
-//            summary.setTotalBonus(summary.getTotalBonus().add(promotion.getSumBonus()));
-
             if(!map.containsKey(promotion.getName())) {
 
                 summary.setName(promotion.getName());
                 summary.setCountPromotion(1);
                 summary.setSumBonus(promotion.getSumBonus());
-                summary.setTotalBonus(promotion.getTotalBonus());
+//                summary.setTotalBonus(sum);
 
                 map.put(promotion.getName(), summary);
 
@@ -59,19 +57,26 @@ public class PromotionHistoryServiceImpl implements PromotionHistoryService {
                 summary.setName(value.getName());
                 summary.setCountPromotion(value.getCountPromotion() + 1);
                 summary.setSumBonus(value.getSumBonus().add(promotion.getSumBonus()));
-                summary.setTotalBonus(value.getTotalBonus().add(promotion.getTotalBonus()));
+//                summary.setTotalBonus(value.getTotalBonus().add(promotion.getTotalBonus()));
+//                summary.setTotalBonus(sum);
 
                 map.replace(promotion.getName(), summary);
             }
 
-//                summary.setTotalBonus(promotion.getTotalBonus().add(promotion.getSumBonus()));
+//                summary.setTotalBonus(summary.getTotalBonus().add(promotion.getTotalBonus()));
 //                map.put(promotion.getName(), summary);
         }
 
         List<PromotionSummaryHistorySearchResponse> listSummary = new ArrayList<>();
 
+        BigDecimal sum = BigDecimal.ZERO;
+
         for (Map.Entry<String, PromotionSummaryHistorySearchResponse> entry : map.entrySet()) {
             listSummary.add(entry.getValue());
+        }
+
+        for(PromotionSummaryHistorySearchResponse total : listSummary) {
+            sum = sum.add(total.getSumBonus());
         }
 
         Page<PromotionSummaryHistorySearchResponse> searchResponse = new PageImpl<>(listSummary, pageable, listSummary.size());
