@@ -7,10 +7,10 @@ import java.math.BigDecimal;
 @Data
 public class CountRefillDTO {
     private String username;
-    private int countDeposit;
-    private BigDecimal allDeposit;
-    private int countWithdraw;
-    private BigDecimal allWithdraw;
-    private BigDecimal summaryAmount;
+    private Integer depositCount;
+    private BigDecimal Deposit;
+    private Integer withdrawCount;
+    private BigDecimal Withdraw;
+    private BigDecimal profitLoss;
 
 }

@@ -378,7 +378,6 @@ public class AdminServiceImpl implements AdminService {
     public List<CountRefillDTO> countRefill(CountRefillRequest countRefillRequest, UserPrincipal principal) {
         Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
 
-
         if (!agent.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
         }
@@ -386,35 +385,19 @@ public class AdminServiceImpl implements AdminService {
         CountRefillResponse resObj = new CountRefillResponse();
 
         List<CountRefillDTO> listCountDeposit = countRefillJdbcRepository.depositCount(countRefillRequest, principal);
-        List<CountRefillDTO> listCountWithdraw = countRefillJdbcRepository.withdrawCount(countRefillRequest, principal);
+
 
         List<CountRefillDTO> result = new ArrayList<>();
         for (CountRefillDTO countRefillDTOD : listCountDeposit) {
             CountRefillDTO deposit = new CountRefillDTO();
             deposit.setUsername(countRefillDTOD.getUsername());
-            deposit.setCountDeposit(countRefillDTOD.getCountDeposit());
-            deposit.setAllDeposit(countRefillDTOD.getAllDeposit());
+            deposit.setDepositCount(countRefillDTOD.getDepositCount());
+            deposit.setDeposit(countRefillDTOD.getDeposit());
+            deposit.setWithdrawCount(countRefillDTOD.getWithdrawCount());
+            deposit.setWithdraw(countRefillDTOD.getWithdraw());
+            deposit.setProfitLoss(countRefillDTOD.getProfitLoss());
             result.add(deposit);
         }
-
-            for (CountRefillDTO countRefillDTOW : listCountWithdraw) {
-                Optional<CountRefillDTO> withdrawOpt = result.stream().filter(countRefillDTO -> countRefillDTO.getUsername().equals(countRefillDTOW.getUsername())).findFirst();
-                if (withdrawOpt.isPresent()) {
-                    CountRefillDTO withdraw = withdrawOpt.get();
-                    withdraw.setAllWithdraw(countRefillDTOW.getAllWithdraw());
-                    withdraw.setCountWithdraw(countRefillDTOW.getCountWithdraw());
-                    withdraw.setSummaryAmount(withdraw.getAllDeposit().subtract(withdraw.getAllWithdraw()));
-                }
-                else {
-                    CountRefillDTO withdraw = new CountRefillDTO();
-                    withdraw.setAllWithdraw(countRefillDTOW.getAllWithdraw());
-                    withdraw.setCountWithdraw(countRefillDTOW.getCountWithdraw());
-                    withdraw.setSummaryAmount(withdraw.getAllDeposit().subtract(withdraw.getAllWithdraw()));
-                    result.add(withdraw);
-                }
-
-            }
-
 
         return result;
     }
