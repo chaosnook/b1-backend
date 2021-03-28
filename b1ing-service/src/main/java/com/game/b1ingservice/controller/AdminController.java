@@ -4,6 +4,7 @@ import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.admin.*;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.webuser.WebUserHistoryResponse;
+import com.game.b1ingservice.postgres.jdbc.dto.CountRefillDTO;
 import com.game.b1ingservice.service.AdminService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.admin.*;
@@ -16,6 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 
 
@@ -110,6 +112,12 @@ public class AdminController {
     @PostMapping(value = "/profit-loss", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> profitLoss(@RequestBody ProfitLossRequest profitLossRequest, @AuthenticationPrincipal UserPrincipal principal) {
         ProfitLossResponse obj = adminService.profitLoss(profitLossRequest, principal);
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, obj);
+    }
+
+    @PostMapping(value = "/count-refill", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> countRefill(@RequestBody CountRefillRequest countRefillRequest, @AuthenticationPrincipal UserPrincipal principal) {
+        List<CountRefillDTO> obj = adminService.countRefill(countRefillRequest, principal);
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, obj);
     }
 

@@ -10,6 +10,6 @@ public class PromotionSummaryHistorySearchResponse {
     private String name;
     private int countPromotion;
     private BigDecimal sumBonus;
-    private BigDecimal totalBonus;
+//    private BigDecimal totalBonus;
 
 }

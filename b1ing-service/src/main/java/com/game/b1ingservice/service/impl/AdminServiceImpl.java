@@ -8,6 +8,7 @@ import com.game.b1ingservice.payload.bankbot.BankBotScbWithdrawCreditRequest;
 import com.game.b1ingservice.payload.bankbot.BankBotScbWithdrawCreditResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.postgres.entity.*;
+import com.game.b1ingservice.postgres.jdbc.CountRefillJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.ProfitLossJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.ProfitReportJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.*;
@@ -62,6 +63,8 @@ public class AdminServiceImpl implements AdminService {
     private AffiliateService affiliateService;
     @Autowired
     ProfitLossJdbcRepository profitLossJdbcRepository;
+    @Autowired
+    CountRefillJdbcRepository countRefillJdbcRepository;
 
     @Autowired
     private LineNotifyService lineNotifyService;
@@ -369,6 +372,51 @@ public class AdminServiceImpl implements AdminService {
         }
 
         return resObj;
+    }
+
+    @Override
+    public List<CountRefillDTO> countRefill(CountRefillRequest countRefillRequest, UserPrincipal principal) {
+        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
+
+
+        if (!agent.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
+        CountRefillResponse resObj = new CountRefillResponse();
+
+        List<CountRefillDTO> listCountDeposit = countRefillJdbcRepository.depositCount(countRefillRequest, principal);
+        List<CountRefillDTO> listCountWithdraw = countRefillJdbcRepository.withdrawCount(countRefillRequest, principal);
+
+        List<CountRefillDTO> result = new ArrayList<>();
+        for (CountRefillDTO countRefillDTOD : listCountDeposit) {
+            CountRefillDTO deposit = new CountRefillDTO();
+            deposit.setUsername(countRefillDTOD.getUsername());
+            deposit.setCountDeposit(countRefillDTOD.getCountDeposit());
+            deposit.setAllDeposit(countRefillDTOD.getAllDeposit());
+            result.add(deposit);
+        }
+
+            for (CountRefillDTO countRefillDTOW : listCountWithdraw) {
+                Optional<CountRefillDTO> withdrawOpt = result.stream().filter(countRefillDTO -> countRefillDTO.getUsername().equals(countRefillDTOW.getUsername())).findFirst();
+                if (withdrawOpt.isPresent()) {
+                    CountRefillDTO withdraw = withdrawOpt.get();
+                    withdraw.setAllWithdraw(countRefillDTOW.getAllWithdraw());
+                    withdraw.setCountWithdraw(countRefillDTOW.getCountWithdraw());
+                    withdraw.setSummaryAmount(withdraw.getAllDeposit().subtract(withdraw.getAllWithdraw()));
+                }
+                else {
+                    CountRefillDTO withdraw = new CountRefillDTO();
+                    withdraw.setAllWithdraw(countRefillDTOW.getAllWithdraw());
+                    withdraw.setCountWithdraw(countRefillDTOW.getCountWithdraw());
+                    withdraw.setSummaryAmount(withdraw.getAllDeposit().subtract(withdraw.getAllWithdraw()));
+                    result.add(withdraw);
+                }
+
+            }
+
+
+        return result;
     }
 
 

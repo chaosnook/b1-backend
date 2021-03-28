@@ -2,8 +2,7 @@ package com.game.b1ingservice.service;
 
 import com.game.b1ingservice.payload.admin.*;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
-import com.game.b1ingservice.payload.webuser.WebUserHistoryRequest;
-import com.game.b1ingservice.payload.webuser.WebUserHistoryResponse;
+import com.game.b1ingservice.postgres.jdbc.dto.CountRefillDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -25,5 +24,6 @@ public interface AdminService {
 
     ProfitReportResponse profitReport(ProfitReportRequest profitReportRequest, UserPrincipal principal);
     ProfitLossResponse profitLoss(ProfitLossRequest profitLossRequest, UserPrincipal principal);
+    List<CountRefillDTO> countRefill(CountRefillRequest countRefillRequest, UserPrincipal principal);
 
 }

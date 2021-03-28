@@ -2,9 +2,11 @@ package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.misktake.MistakeSearchRes;
 import com.game.b1ingservice.payload.promotion.PromotionHistorySearchRequest;
 import com.game.b1ingservice.payload.promotion.PromotionListHistorySearchResponse;
 import com.game.b1ingservice.payload.promotion.PromotionSummaryHistorySearchResponse;
+import com.game.b1ingservice.payload.promotion.PromotionTotal;
 import com.game.b1ingservice.payload.withdrawhistory.WithdrawHistorySearchRequest;
 import com.game.b1ingservice.payload.withdrawhistory.WithdrawListHistorySearchResponse;
 import com.game.b1ingservice.service.PromotionHistoryService;
@@ -35,7 +37,7 @@ public class PromotionHistoryController {
     public ResponseEntity<?> searchSummaryPromotionHistory(@RequestBody PromotionHistorySearchRequest req) {
         SearchPromotionHistorySpecification specification = new SearchPromotionHistorySpecification(req);
         Page<PromotionSummaryHistorySearchResponse> searchResponse = promotionHistoryService.findSummaryByCriteria(specification, specification.getPageable());
-        return ResponseHelper.successPage(searchResponse, "data", Constants.MESSAGE.MSG_00000.msg);
+        return ResponseHelper.successPageWithSummary(searchResponse,"data", Constants.MESSAGE.MSG_00000.msg, promotionHistoryService.totalBonus(searchResponse));
     }
 
 }

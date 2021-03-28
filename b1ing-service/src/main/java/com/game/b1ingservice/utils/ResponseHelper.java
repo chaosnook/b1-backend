@@ -2,6 +2,7 @@ package com.game.b1ingservice.utils;
 
 import com.game.b1ingservice.payload.commons.PageObject;
 import com.game.b1ingservice.payload.commons.PageResponse;
+import com.game.b1ingservice.payload.commons.PageSummaryResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,6 +66,28 @@ public class ResponseHelper {
         resPage.setPage(pageable);
         resPage.setData(page.getContent());
         resPage.setFieldName(propertyName);
+
+        return response(HttpStatus.OK, resPage);
+    }
+
+    public static ResponseEntity<Object> successPageWithSummary(Page<?> page, String propertyName, String message, BigDecimal summary) {
+
+        PageObject pageable = new PageObject();
+        pageable.setPage(page.getNumber());
+        pageable.setSize(page.getSize());
+        pageable.setTotalElements(page.getTotalElements());
+        pageable.setTotalPages(page.getTotalPages());
+        pageable.setLast(page.isLast());
+
+        PageSummaryResponse resPage = new PageSummaryResponse();
+        resPage.setStatus(true);
+        resPage.setMessage(message);
+        resPage.setPage(pageable);
+        resPage.setData(page.getContent());
+        resPage.setFieldName(propertyName);
+        resPage.setSummary(summary);
+
+
 
         return response(HttpStatus.OK, resPage);
     }
