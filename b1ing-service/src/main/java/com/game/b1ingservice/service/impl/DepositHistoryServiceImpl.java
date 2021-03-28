@@ -151,38 +151,51 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         ProfitAndLossResp resp = new ProfitAndLossResp();
 
         List<SummaryDeposit> listDeposit = profitLossJdbcRepository.sumDeposit(req);
-        SummaryDeposit deposit = listDeposit.get(0);
+        if(!listDeposit.isEmpty()) {
+            SummaryDeposit deposit = listDeposit.get(0);
 
-        if(null == deposit.getDeposit()) {
+            if(null == deposit.getDeposit()) {
+                resp.setDeposit(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
+            } else {
+                resp.setDeposit(deposit.getDeposit());
+            }
+
+            if(null == deposit.getBonus()) {
+                resp.setBonus("0.00(0.00%)");
+            } else {
+                String sum = (deposit.getBonus().divide(resp.getDeposit(),2 , RoundingMode.HALF_UP)).multiply(new BigDecimal(100)).toString();
+                String result = deposit.getBonus().setScale(2, RoundingMode.HALF_UP) + "(" + sum +  "%)" ;
+                resp.setBonus(result);
+            }
+
+            if(null == deposit.getDepositBonus()) {
+                resp.setDepositBonus(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
+            } else {
+                resp.setDepositBonus(deposit.getDepositBonus());
+            }
+        } else {
             resp.setDeposit(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
-        } else {
-            resp.setDeposit(deposit.getDeposit());
-        }
-
-        if(null == deposit.getBonus()) {
             resp.setBonus("0.00(0.00%)");
-        } else {
-            String sum = (deposit.getBonus().divide(resp.getDeposit(),2 , RoundingMode.HALF_UP)).multiply(new BigDecimal(100)).toString();
-            String result = deposit.getBonus().setScale(2, RoundingMode.HALF_UP) + "(" + sum +  "%)" ;
-            resp.setBonus(result);
+            resp.setDepositBonus(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
         }
 
-        if(null == deposit.getDepositBonus()) {
-            resp.setDepositBonus(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
-        } else {
-            resp.setDepositBonus(deposit.getDepositBonus());
-        }
 
         List<SummaryWithdraw> listWithdraw = profitLossJdbcRepository.sumWithdraw(req);
-        SummaryWithdraw withdraw = listWithdraw.get(0);
-        if(null == withdraw.getWithdraw()) {
-            resp.setWithdraw(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
-        } else {
-            resp.setWithdraw(withdraw.getWithdraw());
-        }
+        if(!listWithdraw.isEmpty()) {
+            SummaryWithdraw withdraw = listWithdraw.get(0);
+            if(null == withdraw.getWithdraw()) {
+                resp.setWithdraw(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
+            } else {
+                resp.setWithdraw(withdraw.getWithdraw());
+            }
 
-        BigDecimal sum = resp.getDeposit().subtract(resp.getWithdraw()).setScale(2, RoundingMode.HALF_UP);
-        resp.setProfitAndLoss(sum);
+            BigDecimal sum = resp.getDeposit().subtract(resp.getWithdraw()).setScale(2, RoundingMode.HALF_UP);
+            resp.setProfitAndLoss(sum);
+        } else {
+            resp.setWithdraw(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
+            BigDecimal sum = resp.getDeposit().subtract(resp.getWithdraw()).setScale(2, RoundingMode.HALF_UP);
+            resp.setProfitAndLoss(sum);
+        }
 
         return resp;
 
