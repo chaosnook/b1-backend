@@ -47,7 +47,6 @@ public class PromotionHistoryServiceImpl implements PromotionHistoryService {
                 summary.setName(promotion.getName());
                 summary.setCountPromotion(1);
                 summary.setSumBonus(promotion.getSumBonus());
-//                summary.setTotalBonus(sum);
 
                 map.put(promotion.getName(), summary);
 
@@ -57,14 +56,10 @@ public class PromotionHistoryServiceImpl implements PromotionHistoryService {
                 summary.setName(value.getName());
                 summary.setCountPromotion(value.getCountPromotion() + 1);
                 summary.setSumBonus(value.getSumBonus().add(promotion.getSumBonus()));
-//                summary.setTotalBonus(value.getTotalBonus().add(promotion.getTotalBonus()));
-//                summary.setTotalBonus(sum);
 
                 map.replace(promotion.getName(), summary);
             }
 
-//                summary.setTotalBonus(summary.getTotalBonus().add(promotion.getTotalBonus()));
-//                map.put(promotion.getName(), summary);
         }
 
         List<PromotionSummaryHistorySearchResponse> listSummary = new ArrayList<>();
@@ -99,7 +94,6 @@ public class PromotionHistoryServiceImpl implements PromotionHistoryService {
         }
 
         searchResponse.setSumBonus(promotionHistory.getBonus());
-//        searchResponse.setTotalBonus(promotionHistory.getBonus());
 
         return searchResponse;
     };
