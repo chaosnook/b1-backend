@@ -52,7 +52,7 @@ public class ProfitLossJdbcRepository {
         return withdraw;
     }
 
-    public List<SummaryDeposit> sumDeposit(ProfitAndLossRequest request) {
+    public List<SummaryDeposit> sumDeposit(ProfitAndLossRequest request ) {
 
         List<SummaryDeposit> summaryDeposit = new ArrayList<>();
 
@@ -63,8 +63,8 @@ public class ProfitLossJdbcRepository {
               .append("sum(bonus_amount) as bonus, ")
               .append("sum(amount + bonus_amount) as depositBonus ")
               .append("from deposit_history ")
-              .append("where created_date between TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS') ")
-              .append("and TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS');");
+              .append("where created_date between TO_TIMESTAMP(?, 'DD/MM/yyyy HH24:MI') ")
+              .append("and TO_TIMESTAMP(?, 'DD/MM/yyyy HH24:MI');");
 
             summaryDeposit = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SummaryDeposit.class), request.getCreatedDateFrom() ,request.getCreatedDateTo());
 
@@ -84,8 +84,8 @@ public class ProfitLossJdbcRepository {
             StringBuilder sql = new StringBuilder();
             sql.append("select sum(amount) as withdraw ")
                     .append("from withdraw_history ")
-                    .append("where created_date between TO_TIMESTAMP(? ,'YYYY-MM-DD HH24:MI:SS') ")
-                    .append("and TO_TIMESTAMP(? ,'YYYY-MM-DD HH24:MI:SS');");
+                    .append("where created_date between TO_TIMESTAMP(? ,'DD/MM/yyyy HH24:MI') ")
+                    .append("and TO_TIMESTAMP(? ,'DD/MM/yyyy HH24:MI');");
 
             summaryWithdraw = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SummaryWithdraw.class), request.getCreatedDateFrom() ,request.getCreatedDateTo());
 
