@@ -69,18 +69,24 @@ public class PromotionHistoryServiceImpl implements PromotionHistoryService {
 
         List<PromotionSummaryHistorySearchResponse> listSummary = new ArrayList<>();
 
-        BigDecimal sum = BigDecimal.ZERO;
-
         for (Map.Entry<String, PromotionSummaryHistorySearchResponse> entry : map.entrySet()) {
             listSummary.add(entry.getValue());
         }
 
-        for(PromotionSummaryHistorySearchResponse total : listSummary) {
+        Page<PromotionSummaryHistorySearchResponse> searchResponse = new PageImpl<>(listSummary, pageable, listSummary.size());
+        return searchResponse;
+    }
+
+    @Override
+    public BigDecimal totalBonus(Page<PromotionSummaryHistorySearchResponse> page) {
+
+        BigDecimal sum = BigDecimal.ZERO;
+
+        for(PromotionSummaryHistorySearchResponse total : page.getContent()) {
             sum = sum.add(total.getSumBonus());
         }
 
-        Page<PromotionSummaryHistorySearchResponse> searchResponse = new PageImpl<>(listSummary, pageable, listSummary.size());
-        return searchResponse;
+        return sum;
     }
 
     Function<PromotionHistory, PromotionSummaryHistorySearchResponse> converter = promotionHistory -> {
@@ -93,7 +99,7 @@ public class PromotionHistoryServiceImpl implements PromotionHistoryService {
         }
 
         searchResponse.setSumBonus(promotionHistory.getBonus());
-        searchResponse.setTotalBonus(promotionHistory.getBonus());
+//        searchResponse.setTotalBonus(promotionHistory.getBonus());
 
         return searchResponse;
     };
