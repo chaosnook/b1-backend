@@ -9,9 +9,9 @@ import java.util.List;
 @Data
 public class CountRefillResponse {
     private String username;
-    private Integer countDeposit;
-    private BigDecimal allDeposit;
-    private Integer countWithdraw;
-    private BigDecimal allWithdraw;
-    private BigDecimal summaryAmount;
+    private int depositCount;
+    private BigDecimal Deposit;
+    private int withdrawCount;
+    private BigDecimal Withdraw;
+    private BigDecimal profitLoss;
 }

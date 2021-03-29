@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 @Slf4j
@@ -22,21 +22,25 @@ import java.util.Optional;
 public class AffiliateHistoryImpl implements AffiliateHistoryService {
     @Autowired
     SearchAffiliateHistoryJdbcRepository searchAffiliateHistoryJdbcRepository;
+    AgentRepository agentRepository;
 
     @Override
-    public AffHistoryResponse affiHistory(AffHistoryRequest affHistoryRequest, UserPrincipal principal) {
+    public List<SearchAffiHistoryDTO> affiHistory(AffHistoryRequest affHistoryRequest, UserPrincipal principal) {
+
 
         AffHistoryResponse resObj = new AffHistoryResponse();
 
         List<SearchAffiHistoryDTO> listAffi = searchAffiliateHistoryJdbcRepository.affiHistory(affHistoryRequest, principal);
 
-
+        List<SearchAffiHistoryDTO> result = new ArrayList<>();
         for(SearchAffiHistoryDTO searchAffiHistoryDTO : listAffi) {
-            resObj.setUsername(searchAffiHistoryDTO.getUsername());
-            resObj.setAmount(searchAffiHistoryDTO.getAmount());
+            SearchAffiHistoryDTO search = new SearchAffiHistoryDTO();
+            search.setUsername(searchAffiHistoryDTO.getUsername());
+            search.setAmount(searchAffiHistoryDTO.getAmount());
+            result.add(search);
         }
 
-        return resObj ;
+        return result;
 
         }
 

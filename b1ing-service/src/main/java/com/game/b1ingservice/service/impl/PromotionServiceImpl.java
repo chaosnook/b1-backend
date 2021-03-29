@@ -234,15 +234,5 @@ public class PromotionServiceImpl implements PromotionService {
 
     };
 
-//    Function<Condition, ConditionResponse> converterCondition = condition -> {
-//        ConditionResponse conditionResponse = new ConditionResponse();
-//        conditionResponse.setId(condition.getId());
-//        conditionResponse.setMinTopup(condition.getMinTopup());
-//        conditionResponse.setMaxTopup(condition.getMaxTopup());
-//
-//        return conditionResponse;
-//    };
-
-
 }
 
