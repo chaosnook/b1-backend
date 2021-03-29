@@ -1,5 +1,6 @@
 package com.game.b1ingservice.service.impl;
 
+import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.deposithistory.*;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
 import com.game.b1ingservice.postgres.jdbc.DepositHistoryJdbcRepository;
@@ -87,9 +88,9 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     }
 
     @Override
-    public List<DepositHistoryTop20Resp> findListByUsername(String username) {
+    public List<DepositHistoryTop20Resp> findListByUsername(String username, UserPrincipal principal) {
 
-       List<DepositHistoryTop20Dto> depositDtos = depositHistoryJdbcRepository.findTop20DepositHistory(username);
+       List<DepositHistoryTop20Dto> depositDtos = depositHistoryJdbcRepository.findTop20DepositHistory(username, principal.getPrefix());
 
        List<DepositHistoryTop20Resp> result = new ArrayList<>();
        for(DepositHistoryTop20Dto depositDto: depositDtos) {
@@ -146,11 +147,11 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     }
 
     @Override
-    public ProfitAndLossResp findProfitAndLoss(ProfitAndLossRequest req) {
+    public ProfitAndLossResp findProfitAndLoss(ProfitAndLossRequest req, UserPrincipal principal) {
 
         ProfitAndLossResp resp = new ProfitAndLossResp();
 
-        List<SummaryDeposit> listDeposit = profitLossJdbcRepository.sumDeposit(req);
+        List<SummaryDeposit> listDeposit = profitLossJdbcRepository.sumDeposit(req, principal.getPrefix());
         if(!listDeposit.isEmpty()) {
             SummaryDeposit deposit = listDeposit.get(0);
 
@@ -180,7 +181,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         }
 
 
-        List<SummaryWithdraw> listWithdraw = profitLossJdbcRepository.sumWithdraw(req);
+        List<SummaryWithdraw> listWithdraw = profitLossJdbcRepository.sumWithdraw(req, principal.getPrefix());
         if(!listWithdraw.isEmpty()) {
             SummaryWithdraw withdraw = listWithdraw.get(0);
             if(null == withdraw.getWithdraw()) {

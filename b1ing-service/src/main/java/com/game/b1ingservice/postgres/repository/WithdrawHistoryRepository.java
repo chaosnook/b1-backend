@@ -19,7 +19,7 @@ public interface WithdrawHistoryRepository extends JpaRepository<WithdrawHistory
 
     List<WithdrawHistory> findAllByUser_usernameAndCreatedDateBetweenOrderByCreatedDateDesc(String username, Instant startDate, Instant endDate);
 
-    List<WithdrawHistory> findTop10ByUser_IdOrderByCreatedDateDesc(Long id);
+    List<WithdrawHistory> findByUser_IdAndUser_Agent_PrefixOrderByCreatedDateDesc(Long id, String prefix);
 
     List<WithdrawHistory> findAllByUser_AgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(Agent agent, Instant instantStart, Instant instantEnd, List<String> types);
 

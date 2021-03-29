@@ -1,5 +1,6 @@
 package com.game.b1ingservice.service;
 
+import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.withdraw.WithdrawHisUserReq;
 import com.game.b1ingservice.payload.withdraw.WithdrawHisUserRes;
 import com.game.b1ingservice.payload.withdrawhistory.WithdrawHistoryByUserIdResp;
@@ -24,7 +25,7 @@ public interface WithdrawHistoryService {
 
     List<WithdrawHisUserRes> searchByUser(WithdrawHisUserReq withDrawRequest, String username);
 
-    List<WithdrawHistoryByUserIdResp> findListByUserId(Long userId);
+    List<WithdrawHistoryByUserIdResp> findListByUserId(Long userId, UserPrincipal principal);
 
     void updateStatus(WithdrawHistoryUpdateStatusReq req);
 }

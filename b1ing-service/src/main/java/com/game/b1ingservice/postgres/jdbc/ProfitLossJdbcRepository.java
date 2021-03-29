@@ -52,21 +52,24 @@ public class ProfitLossJdbcRepository {
         return withdraw;
     }
 
-    public List<SummaryDeposit> sumDeposit(ProfitAndLossRequest request ) {
+    public List<SummaryDeposit> sumDeposit(ProfitAndLossRequest request, String prefix) {
 
         List<SummaryDeposit> summaryDeposit = new ArrayList<>();
 
         try {
 
            StringBuilder sql = new StringBuilder();
-           sql.append("select sum(amount) as deposit, ")
-              .append("sum(bonus_amount) as bonus, ")
-              .append("sum(amount + bonus_amount) as depositBonus ")
-              .append("from deposit_history ")
-              .append("where created_date between TO_TIMESTAMP(?, 'DD/MM/yyyy HH24:MI') ")
-              .append("and TO_TIMESTAMP(?, 'DD/MM/yyyy HH24:MI');");
+           sql.append("select sum(d.amount) as deposit, ")
+              .append("sum(d.bonus_amount) as bonus, ")
+              .append("sum(d.amount + d.bonus_amount) as depositBonus ")
+              .append("from deposit_history d ")
+              .append("inner join users u on d.user_id = u.id ")
+              .append("inner join agent a on u.agent_id = a.id ")
+              .append("where d.created_date between TO_TIMESTAMP(?, 'DD/MM/yyyy HH24:MI') ")
+              .append("and TO_TIMESTAMP(?, 'DD/MM/yyyy HH24:MI') ")
+              .append("and a.prefix = ? ;");
 
-            summaryDeposit = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SummaryDeposit.class), request.getCreatedDateFrom() ,request.getCreatedDateTo());
+            summaryDeposit = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SummaryDeposit.class), request.getCreatedDateFrom() ,request.getCreatedDateTo(), prefix);
 
         } catch (Exception e) {
             log.error("sumProfitLoss", e);
@@ -75,19 +78,22 @@ public class ProfitLossJdbcRepository {
 
     }
 
-    public List<SummaryWithdraw> sumWithdraw(ProfitAndLossRequest request) {
+    public List<SummaryWithdraw> sumWithdraw(ProfitAndLossRequest request, String prefix) {
 
         List<SummaryWithdraw> summaryWithdraw = new ArrayList<>();
 
         try {
 
             StringBuilder sql = new StringBuilder();
-            sql.append("select sum(amount) as withdraw ")
-                    .append("from withdraw_history ")
-                    .append("where created_date between TO_TIMESTAMP(? ,'DD/MM/yyyy HH24:MI') ")
-                    .append("and TO_TIMESTAMP(? ,'DD/MM/yyyy HH24:MI');");
+            sql.append("select sum(w.amount) as withdraw ")
+                    .append("from withdraw_history w ")
+                    .append("inner join users u on w.user_id = u.id ")
+                    .append("inner join agent a on u.agent_id = a.id ")
+                    .append("where w.created_date between TO_TIMESTAMP(? ,'DD/MM/yyyy HH24:MI') ")
+                    .append("and TO_TIMESTAMP(? ,'DD/MM/yyyy HH24:MI') ")
+                    .append("and a.prefix = ? ;");
 
-            summaryWithdraw = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SummaryWithdraw.class), request.getCreatedDateFrom() ,request.getCreatedDateTo());
+            summaryWithdraw = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SummaryWithdraw.class), request.getCreatedDateFrom() ,request.getCreatedDateTo(), prefix);
 
         } catch (Exception e) {
             log.error("sumProfitLoss", e);

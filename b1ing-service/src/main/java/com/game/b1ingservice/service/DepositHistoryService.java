@@ -1,5 +1,6 @@
 package com.game.b1ingservice.service;
 
+import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.deposithistory.*;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
 import org.springframework.data.domain.Page;
@@ -16,11 +17,11 @@ public interface DepositHistoryService {
 
     List<DepositHisUserRes> searchByUser(DepositHisUserReq depositHisUserReq, String username);
 
-    List<DepositHistoryTop20Resp> findListByUsername(String username);
+    List<DepositHistoryTop20Resp> findListByUsername(String username, UserPrincipal principal);
 
     List<DepositHistoryByUserIdResp> findListByUserId(Long userId);
 
-    ProfitAndLossResp findProfitAndLoss(ProfitAndLossRequest req);
+    ProfitAndLossResp findProfitAndLoss(ProfitAndLossRequest req, UserPrincipal principal);
 
 
 
