@@ -62,7 +62,7 @@ public class WithDrawServiceImpl implements WithDrawService {
         withdrawHistory.setAmount(creditWithDraw);
         withdrawHistory.setBeforeAmount(wallet.getCredit());
         withdrawHistory.setUser(webUser);
-        withdrawHistory.setIsAuto(0);
+        withdrawHistory.setIsAuto(false);
         withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.PENDING);
         withdrawHistory = withdrawHistoryService.saveHistory(withdrawHistory);
 
@@ -107,7 +107,7 @@ public class WithDrawServiceImpl implements WithDrawService {
                 request.setAccountTo(webUser.getAccountNumber());
                 request.setBankCode(webUser.getBankName());
                 BankBotScbWithdrawCreditResponse depositResult = bankBotService.withDrawCredit(request);
-                withdrawHistory.setIsAuto(1);
+                withdrawHistory.setIsAuto(true);
                 if (depositResult.getStatus()){
                     withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.SUCCESS);
                     withdrawHistory.setReason(depositResult.getQrString());
