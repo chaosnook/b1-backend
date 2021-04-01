@@ -32,6 +32,6 @@ public interface WithdrawHistoryRepository extends JpaRepository<WithdrawHistory
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE withdraw_history SET status = ?, reason = ? WHERE id = ? AND amount = ?", nativeQuery = true)
-    int updateInfoWithdrawManual(String status, String reason, Long id, BigDecimal amount);
+    @Query(value = "UPDATE withdraw_history SET status = ?, reason = ?, isAuto = ? WHERE id = ? AND amount = ?", nativeQuery = true)
+    int updateInfoWithdrawManual(String status, String reason, Long id, boolean isAuto, BigDecimal amount);
 }

@@ -433,7 +433,7 @@ public class AdminServiceImpl implements AdminService {
     public void withdrawManual(WithdrawManualReq req, UserPrincipal principal) {
 
         String reason = "Withdraw Manual";
-        withdrawHistoryRepository.updateInfoWithdrawManual(Constants.WITHDRAW_STATUS.SUCCESS, reason, req.getId(), req.getAmount());
+        withdrawHistoryRepository.updateInfoWithdrawManual(Constants.WITHDRAW_STATUS.SUCCESS, reason, req.getId(), false, req.getAmount());
 
     }
 
