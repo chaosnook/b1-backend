@@ -67,6 +67,7 @@ public class ProfitLossJdbcRepository {
               .append("inner join agent a on u.agent_id = a.id ")
               .append("where d.created_date between TO_TIMESTAMP(?, 'DD/MM/yyyy HH24:MI') ")
               .append("and TO_TIMESTAMP(?, 'DD/MM/yyyy HH24:MI') ")
+              .append("and d.status = 'SUCCESS' ")
               .append("and a.prefix = ? ;");
 
             summaryDeposit = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SummaryDeposit.class), request.getCreatedDateFrom() ,request.getCreatedDateTo(), prefix);
@@ -91,6 +92,7 @@ public class ProfitLossJdbcRepository {
                     .append("inner join agent a on u.agent_id = a.id ")
                     .append("where w.created_date between TO_TIMESTAMP(? ,'DD/MM/yyyy HH24:MI') ")
                     .append("and TO_TIMESTAMP(? ,'DD/MM/yyyy HH24:MI') ")
+                    .append("and d.status = 'SUCCESS' ")
                     .append("and a.prefix = ? ;");
 
             summaryWithdraw = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SummaryWithdraw.class), request.getCreatedDateFrom() ,request.getCreatedDateTo(), prefix);
