@@ -27,6 +27,8 @@ public class TokenAuthenticationService {
     static final String HEADER_TOKEN = "Bearer ";
     static final String QUERY_STRING_X = "/api/v1/downloadFile";
 
+    private final AdminService adminService;
+
 
     public Authentication getAuthentication(HttpServletRequest req) {
         String token = getJwtFromRequest(req);
@@ -50,7 +52,9 @@ public class TokenAuthenticationService {
         UserPrincipal principal = new UserPrincipal(userId, username, "", agentId, type,null);
         principal.setPrefix(prefix);
 
-        return userId != null ?
+        boolean checkAdmin = adminService.checkAdmin(userId, prefix);
+
+        return checkAdmin && userId != null ?
                 new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList())
                 : null;
     }

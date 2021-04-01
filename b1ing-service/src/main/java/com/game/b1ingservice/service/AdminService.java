@@ -26,4 +26,5 @@ public interface AdminService {
     ProfitLossResponse profitLoss(ProfitLossRequest profitLossRequest, UserPrincipal principal);
     List<CountRefillDTO> countRefill(CountRefillRequest countRefillRequest, UserPrincipal principal);
 
+    boolean checkAdmin(Long userId, String prefix);
 }
