@@ -11,7 +11,9 @@ import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.jdbc.CountRefillJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.ProfitLossJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.ProfitReportJdbcRepository;
-import com.game.b1ingservice.postgres.jdbc.dto.*;
+import com.game.b1ingservice.postgres.jdbc.dto.CountRefillDTO;
+import com.game.b1ingservice.postgres.jdbc.dto.ProfitLoss;
+import com.game.b1ingservice.postgres.jdbc.dto.ProfitReport;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.*;
 import com.game.b1ingservice.utils.JwtTokenUtil;
@@ -32,7 +34,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.game.b1ingservice.commons.Constants.MESSAGE_ADMIN_DEPOSIT;
-import static com.game.b1ingservice.commons.Constants.MESSAGE_DEPOSIT;
 
 @Slf4j
 @Service
@@ -400,6 +401,11 @@ public class AdminServiceImpl implements AdminService {
         }
 
         return result;
+    }
+
+    @Override
+    public boolean checkAdmin(Long userId, String prefix) {
+        return adminUserRepository.existsByIdAndAgent_Prefix(userId, prefix);
     }
 
 

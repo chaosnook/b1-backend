@@ -48,8 +48,8 @@ public class WithdrawHistory  extends DateAudit<String> implements Serializable 
     @Column(name = "status", columnDefinition = "character varying(50)")
     private String status;
 
-    @Column(name = "isAuto", columnDefinition = "smallint")
-    private Integer isAuto;
+    @Column(name = "isAuto", columnDefinition = "boolean")
+    private Boolean isAuto;
 
     @Column(name = "reason", columnDefinition = "character varying(100)")
     private String reason;
