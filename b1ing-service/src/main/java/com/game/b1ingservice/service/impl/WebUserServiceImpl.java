@@ -363,7 +363,7 @@ public class WebUserServiceImpl implements WebUserService {
         if (type.equals("day")) {
 
 //            //// byDay
-            for (int i = 0; i < 24; i++) {
+            for (int i = 1; i < 24; i++) {
                 resObj.getLabels().add(i);
                 resObj.getData().add(0);
             }
@@ -388,7 +388,7 @@ public class WebUserServiceImpl implements WebUserService {
             YearMonth yearMonthObject = YearMonth.of(year, month);
             int daysInMonth = yearMonthObject.lengthOfMonth();
 
-            for (int i = 1; i < daysInMonth; i++) {
+            for (int i = 1; i <= daysInMonth; i++) {
                 resObj.getLabels().add(i);
                 resObj.getData().add(0);
             }
