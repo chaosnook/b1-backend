@@ -1,6 +1,7 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
+import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.withdrawhistory.*;
 import com.game.b1ingservice.service.WithdrawHistoryService;
 import com.game.b1ingservice.specification.SearchWithdrawHistorySpecification;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,8 +37,8 @@ public class WithdrawHistoryController {
     }
 
     @PostMapping(value = "/withdrawHistory/userId/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> withdrawHistory(@PathVariable Long id) {
-        List<WithdrawHistoryByUserIdResp> result = withdrawHistoryService.findListByUserId(id);
+    public ResponseEntity<?> withdrawHistory(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal) {
+        List<WithdrawHistoryByUserIdResp> result = withdrawHistoryService.findListByUserId(id, principal);
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, result);
     }
 

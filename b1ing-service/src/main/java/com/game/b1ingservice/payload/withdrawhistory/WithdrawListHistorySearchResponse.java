@@ -16,7 +16,7 @@ public class WithdrawListHistorySearchResponse {
     private BigDecimal afterAmount;
     private String type;
     private String status;
-    private int isAuto;
+    private Boolean isAuto;
     private String reason;
     private String admin;
 

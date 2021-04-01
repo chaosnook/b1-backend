@@ -26,16 +26,22 @@ public class SearchAffiliateHistoryJdbcRepository {
     public List<SearchAffiHistoryDTO> affiHistory(AffHistoryRequest affHistoryRequest, UserPrincipal principal) {
         List<SearchAffiHistoryDTO> search = new ArrayList<>();
         try {
-            String sql = "select  u2.username as username ,sum(ph.amount) as amount " +
-                    "from point_history ph " +
-                    "inner join users u2 on ph.user_id = u2.id " +
-                    "where ph.created_date between TO_TIMESTAMP( ? ,'YYYY-MM-DD HH24:MI:SS') " +
-                    "and TO_TIMESTAMP( ? ,'YYYY-MM-DD HH24:MI:SS') " +
-                    "and u2.username = ? " +
-                    "and ph.type = 'EARN_POINT' " +
-                    "group by u2.username ";
+            StringBuilder sql = new StringBuilder();
+            sql.append("select  u2.username as username ,sum(ph.amount) as amount ");
+            sql.append("from point_history ph ");
+            sql.append("inner join users u2 on ph.user_id = u2.id ");
+            sql.append("where ph.created_date between TO_TIMESTAMP( ? ,'YYYY-MM-DD HH24:MI:SS') ");
+            sql.append("and TO_TIMESTAMP( ? ,'YYYY-MM-DD HH24:MI:SS') ");
+            if((null != affHistoryRequest.getUsername() )&& ("" != affHistoryRequest.getUsername()) ) {
+            sql.append("and u2.username = ? ");
+            }
+            sql.append("and ph.type = 'EARN_POINT' ");
+            sql.append("group by u2.username ");
+            if((null != affHistoryRequest.getUsername() )&& ("" != affHistoryRequest.getUsername()) ) {
+            search = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SearchAffiHistoryDTO.class), affHistoryRequest.getListDateFrom(),affHistoryRequest.getListDateTo(),affHistoryRequest.getUsername());}
+            else{
+                search = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SearchAffiHistoryDTO.class), affHistoryRequest.getListDateFrom(),affHistoryRequest.getListDateTo());}
 
-            search = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(SearchAffiHistoryDTO.class), affHistoryRequest.getListDateFrom(),affHistoryRequest.getListDateTo(),affHistoryRequest.getUsername());
         } catch (Exception e) {
             log.error("SearchAffiliateHistory", e);
         }

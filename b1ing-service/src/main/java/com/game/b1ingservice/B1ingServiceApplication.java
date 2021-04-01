@@ -19,7 +19,7 @@ public class B1ingServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(B1ingServiceApplication.class, args);
 	}
-
+	
 	@PostConstruct
 	void started() {
 		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Bangkok"));

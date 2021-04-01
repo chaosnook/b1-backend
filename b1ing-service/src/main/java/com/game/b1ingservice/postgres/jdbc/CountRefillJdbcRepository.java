@@ -5,6 +5,7 @@ import com.game.b1ingservice.payload.admin.ProfitLossRequest;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.postgres.jdbc.dto.CountRefillDTO;
 import com.game.b1ingservice.postgres.jdbc.dto.ProfitLoss;
+import com.game.b1ingservice.service.AdminService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Slf4j
@@ -22,39 +24,42 @@ public class CountRefillJdbcRepository {
     @Autowired
     @Qualifier("postgresJdbcTemplate")
     JdbcTemplate jdbcTemplate;
+    @Autowired
+    AdminService adminService;
 
     public List<CountRefillDTO> depositCount(CountRefillRequest countRefillRequest, UserPrincipal principal) {
         List<CountRefillDTO> deposit = new ArrayList<>();
         try {
-            String sql = "select  (u.username) as username,count(d.amount) as countDeposit , sum(d.amount) as allDeposit " +
-                    "from deposit_history d " +
-                    "inner join users u on d.user_id = u.id " +
-                    "where d.created_date between TO_TIMESTAMP( ? ,'YYYY-MM-DD HH24:MI:SS') " +
-                    "and TO_TIMESTAMP( ? ,'YYYY-MM-DD HH24:MI:SS') " +
-                    "and u.username = ? " +
-                    "group by u.username ";
+            StringBuilder sql = new StringBuilder();
+            sql.append("select us.username, dh.count depositCount, dh.deposit, wh.count withdrawCount, wh.withdraw , (dh.deposit - wh.withdraw )as profitloss ");
+            sql.append("from users us ");
+            sql.append("left join (select (u.username) as username, count(d.id) as count, sum(d.amount) as deposit ");
+            sql.append("from users u ");
+            sql.append("left join deposit_history d on u.id = d.user_id ");
+            sql.append("where d.created_date between TO_TIMESTAMP( ? , 'YYYY-MM-DD HH24:MI:SS') ");
+            sql.append("and TO_TIMESTAMP( ? , 'YYYY-MM-DD HH24:MI:SS') ");
+            sql.append("group by u.username) dh on dh.username = us.username ");
+            sql.append("left join (select (u.username) as username, count(wh.id) as count, sum(wh.amount) as withdraw  ");
+            sql.append("from users u ");
+            sql.append("left join withdraw_history wh on u.id = wh.user_id ");
+            sql.append("where wh.created_date between TO_TIMESTAMP( ? , 'YYYY-MM-DD HH24:MI:SS') ");
+            sql.append("and TO_TIMESTAMP( ? , 'YYYY-MM-DD HH24:MI:SS') ");
+            sql.append("group by u.username) wh on wh.username = us.username ");
+            sql.append("where (dh.count is not null or  wh.count is not null) ");
+            if ((null != countRefillRequest.getUsername()) && ("" != countRefillRequest.getUsername())) {
+                sql.append("and us.username = ? ");
+            }
 
-            deposit = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(CountRefillDTO.class), countRefillRequest.getListDateFrom(),countRefillRequest.getListDateTo(),countRefillRequest.getUsername());
+            if ((null != countRefillRequest.getUsername()) && ("" != countRefillRequest.getUsername())) {
+                deposit = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(CountRefillDTO.class), countRefillRequest.getListDateFrom(), countRefillRequest.getListDateTo(), countRefillRequest.getListDateFrom(), countRefillRequest.getListDateTo(), countRefillRequest.getUsername());
+            } else {
+                deposit = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(CountRefillDTO.class), countRefillRequest.getListDateFrom(), countRefillRequest.getListDateTo(), countRefillRequest.getListDateFrom(), countRefillRequest.getListDateTo());
+            }
+
         } catch (Exception e) {
             log.error("countRefill", e);
         }
         return deposit;
     }
-    public List<CountRefillDTO> withdrawCount(CountRefillRequest countRefillRequest, UserPrincipal principal) {
-        List<CountRefillDTO> withdraw = new ArrayList<>();
-        try {
-            String sql = "select  (u.username) as username,count(wh.amount) as countWithdraw , sum(wh.amount) as allWithdraw " +
-                    "from withdraw_history wh " +
-                    "inner join users u on wh.user_id = u.id " +
-                    "where wh.created_date between TO_TIMESTAMP( ? ,'YYYY-MM-DD HH24:MI:SS') " +
-                    "and TO_TIMESTAMP( ? ,'YYYY-MM-DD HH24:MI:SS') " +
-                    "and u.username = ? " +
-                    "group by u.username ";
-
-            withdraw = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(CountRefillDTO.class), countRefillRequest.getListDateFrom(),countRefillRequest.getListDateTo(),countRefillRequest.getUsername());
-        } catch (Exception e) {
-            log.error("countRefill", e);
-        }
-        return withdraw;
-    }
 }
+

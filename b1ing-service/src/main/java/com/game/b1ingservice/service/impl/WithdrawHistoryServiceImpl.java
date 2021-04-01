@@ -1,5 +1,6 @@
 package com.game.b1ingservice.service.impl;
 
+import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.withdraw.WithdrawHisUserReq;
 import com.game.b1ingservice.payload.withdraw.WithdrawHisUserRes;
 import com.game.b1ingservice.payload.withdrawhistory.WithdrawHistoryByUserIdResp;
@@ -50,8 +51,8 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     }
 
     @Override
-    public List<WithdrawHistoryByUserIdResp> findListByUserId(Long userId) {
-        List<WithdrawHistory> list = withdrawHistoryRepository.findTop10ByUser_IdOrderByCreatedDateDesc(userId);
+    public List<WithdrawHistoryByUserIdResp> findListByUserId(Long userId, UserPrincipal principal) {
+        List<WithdrawHistory> list = withdrawHistoryRepository.findByUser_IdAndUser_Agent_PrefixOrderByCreatedDateDesc(userId, principal.getPrefix());
         List<WithdrawHistoryByUserIdResp> result = new ArrayList<>();
         if(!list.isEmpty()) {
             for(WithdrawHistory withdrawDto : list) {

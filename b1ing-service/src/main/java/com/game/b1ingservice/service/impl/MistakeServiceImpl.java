@@ -100,7 +100,7 @@ public class MistakeServiceImpl implements MistakeService {
                         .amount(credit.toPlainString()).build(), username, agent);
                 if (ambResponse.getCode() == 0) {
 
-                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT,principal.getUsername(), username ,agent) ,
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT,principal.getUsername(), username ,credit.toPlainString()) ,
                             agent.getLineToken());
 
                     walletRepository.depositCredit(credit, user.getId());
@@ -119,6 +119,8 @@ public class MistakeServiceImpl implements MistakeService {
                     depositHistory.setBonusAmount(BigDecimal.ZERO);
                     depositHistory.setAdmin(adminOpt.get());
                     depositHistoryRepository.save(depositHistory);
+                } else {
+                    throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
                 }
 
                 break;
@@ -129,7 +131,7 @@ public class MistakeServiceImpl implements MistakeService {
 
                 if (ambResponse.getCode() == 0) {
 
-                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT,principal.getUsername(), username ,agent) ,
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT,principal.getUsername(), username ,credit.toPlainString()) ,
                             agent.getLineToken());
 
                     walletRepository.depositCreditAndTurnOver(credit, credit, mistakeReq.getTurnOver(), user.getId());
@@ -148,6 +150,8 @@ public class MistakeServiceImpl implements MistakeService {
                     depositHistory.setBonusAmount(BigDecimal.ZERO);
                     depositHistory.setAdmin(adminOpt.get());
                     depositHistoryRepository.save(depositHistory);
+                } else {
+                    throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
                 }
 
                 break;
@@ -169,6 +173,8 @@ public class MistakeServiceImpl implements MistakeService {
                     withdrawHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
                     withdrawHistory.setAdmin(adminOpt.get());
                     withdrawHistoryRepository.save(withdrawHistory);
+                } else {
+                    throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
                 }
                 break;
             default:

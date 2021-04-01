@@ -29,4 +29,6 @@ public interface AdminUserRepository extends JpaRepository<AdminUser, Long>, Jpa
     @Modifying
     @Query(value = "UPDATE admins SET mistake_limit = 0", nativeQuery = true)
     void clearMistakeLimit();
+
+    boolean existsByIdAndAgent_Prefix(Long username, String prefix);
 }

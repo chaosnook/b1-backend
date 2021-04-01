@@ -20,7 +20,7 @@ public class DepositHistoryJdbcRepository {
     @Qualifier("postgresJdbcTemplate")
     JdbcTemplate jdbcTemplate;
 
-    public List<DepositHistoryTop20Dto> findTop20DepositHistory(String username) {
+    public List<DepositHistoryTop20Dto> findTop20DepositHistory(String username, String prefix) {
 
         List<DepositHistoryTop20Dto> result = new ArrayList<>();
         try {
@@ -29,10 +29,11 @@ public class DepositHistoryJdbcRepository {
                       .append("d.after_amount as afterAmount, d.created_date as createdDate, d.reason as reason ")
                     .append("from deposit_history d ")
                     .append("inner join users u on d.user_id = u.id ")
-                    .append("where u.username = ? ")
+                    .append("inner join agent a on u.agent_id = a.id ")
+                    .append("where u.username = ? and a.prefix = ? ")
                     .append("order by d.created_date desc limit 20");
 
-            result = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(DepositHistoryTop20Dto.class), username);
+            result = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(DepositHistoryTop20Dto.class), username, prefix);
 
         } catch (Exception ex) {
             log.error("DepositHistoryTop20", ex);
