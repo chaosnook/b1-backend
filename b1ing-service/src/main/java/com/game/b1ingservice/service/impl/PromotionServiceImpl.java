@@ -88,7 +88,7 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Override
     public List<PromotionResponse> getPromotion(UserPrincipal principal) {
-        return promotionRepository.findAll().stream().map(converter).collect(Collectors.toList());
+        return promotionRepository.findAllByOrderByIdDesc().stream().map(converter).collect(Collectors.toList());
     }
 
     @Override
