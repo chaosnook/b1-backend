@@ -1,9 +1,7 @@
 package com.game.b1ingservice.postgres.jdbc;
 
-import com.game.b1ingservice.payload.admin.CountRefillRequest;
 import com.game.b1ingservice.payload.affiliate.AffHistoryRequest;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
-import com.game.b1ingservice.postgres.jdbc.dto.CountRefillDTO;
 import com.game.b1ingservice.postgres.jdbc.dto.SearchAffiHistoryDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,17 +28,19 @@ public class SearchAffiliateHistoryJdbcRepository {
             sql.append("select  u2.username as username ,sum(ph.amount) as amount ");
             sql.append("from point_history ph ");
             sql.append("inner join users u2 on ph.user_id = u2.id ");
-            sql.append("where ph.created_date between TO_TIMESTAMP( ? ,'YYYY-MM-DD HH24:MI:SS') ");
-            sql.append("and TO_TIMESTAMP( ? ,'YYYY-MM-DD HH24:MI:SS') ");
-            if((null != affHistoryRequest.getUsername() )&& ("" != affHistoryRequest.getUsername()) ) {
-            sql.append("and u2.username = ? ");
+            sql.append("where ph.created_date between TO_TIMESTAMP( ? ,'DD/MM/YYYY HH24:MI:SS') ");
+            sql.append("and TO_TIMESTAMP( ? ,'DD/MM/YYYY HH24:MI:SS') ");
+            if ((null != affHistoryRequest.getUsername()) && (!"".equals(affHistoryRequest.getUsername()))) {
+                sql.append("and u2.username = ? ");
             }
             sql.append("and ph.type = 'EARN_POINT' ");
+            sql.append("and u2.agent_id =  ? ");
             sql.append("group by u2.username ");
-            if((null != affHistoryRequest.getUsername() )&& ("" != affHistoryRequest.getUsername()) ) {
-            search = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SearchAffiHistoryDTO.class), affHistoryRequest.getListDateFrom(),affHistoryRequest.getListDateTo(),affHistoryRequest.getUsername());}
-            else{
-                search = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SearchAffiHistoryDTO.class), affHistoryRequest.getListDateFrom(),affHistoryRequest.getListDateTo());}
+            if ((null != affHistoryRequest.getUsername()) && (!"".equals(affHistoryRequest.getUsername()))) {
+                search = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SearchAffiHistoryDTO.class), affHistoryRequest.getListDateFrom(), affHistoryRequest.getListDateTo(), affHistoryRequest.getUsername(), principal.getAgentId());
+            } else {
+                search = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SearchAffiHistoryDTO.class), affHistoryRequest.getListDateFrom(), affHistoryRequest.getListDateTo(), principal.getAgentId());
+            }
 
         } catch (Exception e) {
             log.error("SearchAffiliateHistory", e);
