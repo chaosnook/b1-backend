@@ -1,10 +1,11 @@
 package com.game.b1ingservice.postgres.jdbc;
 
 import com.game.b1ingservice.payload.admin.ProfitLossRequest;
-import com.game.b1ingservice.payload.admin.ProfitReportRequest;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.deposithistory.ProfitAndLossRequest;
-import com.game.b1ingservice.postgres.jdbc.dto.*;
+import com.game.b1ingservice.postgres.jdbc.dto.ProfitLoss;
+import com.game.b1ingservice.postgres.jdbc.dto.SummaryDeposit;
+import com.game.b1ingservice.postgres.jdbc.dto.SummaryWithdraw;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -92,7 +93,7 @@ public class ProfitLossJdbcRepository {
                     .append("inner join agent a on u.agent_id = a.id ")
                     .append("where w.created_date between TO_TIMESTAMP(? ,'DD/MM/yyyy HH24:MI') ")
                     .append("and TO_TIMESTAMP(? ,'DD/MM/yyyy HH24:MI') ")
-                    .append("and d.status = 'SUCCESS' ")
+                    .append("and w.status = 'SUCCESS' ")
                     .append("and a.prefix = ? ;");
 
             summaryWithdraw = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SummaryWithdraw.class), request.getCreatedDateFrom() ,request.getCreatedDateTo(), prefix);
