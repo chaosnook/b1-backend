@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.ON_OFF_WEBSITE;
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG_STATUS;
 
 @Service
@@ -36,6 +37,15 @@ public class AgentServiceImpl implements AgentService {
         Optional<Agent> opt = agentRepository.findByPrefix(prefix);
         if (opt.isPresent()) {
             return converter.apply(opt.get());
+        }
+        throw new ErrorMessageException(Constants.ERROR.ERR_00008);
+    }
+
+    @Override
+    public AgentResponse getAgentUserByPrefix(String prefix) {
+        Optional<Agent> opt = agentRepository.findByPrefix(prefix);
+        if (opt.isPresent()) {
+            return converterUser.apply(opt.get());
         }
         throw new ErrorMessageException(Constants.ERROR.ERR_00008);
     }
@@ -102,6 +112,42 @@ public class AgentServiceImpl implements AgentService {
         Map<String, Object> configMap = new HashMap<>();
         agent.getConfigs().forEach(config -> {
             if (AGENT_CONFIG_STATUS.contains(config.getParameter())) {
+                configMap.put(config.getParameter(), Boolean.parseBoolean(config.getValue()));
+            } else {
+                configMap.put(config.getParameter(), config.getValue());
+            }
+        });
+
+        agentResponse.setConfig(configMap);
+
+        return agentResponse;
+    };
+
+    Function<Agent, AgentResponse> converterUser = agent -> {
+        AgentResponse agentResponse = new AgentResponse();
+        agentResponse.setId(agent.getId());
+        agentResponse.setPrefix(agent.getPrefix());
+        agentResponse.setCompanyName(agent.getCompanyName());
+        agentResponse.setWebsite(agent.getWebsite());
+        agentResponse.setLineId(agent.getLineId());
+        agentResponse.setLogo(agent.getLogo());
+        agentResponse.setBackground(agent.getBackground());
+        agentResponse.setLineToken(agent.getLineToken());
+
+        agentResponse.setCreatedDate(agent.getCreatedDate());
+        agentResponse.setUpdatedDate(agent.getUpdatedDate());
+        agentResponse.setCreatedBy(agent.getAudit().getCreatedBy());
+        agentResponse.setUpdatedBy(agent.getAudit().getUpdatedBy());
+        agentResponse.setDeleteFlag(agent.getDeleteFlag());
+        agentResponse.setVersion(agent.getVersion());
+
+        Map<String, Object> configMap = new HashMap<>();
+        agent.getConfigs().forEach(config -> {
+            if (AGENT_CONFIG_STATUS.contains(config.getParameter())) {
+                if (config.getParameter().equals(ON_OFF_WEBSITE) && !Boolean.parseBoolean(config.getValue())) {
+                    throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+                }
+
                 configMap.put(config.getParameter(), Boolean.parseBoolean(config.getValue()));
             } else {
                 configMap.put(config.getParameter(), config.getValue());

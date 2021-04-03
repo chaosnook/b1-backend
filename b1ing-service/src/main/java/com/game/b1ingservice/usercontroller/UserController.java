@@ -4,13 +4,13 @@ import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.admin.LoginRequest;
 import com.game.b1ingservice.payload.agent.AgentInfoRequest;
 import com.game.b1ingservice.payload.agent.AgentResponse;
-import com.game.b1ingservice.payload.amb.GameLinkRes;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.userinfo.UserProfile;
 import com.game.b1ingservice.payload.webuser.WebUserProfileUpdate;
 import com.game.b1ingservice.payload.webuser.WebUserRequest;
-import com.game.b1ingservice.payload.webuser.WebUserUpdate;
-import com.game.b1ingservice.service.*;
+import com.game.b1ingservice.service.AMBService;
+import com.game.b1ingservice.service.AgentService;
+import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.webuser.WebUserRequestValidator;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -40,7 +40,7 @@ public class UserController {
 
     @PostMapping(value = "/prefix")
     public ResponseEntity<?> prefixInfo(@RequestBody AgentInfoRequest req) {
-        AgentResponse agentResponse = agentService.getAgentByPrefix(req.getPrefix());
+        AgentResponse agentResponse = agentService.getAgentUserByPrefix(req.getPrefix());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, agentResponse);
     }
 
