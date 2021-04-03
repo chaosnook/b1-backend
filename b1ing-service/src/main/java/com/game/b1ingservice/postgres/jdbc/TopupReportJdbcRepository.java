@@ -31,11 +31,14 @@ public class TopupReportJdbcRepository {
                     "     sum(deposit_history.amount) as data " +
                     "     " +
                     "from deposit_history " +
-                    "inner join bank on deposit_history.bank_code = bank.id  " +
+                    "inner join bank on deposit_history.bank_code = bank.id " +
+                    "inner join users u on deposit_history.user_id = u.id " +
+                    "inner join agent a on u.agent_id = a.id  " +
                     "where to_char(deposit_history.created_date, 'YYYY-MM-DD') between ? and ? " +
+                    "and a.prefix = ? " +
                     "group by bank.bank_name  " ;
 
-            topup = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(TopupReport.class), topupRequest.getListDateFrom(),topupRequest.getListDateTo());
+            topup = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(TopupReport.class), topupRequest.getListDateFrom(),topupRequest.getListDateTo(), principal.getPrefix());
 
         } catch (Exception e) {
             log.error("topupReport", e);
