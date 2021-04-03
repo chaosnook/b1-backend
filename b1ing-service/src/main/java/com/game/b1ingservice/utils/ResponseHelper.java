@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -70,24 +71,14 @@ public class ResponseHelper {
         return response(HttpStatus.OK, resPage);
     }
 
-    public static ResponseEntity<Object> successPageWithSummary(Page<?> page, String propertyName, String message, BigDecimal summary) {
-
-        PageObject pageable = new PageObject();
-        pageable.setPage(page.getNumber());
-        pageable.setSize(page.getSize());
-        pageable.setTotalElements(page.getTotalElements());
-        pageable.setTotalPages(page.getTotalPages());
-        pageable.setLast(page.isLast());
+    public static ResponseEntity<Object> successListWithSummary(List<?> list, BigDecimal summary, String propertyName, String message) {
 
         PageSummaryResponse resPage = new PageSummaryResponse();
         resPage.setStatus(true);
         resPage.setMessage(message);
-        resPage.setPage(pageable);
-        resPage.setData(page.getContent());
+        resPage.setData(list);
         resPage.setFieldName(propertyName);
         resPage.setSummary(summary);
-
-
 
         return response(HttpStatus.OK, resPage);
     }
