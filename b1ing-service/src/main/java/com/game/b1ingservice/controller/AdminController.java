@@ -61,7 +61,7 @@ public class AdminController {
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
-    @PutMapping(path = "/update", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    @PutMapping(path = "/update-admin", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> update(@RequestBody AdminUpdateRequest adminUpdateRequest, @AuthenticationPrincipal UserPrincipal principal) {
         updateValidator.validate(adminUpdateRequest);
         adminService.updateAdmin(adminUpdateRequest, principal);
