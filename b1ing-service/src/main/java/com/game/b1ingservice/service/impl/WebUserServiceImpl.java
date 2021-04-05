@@ -6,11 +6,9 @@ import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.admin.LoginRequest;
 import com.game.b1ingservice.payload.amb.*;
-import com.game.b1ingservice.payload.bankbot.BankBotScbTransactionResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.userinfo.UserInfoResponse;
 import com.game.b1ingservice.payload.userinfo.UserProfile;
-import com.game.b1ingservice.payload.userinfo.UserWalletResponse;
 import com.game.b1ingservice.payload.webuser.WebUserRequest;
 import com.game.b1ingservice.payload.webuser.WebUserResponse;
 import com.game.b1ingservice.payload.webuser.WebUserUpdate;
@@ -18,6 +16,7 @@ import com.game.b1ingservice.payload.webuser.*;
 import com.game.b1ingservice.payload.wallet.WalletRequest;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
+import com.game.b1ingservice.postgres.jdbc.dto.SearchWebUserDTO;
 import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AMBService;
@@ -40,6 +39,7 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.game.b1ingservice.commons.Constants.ERROR.*;
 
@@ -175,6 +175,47 @@ public class WebUserServiceImpl implements WebUserService {
         }
     }
 
+//    @Override
+//    public List<WebUserResponse> listDepositUser() {
+//        List<WebUserResponse> list = webUserRepository.findDepositUsers().stream().map(converter).collect(Collectors.toList());
+//        return list;
+//    }
+
+    @Override
+    public List<SearchWebUserDTO> searchWebUser(WebUserSearchRequest request, UserPrincipal principal) {
+
+        WebUserResponse resObj = new WebUserResponse();
+
+        List<SearchWebUserDTO> listWebUser = webUserJdbcRepository.searchWebUser(request, principal);
+
+        List<SearchWebUserDTO> result = new ArrayList<>();
+        for(SearchWebUserDTO resp : listWebUser) {
+            SearchWebUserDTO search = new SearchWebUserDTO();
+            search.setId(resp.getId());
+            search.setUsername(resp.getUsername());
+            search.setPassword(resp.getPassword());
+            search.setTel(resp.getTel());
+            search.setBankName(resp.getBankName());
+            search.setAccountNumber(resp.getAccountNumber());
+            search.setFirstName(resp.getFirstName());
+            search.setLastName(resp.getLastName());
+            search.setFullName(resp.getFirstName() + " " + resp.getLastName());
+            search.setLine(resp.getLine());
+            search.setIsBonus(resp.getIsBonus());
+            search.setType(request.getType());
+            search.setTypeUser(request.isTypeUser());
+            search.setSearchValue(request.getSearchValue());
+
+            search.setVersion(resp.getVersion());
+            search.setCreatedDate(resp.getCreatedDate());
+            search.setUpdatedDate(resp.getUpdatedDate());
+            result.add(search);
+        }
+
+        return result;
+
+    }
+
     @Override
     public Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable) {
         return webUserRepository.findAll(specification, pageable).map(converter);
@@ -289,7 +330,7 @@ public class WebUserServiceImpl implements WebUserService {
 
     @Override
     public List<WinLoseReq> getAllUser(Long agentId) {
-        List<Map>  objects =  webUserRepository.getAllUser(agentId);
+        List<Map> objects = webUserRepository.getAllUser(agentId);
         if (objects.size() == 0) {
             return new ArrayList<>();
         }

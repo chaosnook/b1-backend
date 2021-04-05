@@ -16,6 +16,10 @@ public class WebUserSearchRequest extends SearchPageable {
     private String tel;
     private String firstName;
     private String lastName;
+    private String fullName;
+    private String type;
+    private boolean typeUser;
+    private String searchValue;
     
     private String createdDateFrom;
     private String createdDateTo;

@@ -27,8 +27,6 @@ public class AffiliateHistoryController {
     @Autowired
     private AffiliateHistoryService affiliateHistoryService;
 
-
-
     @PostMapping(value = "/affiliate-history/search", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> affiHistory(@RequestBody AffHistoryRequest affHistoryRequest, @AuthenticationPrincipal UserPrincipal principal) {
         List<SearchAffiHistoryDTO> obj = affiliateHistoryService.affiHistory(affHistoryRequest, principal);

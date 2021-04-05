@@ -1,11 +1,12 @@
-package com.game.b1ingservice.payload.webuser;
+package com.game.b1ingservice.postgres.jdbc.dto;
 
 import lombok.Data;
 
 import java.time.Instant;
 
 @Data
-public class WebUserResponse {
+public class SearchWebUserDTO {
+
     private Long id;
     private String username;
     private String password;

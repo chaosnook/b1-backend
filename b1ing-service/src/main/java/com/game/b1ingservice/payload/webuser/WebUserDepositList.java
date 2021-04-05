@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.Instant;
 
 @Data
-public class WebUserResponse {
+public class WebUserDepositList {
     private Long id;
     private String username;
     private String password;
@@ -16,10 +16,8 @@ public class WebUserResponse {
     private String lastName;
     private String fullName;
     private String line;
+    private String recommend;
     private String isBonus;
-    private String type;
-    private boolean typeUser;
-    private String searchValue;
 
     private int version;
     private Instant createdDate;

@@ -1,6 +1,7 @@
 package com.game.b1ingservice.postgres.repository;
 
 import com.game.b1ingservice.postgres.entity.Agent;
+import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -28,6 +29,9 @@ public interface WebUserRepository extends JpaRepository<WebUser, Long>, JpaSpec
 
     Optional<WebUser> findByIdNotAndUsername(Long id, String username);
 
+//    @Query(value = "select o from users o where o.deposit_history.size>0")
+//    List<WebUser> findDepositUsers();
+
     @Query(value = "select id, username, deposit_ref as depositRef FROM users  where agent_id = ? and delete_flag = 0 and deposit_ref is not null", nativeQuery = true)
     List<Map> getAllUser(Long agentId);
 
@@ -36,3 +40,4 @@ public interface WebUserRepository extends JpaRepository<WebUser, Long>, JpaSpec
     @Query(value = "UPDATE users SET deposit_ref = ? WHERE id = ? ", nativeQuery = true)
     void updateDepositRef(String ref, Long userId);
 }
+
