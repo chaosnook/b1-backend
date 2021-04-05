@@ -1,16 +1,10 @@
 package com.game.b1ingservice.service.impl;
 
-import com.game.b1ingservice.payload.promotion.PromotionListHistorySearchResponse;
 import com.game.b1ingservice.payload.promotion.PromotionSummaryHistorySearchResponse;
-import com.game.b1ingservice.payload.withdrawhistory.WithdrawListHistorySearchResponse;
 import com.game.b1ingservice.postgres.entity.PromotionHistory;
-import com.game.b1ingservice.postgres.entity.WithdrawHistory;
 import com.game.b1ingservice.postgres.repository.PromotionHistoryRepository;
 import com.game.b1ingservice.service.PromotionHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class PromotionHistoryServiceImpl implements PromotionHistoryService {
@@ -28,13 +23,13 @@ public class PromotionHistoryServiceImpl implements PromotionHistoryService {
     private PromotionHistoryRepository promotionHistoryRepository;
 
     @Override
-    public Page<PromotionSummaryHistorySearchResponse> findSummaryByCriteria(Specification<PromotionHistory> specification, Pageable pageable){
+    public List<PromotionSummaryHistorySearchResponse> findSummaryByCriteria(Specification<PromotionHistory> specification){
 
-        Page<PromotionSummaryHistorySearchResponse> searchData = promotionHistoryRepository.findAll(specification,pageable).map(converter);
-        return summaryHistory(searchData.getContent(), pageable);
+        List<PromotionSummaryHistorySearchResponse> searchData = promotionHistoryRepository.findAll(specification).stream().map(converter).collect(Collectors.toList());
+        return summaryHistory(searchData);
     }
 
-    private Page<PromotionSummaryHistorySearchResponse> summaryHistory(List<PromotionSummaryHistorySearchResponse> searchData, Pageable pageable) {
+    private List<PromotionSummaryHistorySearchResponse> summaryHistory(List<PromotionSummaryHistorySearchResponse> searchData) {
 
         Map<String, PromotionSummaryHistorySearchResponse> map = new HashMap<>();
 
@@ -68,19 +63,16 @@ public class PromotionHistoryServiceImpl implements PromotionHistoryService {
             listSummary.add(entry.getValue());
         }
 
-        Page<PromotionSummaryHistorySearchResponse> searchResponse = new PageImpl<>(listSummary, pageable, listSummary.size());
-        return searchResponse;
+
+        return listSummary;
     }
 
     @Override
-    public BigDecimal totalBonus(Page<PromotionSummaryHistorySearchResponse> page) {
-
+    public BigDecimal totalBonus(List<PromotionSummaryHistorySearchResponse> list) {
         BigDecimal sum = BigDecimal.ZERO;
-
-        for(PromotionSummaryHistorySearchResponse total : page.getContent()) {
+        for(PromotionSummaryHistorySearchResponse total : list) {
             sum = sum.add(total.getSumBonus());
         }
-
         return sum;
     }
 

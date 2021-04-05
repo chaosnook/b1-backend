@@ -3,10 +3,9 @@ package com.game.b1ingservice.payload.commons;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Data
-public class PageObject<T> implements Serializable {
+public class PageObject  implements Serializable {
 
     private int page;
     private int size;
@@ -18,9 +17,8 @@ public class PageObject<T> implements Serializable {
 
     }
 
-    public PageObject(List<T> content, int page, int size, long totalElements, int totalPages, boolean last) {
+    public PageObject(int page, int size, long totalElements, int totalPages, boolean last) {
 
-//        this.content = content;
         this.page = page;
         this.size = size;
         this.totalElements = totalElements;

@@ -1,16 +1,13 @@
 package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.payload.affiliate.AffHistoryRequest;
-import com.game.b1ingservice.payload.affiliate.AffHistoryResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.postgres.jdbc.SearchAffiliateHistoryJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.SearchAffiHistoryDTO;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.service.AffiliateHistoryService;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,7 +25,6 @@ public class AffiliateHistoryImpl implements AffiliateHistoryService {
     public List<SearchAffiHistoryDTO> affiHistory(AffHistoryRequest affHistoryRequest, UserPrincipal principal) {
 
 
-        AffHistoryResponse resObj = new AffHistoryResponse();
 
         List<SearchAffiHistoryDTO> listAffi = searchAffiliateHistoryJdbcRepository.affiHistory(affHistoryRequest, principal);
 

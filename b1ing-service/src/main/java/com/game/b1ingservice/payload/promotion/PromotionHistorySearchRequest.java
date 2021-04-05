@@ -12,4 +12,6 @@ public class PromotionHistorySearchRequest extends SearchPageable {
 
     private String createdDateFrom;
     private String createdDateTo;
+
+    private Long agentId;
 }
