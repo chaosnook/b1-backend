@@ -26,8 +26,8 @@ public class SearchWebUserSpecification extends SearchPageSpecification<WebUserS
                     criteriaBuilder.like(root.get("bankName"),"%"+bankName+"%"));
         }
 
-        if (StringUtils.isNotEmpty(searchBody.getUserName())) {
-            String userName = StringUtils.trimToEmpty(searchBody.getUserName());
+        if (StringUtils.isNotEmpty(searchBody.getUsername())) {
+            String userName = StringUtils.trimToEmpty(searchBody.getUsername());
 
                 predicates.add(
                         criteriaBuilder.like(root.get("userName"), "%" + userName + "%")

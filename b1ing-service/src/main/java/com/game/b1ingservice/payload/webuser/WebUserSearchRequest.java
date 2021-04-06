@@ -11,7 +11,7 @@ import lombok.ToString;
 public class WebUserSearchRequest extends SearchPageable {
 
     private String bankName;
-    private String userName;
+    private String username;
     private String accountNumber;
     private String tel;
     private String firstName;

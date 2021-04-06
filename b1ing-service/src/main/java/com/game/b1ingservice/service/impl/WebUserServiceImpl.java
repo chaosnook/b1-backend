@@ -412,7 +412,7 @@ public class WebUserServiceImpl implements WebUserService {
             List<SummaryRegisterUser> listRegisterDay = webUserJdbcRepository.summaryRegisterUsersByDay(webUserHistoryRequest, principal);
 
             for (SummaryRegisterUser summaryRegisterUser : listRegisterDay) {
-                resObj.getData().set(summaryRegisterUser.getLabels(), summaryRegisterUser.getData());
+                resObj.getData().set(summaryRegisterUser.getLabels() - 1, summaryRegisterUser.getData());
             }
 
 
@@ -452,7 +452,7 @@ public class WebUserServiceImpl implements WebUserService {
             List<SummaryRegisterUser> listRegisterYear = webUserJdbcRepository.summaryRegisterUsersByYear(webUserHistoryRequest, principal);
 
             for (SummaryRegisterUser summaryRegisterUser : listRegisterYear) {
-                resObj.getData().set(summaryRegisterUser.getLabels(), summaryRegisterUser.getData());
+                resObj.getData().set(summaryRegisterUser.getLabels() - 1, summaryRegisterUser.getData());
             }
 
         }
