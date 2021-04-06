@@ -203,7 +203,7 @@ public class WebUserServiceImpl implements WebUserService {
             search.setLine(resp.getLine());
             search.setIsBonus(resp.getIsBonus());
             search.setType(request.getType());
-            search.setTypeUser(request.isTypeUser());
+            search.setTypeUser(request.getTypeUser());
             search.setSearchValue(request.getSearchValue());
 
             search.setVersion(resp.getVersion());
