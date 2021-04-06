@@ -67,7 +67,7 @@ public class WebUserController {
 
     @PostMapping(value = "/webuser/search", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> search(@RequestBody WebUserSearchRequest request, @AuthenticationPrincipal UserPrincipal principal) {
-        List<SearchWebUserDTO> obj = webUserService.searchWebUser(request, principal);
+        Page<SearchWebUserDTO> obj = webUserService.searchWebUser(request, principal);
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, obj);
     }
 

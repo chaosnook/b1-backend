@@ -7,6 +7,7 @@ import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.admin.LoginRequest;
 import com.game.b1ingservice.payload.amb.*;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.deposithistory.DepositListHistorySearchResponse;
 import com.game.b1ingservice.payload.userinfo.UserInfoResponse;
 import com.game.b1ingservice.payload.userinfo.UserProfile;
 import com.game.b1ingservice.payload.webuser.WebUserRequest;
@@ -28,8 +29,7 @@ import com.game.b1ingservice.utils.JwtTokenUtil;
 import com.game.b1ingservice.utils.PasswordGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -182,11 +182,10 @@ public class WebUserServiceImpl implements WebUserService {
 //    }
 
     @Override
-    public List<SearchWebUserDTO> searchWebUser(WebUserSearchRequest request, UserPrincipal principal) {
-
-        WebUserResponse resObj = new WebUserResponse();
+    public Page<SearchWebUserDTO> searchWebUser(WebUserSearchRequest request, UserPrincipal principal) {
 
         List<SearchWebUserDTO> listWebUser = webUserJdbcRepository.searchWebUser(request, principal);
+        Integer countWebUser = webUserJdbcRepository.countWebUser(request, principal);
 
         List<SearchWebUserDTO> result = new ArrayList<>();
         for(SearchWebUserDTO resp : listWebUser) {
@@ -212,7 +211,9 @@ public class WebUserServiceImpl implements WebUserService {
             result.add(search);
         }
 
-        return result;
+        Page<SearchWebUserDTO> searchResponse = new PageImpl<> (result , PageRequest.of(request.getPage(), request.getSize()), countWebUser);
+
+        return searchResponse;
 
     }
 

@@ -1,6 +1,9 @@
 package com.game.b1ingservice.postgres.jdbc.dto;
 
+import com.game.b1ingservice.specification.commons.SearchPageable;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.Instant;
 

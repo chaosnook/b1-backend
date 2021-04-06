@@ -44,7 +44,7 @@ public interface WebUserService {
 
     List<WinLoseReq> getAllUser(Long agentId);
 
-    List<SearchWebUserDTO> searchWebUser(WebUserSearchRequest request, UserPrincipal principal);
+    Page<SearchWebUserDTO> searchWebUser(WebUserSearchRequest request, UserPrincipal principal);
 
 
 //    List<WebUserResponse> listDepositUser();
