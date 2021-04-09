@@ -58,18 +58,18 @@ public class WebUserController {
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
-//    @PostMapping(value = "/webuser/search", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-//    public ResponseEntity<?> search(@RequestBody WebUserSearchRequest request){
-//        SearchWebUserSpecification specification = new SearchWebUserSpecification(request);
-//        Page<WebUserResponse> users = webUserService.findByCriteria(specification,specification.getPageable());
-//        return ResponseHelper.successPage(users, "datas",Constants.MESSAGE.MSG_00000.msg);
-//    }
-
     @PostMapping(value = "/webuser/search", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> search(@RequestBody WebUserSearchRequest request, @AuthenticationPrincipal UserPrincipal principal) {
-        Page<SearchWebUserDTO> obj = webUserService.searchWebUser(request, principal);
-        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, obj);
+    public ResponseEntity<?> search(@RequestBody WebUserSearchRequest request){
+        SearchWebUserSpecification specification = new SearchWebUserSpecification(request);
+        Page<WebUserResponse> users = webUserService.findByCriteria(specification,specification.getPageable(), request);
+        return ResponseHelper.successPage(users, "datas",Constants.MESSAGE.MSG_00000.msg);
     }
+
+//    @PostMapping(value = "/webuser/search", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+//    public ResponseEntity<?> search(@RequestBody WebUserSearchRequest request, @AuthenticationPrincipal UserPrincipal principal) {
+//        Page<SearchWebUserDTO> obj = webUserService.searchWebUser(request, principal);
+//        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, obj);
+//    }
 
 
 //    @GetMapping(value = "/list-user-deposit")

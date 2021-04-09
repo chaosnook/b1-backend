@@ -27,12 +27,13 @@ public class SearchWebUserSpecification extends SearchPageSpecification<WebUserS
         }
 
         if (StringUtils.isNotEmpty(searchBody.getUsername())) {
-            String userName = StringUtils.trimToEmpty(searchBody.getUsername());
+            String username = StringUtils.trimToEmpty(searchBody.getUsername());
 
                 predicates.add(
-                        criteriaBuilder.like(root.get("userName"), "%" + userName + "%")
+                        criteriaBuilder.like(root.get("username"), "%" + username + "%")
                 );
             }
+
 
         if (StringUtils.isNotEmpty(searchBody.getTel())){
             String tel = StringUtils.trimToEmpty(searchBody.getTel());

@@ -174,7 +174,7 @@ public class WebUserServiceImpl implements WebUserService {
             throw new ErrorMessageException(Constants.ERROR.ERR_01104);
         }
     }
-
+//
 //    @Override
 //    public List<WebUserResponse> listDepositUser() {
 //        List<WebUserResponse> list = webUserRepository.findDepositUsers().stream().map(converter).collect(Collectors.toList());
@@ -188,7 +188,7 @@ public class WebUserServiceImpl implements WebUserService {
         Integer countWebUser = webUserJdbcRepository.countWebUser(request, principal);
 
         List<SearchWebUserDTO> result = new ArrayList<>();
-        for(SearchWebUserDTO resp : listWebUser) {
+        for (SearchWebUserDTO resp : listWebUser) {
             SearchWebUserDTO search = new SearchWebUserDTO();
             search.setId(resp.getId());
             search.setUsername(resp.getUsername());
@@ -211,15 +211,23 @@ public class WebUserServiceImpl implements WebUserService {
             result.add(search);
         }
 
-        Page<SearchWebUserDTO> searchResponse = new PageImpl<> (result , PageRequest.of(request.getPage(), request.getSize()), countWebUser);
+        Page<SearchWebUserDTO> searchResponse = new PageImpl<>(result, PageRequest.of(request.getPage(), request.getSize()), countWebUser);
 
         return searchResponse;
 
     }
 
     @Override
-    public Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable) {
-        return webUserRepository.findAll(specification, pageable).map(converter);
+    public Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable, WebUserSearchRequest request) {
+
+        Page<WebUserResponse> searchResponse = webUserRepository.findAll(specification, pageable).map(converter);
+
+        if (request.getTypeUser() == 1) {
+
+
+        }
+
+        return searchResponse;
     }
 
     Function<WebUser, WebUserResponse> converter = users -> {

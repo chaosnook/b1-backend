@@ -25,7 +25,7 @@ public interface WebUserService {
 
     void updateUser(Long id, WebUserUpdate req);
 
-    Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable);
+    Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable, WebUserSearchRequest request);
 
     WebUserResetPasswordResponse resetPassword(Long id, UserPrincipal principal);
 
