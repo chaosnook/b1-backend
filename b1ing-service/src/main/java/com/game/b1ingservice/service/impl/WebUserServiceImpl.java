@@ -222,13 +222,21 @@ public class WebUserServiceImpl implements WebUserService {
 
         Page<WebUserResponse> searchResponse = webUserRepository.findAll(specification, pageable).map(converter);
 
-        if (request.getTypeUser() == 1) {
+//        if (request.getTypeUser() == 1) {
+
+//            List<WebUserResponse> listTypeUser = findDepositUser(searchResponse);
 
 
-        }
+//        }
 
         return searchResponse;
     }
+
+//    private List<WebUserResponse> findDepositUser(Page<WebUserResponse> searchResponse) {
+//
+//
+//
+//    }
 
     Function<WebUser, WebUserResponse> converter = users -> {
         WebUserResponse webUserResponse = new WebUserResponse();

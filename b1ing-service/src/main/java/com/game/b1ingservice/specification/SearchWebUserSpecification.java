@@ -66,6 +66,14 @@ public class SearchWebUserSpecification extends SearchPageSpecification<WebUserS
             );
         }
 
+        if( searchBody.getTypeUser() == 1) {
+            predicates.add(
+                    criteriaBuilder.greaterThan(criteriaBuilder.size(root.get("depositHistory")), 0));
+        } else if ( searchBody.getTypeUser() == 2) {
+            predicates.add(
+                    criteriaBuilder.equal(criteriaBuilder.size(root.get("depositHistory")), 0));
+        }
+
             boolean parseCreateDateFrom = DateUtils.canCastDate(searchBody.getCreatedDateFrom());
             boolean parseCreateDateTo = DateUtils.canCastDate(searchBody.getCreatedDateTo());
 
