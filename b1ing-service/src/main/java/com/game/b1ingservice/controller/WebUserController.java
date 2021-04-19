@@ -65,18 +65,13 @@ public class WebUserController {
         return ResponseHelper.successPage(users, "datas",Constants.MESSAGE.MSG_00000.msg);
     }
 
+    //ไม่ได้ใช้แล้ว
 //    @PostMapping(value = "/webuser/search", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 //    public ResponseEntity<?> search(@RequestBody WebUserSearchRequest request, @AuthenticationPrincipal UserPrincipal principal) {
 //        Page<SearchWebUserDTO> obj = webUserService.searchWebUser(request, principal);
 //        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, obj);
 //    }
 
-
-//    @GetMapping(value = "/list-user-deposit")
-//    public ResponseEntity<?> listDepositUser(@AuthenticationPrincipal UserPrincipal principal){
-//        List<WebUserResponse> res = webUserService.listDepositUser();
-//        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg,res);
-//    }
 
     @PutMapping(value = "webuser/reset/{id}",
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})

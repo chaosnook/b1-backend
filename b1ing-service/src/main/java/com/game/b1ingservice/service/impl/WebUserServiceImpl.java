@@ -174,69 +174,53 @@ public class WebUserServiceImpl implements WebUserService {
             throw new ErrorMessageException(Constants.ERROR.ERR_01104);
         }
     }
-//
+
+    //ไม่ได้ใช้แล้ว
+
 //    @Override
-//    public List<WebUserResponse> listDepositUser() {
-//        List<WebUserResponse> list = webUserRepository.findDepositUsers().stream().map(converter).collect(Collectors.toList());
-//        return list;
+//    public Page<SearchWebUserDTO> searchWebUser(WebUserSearchRequest request, UserPrincipal principal) {
+//
+//        List<SearchWebUserDTO> listWebUser = webUserJdbcRepository.searchWebUser(request, principal);
+//        Integer countWebUser = webUserJdbcRepository.countWebUser(request, principal);
+//
+//        List<SearchWebUserDTO> result = new ArrayList<>();
+//        for (SearchWebUserDTO resp : listWebUser) {
+//            SearchWebUserDTO search = new SearchWebUserDTO();
+//            search.setId(resp.getId());
+//            search.setUsername(resp.getUsername());
+//            search.setPassword(resp.getPassword());
+//            search.setTel(resp.getTel());
+//            search.setBankName(resp.getBankName());
+//            search.setAccountNumber(resp.getAccountNumber());
+//            search.setFirstName(resp.getFirstName());
+//            search.setLastName(resp.getLastName());
+//            search.setFullName(resp.getFirstName() + " " + resp.getLastName());
+//            search.setLine(resp.getLine());
+//            search.setIsBonus(resp.getIsBonus());
+//            search.setType(request.getType());
+//            search.setTypeUser(request.getTypeUser());
+//            search.setSearchValue(request.getSearchValue());
+//
+//            search.setVersion(resp.getVersion());
+//            search.setCreatedDate(resp.getCreatedDate());
+//            search.setUpdatedDate(resp.getUpdatedDate());
+//            result.add(search);
+//        }
+//
+//        Page<SearchWebUserDTO> searchResponse = new PageImpl<>(result, PageRequest.of(request.getPage(), request.getSize()), countWebUser);
+//
+//        return searchResponse;
+//
 //    }
-
-    @Override
-    public Page<SearchWebUserDTO> searchWebUser(WebUserSearchRequest request, UserPrincipal principal) {
-
-        List<SearchWebUserDTO> listWebUser = webUserJdbcRepository.searchWebUser(request, principal);
-        Integer countWebUser = webUserJdbcRepository.countWebUser(request, principal);
-
-        List<SearchWebUserDTO> result = new ArrayList<>();
-        for (SearchWebUserDTO resp : listWebUser) {
-            SearchWebUserDTO search = new SearchWebUserDTO();
-            search.setId(resp.getId());
-            search.setUsername(resp.getUsername());
-            search.setPassword(resp.getPassword());
-            search.setTel(resp.getTel());
-            search.setBankName(resp.getBankName());
-            search.setAccountNumber(resp.getAccountNumber());
-            search.setFirstName(resp.getFirstName());
-            search.setLastName(resp.getLastName());
-            search.setFullName(resp.getFirstName() + " " + resp.getLastName());
-            search.setLine(resp.getLine());
-            search.setIsBonus(resp.getIsBonus());
-            search.setType(request.getType());
-            search.setTypeUser(request.getTypeUser());
-            search.setSearchValue(request.getSearchValue());
-
-            search.setVersion(resp.getVersion());
-            search.setCreatedDate(resp.getCreatedDate());
-            search.setUpdatedDate(resp.getUpdatedDate());
-            result.add(search);
-        }
-
-        Page<SearchWebUserDTO> searchResponse = new PageImpl<>(result, PageRequest.of(request.getPage(), request.getSize()), countWebUser);
-
-        return searchResponse;
-
-    }
 
     @Override
     public Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable, WebUserSearchRequest request) {
 
         Page<WebUserResponse> searchResponse = webUserRepository.findAll(specification, pageable).map(converter);
 
-//        if (request.getTypeUser() == 1) {
-
-//            List<WebUserResponse> listTypeUser = findDepositUser(searchResponse);
-
-
-//        }
-
         return searchResponse;
     }
 
-//    private List<WebUserResponse> findDepositUser(Page<WebUserResponse> searchResponse) {
-//
-//
-//
-//    }
 
     Function<WebUser, WebUserResponse> converter = users -> {
         WebUserResponse webUserResponse = new WebUserResponse();
@@ -421,7 +405,7 @@ public class WebUserServiceImpl implements WebUserService {
         if (type.equals("day")) {
 
 //            //// byDay
-            for (int i = 1; i < 24; i++) {
+            for (int i = 0; i <= 23; i++) {
                 resObj.getLabels().add(i);
                 resObj.getData().add(0);
             }
@@ -429,7 +413,7 @@ public class WebUserServiceImpl implements WebUserService {
             List<SummaryRegisterUser> listRegisterDay = webUserJdbcRepository.summaryRegisterUsersByDay(webUserHistoryRequest, principal);
 
             for (SummaryRegisterUser summaryRegisterUser : listRegisterDay) {
-                resObj.getData().set(summaryRegisterUser.getLabels() - 1, summaryRegisterUser.getData());
+                resObj.getData().set(summaryRegisterUser.getLabels() , summaryRegisterUser.getData());
             }
 
 

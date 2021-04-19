@@ -47,5 +47,4 @@ public interface WebUserService {
     Page<SearchWebUserDTO> searchWebUser(WebUserSearchRequest request, UserPrincipal principal);
 
 
-//    List<WebUserResponse> listDepositUser();
 }

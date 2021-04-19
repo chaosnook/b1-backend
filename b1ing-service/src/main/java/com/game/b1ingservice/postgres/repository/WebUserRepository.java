@@ -32,8 +32,7 @@ public interface WebUserRepository extends JpaRepository<WebUser, Long>, JpaSpec
 
     Optional<WebUser> findByIdNotAndUsername(Long id, String username);
 
-//    @Query(value = "select o from WebUser o where o.depositHistory.size>0")
-//    List<WebUser> findDepositUsers();
+
 
     @Query(value = "select id, username, deposit_ref as depositRef FROM users  where agent_id = ? and delete_flag = 0 and deposit_ref is not null", nativeQuery = true)
     List<Map> getAllUser(Long agentId);
