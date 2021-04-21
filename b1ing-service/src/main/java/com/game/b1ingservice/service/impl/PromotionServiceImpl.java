@@ -20,9 +20,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -194,7 +192,7 @@ public class PromotionServiceImpl implements PromotionService {
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/api/file/downloadFile/")
-                .path(promotion.getName())
+                .path(promotion.getUrlImage())
                 .toUriString();
 
         userRes.setUrlImage(fileDownloadUri);
