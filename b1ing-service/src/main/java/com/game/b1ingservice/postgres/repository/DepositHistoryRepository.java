@@ -13,7 +13,7 @@ import java.util.List;
 public interface DepositHistoryRepository extends JpaRepository<DepositHistory, Long>, JpaSpecificationExecutor<DepositHistory> {
     boolean existsByTransactionId(String transactionId);
 
-    List<DepositHistory> findAllByUser_usernameAndCreatedDateBetweenOrderByCreatedDateDesc(String username, Instant startDate, Instant endDate);
+    List<DepositHistory> findAllByUser_usernameAndCreatedDateBetweenAndStatusOrderByCreatedDateDesc(String username, Instant startDate, Instant endDate, String status);
 
     List<DepositHistory> findTop10ByUser_IdOrderByCreatedDateDesc(Long id);
 

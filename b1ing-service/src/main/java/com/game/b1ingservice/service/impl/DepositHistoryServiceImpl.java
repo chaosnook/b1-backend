@@ -12,18 +12,20 @@ import com.game.b1ingservice.postgres.repository.DepositHistoryRepository;
 import com.game.b1ingservice.service.DepositHistoryService;
 import com.game.b1ingservice.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Timestamp;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.game.b1ingservice.commons.Constants.DEPOSIT_STATUS.SUCCESS;
 
 @Service
 public class DepositHistoryServiceImpl implements DepositHistoryService {
@@ -76,13 +78,15 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     public List<DepositHisUserRes> searchByUser(DepositHisUserReq depositHisUserReq, String username) {
         List<DepositHistory> depositHistories = new ArrayList<>();
         if (depositHisUserReq.getStartDate() != null && depositHisUserReq.getPrevDate() != null) {
-            depositHistories = depositHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenOrderByCreatedDateDesc(username,
+            depositHistories = depositHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenAndStatusOrderByCreatedDateDesc(username,
                     DateUtils.atStartOfDay(DateUtils.convertStartDate(depositHisUserReq.getPrevDate())).toInstant(),
-                    DateUtils.atEndOfDay(DateUtils.convertEndDate(depositHisUserReq.getStartDate())).toInstant());
+                    DateUtils.atEndOfDay(DateUtils.convertEndDate(depositHisUserReq.getStartDate())).toInstant(),
+                    SUCCESS);
         } else if (depositHisUserReq.getStartDate() != null) {
-            depositHistories = depositHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenOrderByCreatedDateDesc(username,
+            depositHistories = depositHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenAndStatusOrderByCreatedDateDesc(username,
                     DateUtils.atStartOfDay(DateUtils.convertStartDate(depositHisUserReq.getStartDate())).toInstant(),
-                    DateUtils.atEndOfDay(DateUtils.convertEndDate(depositHisUserReq.getStartDate())).toInstant());
+                    DateUtils.atEndOfDay(DateUtils.convertEndDate(depositHisUserReq.getStartDate())).toInstant(),
+                    SUCCESS);
         }
         return depositHistories.stream().map(converterUser).collect(Collectors.toList());
     }
