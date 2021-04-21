@@ -20,8 +20,8 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long>, Jpa
 
     List<Promotion> findAllByAgent_PrefixAndActive(String prefix , boolean active);
 
-    @Query("select o from Promotion o where :date between o.startTime and o.endTime and o.active = true and :amount between o.minTopup and o.maxTopup")
-    List<Promotion> findByDateBetweenStartTimeAndEndTimeAndMaxTopupAndMinTopup(Date date, BigDecimal amount);
+    @Query("select o from Promotion o where o.active = true and :amount between o.minTopup and o.maxTopup")
+    List<Promotion> findByMaxTopupAndMinTopup(BigDecimal amount);
 
     List<Promotion> findAllByOrderByIdDesc();
 }

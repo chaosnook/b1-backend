@@ -8,6 +8,7 @@ import com.game.b1ingservice.payload.amb.DepositReq;
 import com.game.b1ingservice.payload.amb.DepositRes;
 import com.game.b1ingservice.payload.bankbot.*;
 import com.game.b1ingservice.payload.promotion.PromotionEffectiveRequest;
+import com.game.b1ingservice.payload.promotion.PromotionEffectiveResponse;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.*;
@@ -63,6 +64,9 @@ public class BankBotServiceImpl implements BankBotService {
     @Autowired
     private LineNotifyService lineNotifyService;
 
+    @Autowired
+    private PromotionHistoryRepository promotionHistoryRepository;
+
     private static final MediaType MEDIA_JSON = MediaType.parse("application/json");
     @Override
     public void addCredit(BankBotAddCreditRequest request) {
@@ -91,10 +95,11 @@ public class BankBotServiceImpl implements BankBotService {
                 depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()));
                 depositHistory.setUser(wallet.getUser());
                 depositHistory.setBank(wallet.getBank());
-                BigDecimal bonus = mapPromotion(depositHistory,request.getTransactionDate());
-                depositHistory.setBonusAmount(bonus);
+                PromotionEffectiveResponse promotionBonus = mapPromotion(depositHistory,request.getTransactionDate());
+                depositHistory.setBonusAmount(promotionBonus.getBonus());
                 try {
                     AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory,wallet);
+                    log.info("amb response : {}", result);
                     if (0 == result.getCode()){
                         depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
 
@@ -105,8 +110,7 @@ public class BankBotServiceImpl implements BankBotService {
                                     depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)) ,
                                     webUser.getAgent().getLineToken());
                         }
-
-                        walletRepository.depositCredit(request.getAmount(), wallet.getUser().getId());
+                        walletRepository.depositCreditAndTurnOverNonMultiply(request.getAmount().add(promotionBonus.getBonus()), promotionBonus.getTurnOver(), wallet.getUser().getId());
                         webUserRepository.updateDepositRef(result.getResult().getRef(), wallet.getUser().getId());
                         // check affiliate
                         affiliateService.earnPoint(wallet.getUser().getId(), request.getAmount(), wallet.getUser().getAgent().getPrefix());
@@ -124,8 +128,8 @@ public class BankBotServiceImpl implements BankBotService {
             } else {
                 depositHistory.setStatus(Constants.DEPOSIT_STATUS.PENDING);
                 depositHistory.setReason("Not sure which wallet");
-                BigDecimal bonus = mapPromotion(depositHistory,request.getTransactionDate());
-                depositHistory.setBonusAmount(bonus);
+                PromotionEffectiveResponse promotionBonus = mapPromotion(depositHistory,request.getTransactionDate());
+                depositHistory.setBonusAmount(promotionBonus.getBonus());
                 if (opt.isPresent()){
                     depositHistory.setBank(opt.get());
                 }
@@ -158,11 +162,12 @@ public class BankBotServiceImpl implements BankBotService {
                 depositHistory.setUser(wallet.getUser());
                 depositHistory.setTrueWallet(wallet.getTrueWallet());
                 depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
-                BigDecimal bonus = mapPromotion(depositHistory,request.getTransactionDate());
-                depositHistory.setBonusAmount(bonus);
+                PromotionEffectiveResponse promotionBonus = mapPromotion(depositHistory,request.getTransactionDate());
+                depositHistory.setBonusAmount(promotionBonus.getBonus());
                 try {
 
                     AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory,wallet);
+                    log.info("amb response : {}", result);
                     if (0 == result.getCode()){
                         depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
 
@@ -170,7 +175,7 @@ public class BankBotServiceImpl implements BankBotService {
                                 wallet.getUser().getUsername(), depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)) ,
                                 wallet.getUser().getAgent().getLineToken());
 
-                        walletRepository.depositCredit(request.getAmount(), wallet.getUser().getId());
+                        walletRepository.depositCreditAndTurnOverNonMultiply(request.getAmount().add(promotionBonus.getBonus()), promotionBonus.getTurnOver(), wallet.getUser().getId());
                         webUserRepository.updateDepositRef(result.getResult().getRef(), wallet.getUser().getId());
                         // check affiliate
                         affiliateService.earnPoint(wallet.getUser().getId(), request.getAmount(), wallet.getUser().getAgent().getPrefix());
@@ -187,8 +192,8 @@ public class BankBotServiceImpl implements BankBotService {
             } else {
                 depositHistory.setStatus(Constants.DEPOSIT_STATUS.PENDING);
                 depositHistory.setReason("Not sure which wallet");
-                BigDecimal bonus = mapPromotion(depositHistory,request.getTransactionDate());
-                depositHistory.setBonusAmount(bonus);
+                PromotionEffectiveResponse promotionBonus = mapPromotion(depositHistory,request.getTransactionDate());
+                depositHistory.setBonusAmount(promotionBonus.getBonus());
                 if (opt.isPresent()){
                     depositHistory.setTrueWallet(opt.get());
                 }
@@ -232,22 +237,30 @@ public class BankBotServiceImpl implements BankBotService {
         DepositReq depositReq = DepositReq.builder().amount(depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build();
         return ambService.deposit(depositReq, wallet.getUser().getUsername(),wallet.getUser().getAgent());
     }
-    private BigDecimal mapPromotion(DepositHistory depositHistory, Instant transactionDate){
+    private PromotionEffectiveResponse mapPromotion(DepositHistory depositHistory, Instant transactionDate){
         PromotionEffectiveRequest effectiveRequest = new PromotionEffectiveRequest();
         effectiveRequest.setAmount(depositHistory.getAmount());
         effectiveRequest.setTransactionId(depositHistory.getTransactionId());
         effectiveRequest.setTransactionDate(transactionDate);
         effectiveRequest.setUser(depositHistory.getUser());
+
         BigDecimal bonus = BigDecimal.ZERO;
+        BigDecimal turnOver = BigDecimal.ZERO;
+
         List<Promotion> promotionList = promotionService.getEffectivePromotion(effectiveRequest);
 
         List<PromotionHistory> promotionHistories = new ArrayList<>();
 
         for (Promotion promotion : promotionList) {
             PromotionHistory history = promotionService.calculatePromotionBonus(promotion, effectiveRequest);
-            bonus.add(history.getBonus());
+            bonus = bonus.add(history.getBonus());
+            turnOver = turnOver.add(history.getTurnOver());
             promotionHistories.add(history);
         }
-        return bonus;
+        promotionHistoryRepository.saveAll(promotionHistories);
+        PromotionEffectiveResponse response = new PromotionEffectiveResponse();
+        response.setBonus(bonus);
+        response.setTurnOver(turnOver);
+        return response;
     }
 }

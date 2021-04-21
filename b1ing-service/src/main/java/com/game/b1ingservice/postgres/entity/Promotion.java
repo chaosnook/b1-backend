@@ -43,9 +43,9 @@ public class Promotion extends DateAudit<String> implements Serializable {
     private BigDecimal maxReceiveBonus;
     @Column(name = "turn_over", columnDefinition = "numeric(18,2)")
     private BigDecimal turnOver;
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIME)
     private Date startTime;
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIME)
     private Date endTime;
     @Column(name = "active", columnDefinition = "boolean")
     private boolean active;
