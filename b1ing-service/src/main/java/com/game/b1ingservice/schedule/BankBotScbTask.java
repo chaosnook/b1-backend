@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
@@ -42,34 +44,40 @@ public class BankBotScbTask {
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-//    @Scheduled(cron = "0 0 12 1 1 *")
+    @Scheduled(cron = "0,30 * * * * *")
     public void scheduleFixedRateTask() {
-        List<Bank> lists = bankRepository.findByBankTypeAndActive("DEPOSIT", true);
-        for (Bank bank : lists) {
-            if (!bank.getBotIp().startsWith("100.101.1")) {
-                List<BankBotScbTransactionResponse> transactionList = fetchScbTransaction(bank);
-                for (BankBotScbTransactionResponse transaction : transactionList) {
-                    BankBotAddCreditRequest request = new BankBotAddCreditRequest();
-                    request.setBotType("SCB");
-                    request.setTransactionId("transactionId");
-                    request.setBotIp(bank.getBotIp());
-                    request.setAccountNo(transaction.getAccountNo());
-                    request.setAmount(BigDecimal.valueOf(transaction.getTxnAmount()));
-                    try {
-                        Date d = sdf.parse(transaction.getTxnDateTime().replace(".000+07:00", ""));
-                        request.setTransactionDate(d.toInstant());
-                    } catch (Exception e) {
+        try{
+            TimeUnit.SECONDS.sleep(new Random().nextInt(5));
+            List<Bank> lists = bankRepository.findByBankTypeAndActive("DEPOSIT", true);
+            for (Bank bank : lists) {
+                if (!bank.getBotIp().startsWith("100.101.1")) {
+                    List<BankBotScbTransactionResponse> transactionList = fetchScbTransaction(bank);
+                    for (BankBotScbTransactionResponse transaction : transactionList) {
+                        BankBotAddCreditRequest request = new BankBotAddCreditRequest();
+                        request.setBotType("SCB");
+                        request.setTransactionId("transactionId");
+                        request.setBotIp(bank.getBotIp());
+                        request.setAccountNo(transaction.getAccountNo());
+                        request.setAmount(BigDecimal.valueOf(transaction.getTxnAmount()));
+                        try {
+                            Date d = sdf.parse(transaction.getTxnDateTime().replace(".000+07:00", ""));
+                            request.setTransactionDate(d.toInstant());
+                        } catch (Exception e) {
 
+                        }
+                        request.setType("Deposit");
+                        request.setRemark(transaction.getTxnRemark());
+                        request.setTransactionId(DigestUtils.sha1Hex(request.getTransactionDate().toString() + (request.getRemark())));
+                        request = extractAccount(request);
+                        log.info(request.toString());
+                        bankBotService.addCredit(request);
                     }
-                    request.setType("Deposit");
-                    request.setRemark(transaction.getTxnRemark());
-                    request.setTransactionId(DigestUtils.sha1Hex(request.getTransactionDate().toString() + (request.getRemark())));
-                    request = extractAccount(request);
-                    log.info(request.toString());
-                    bankBotService.addCredit(request);
                 }
             }
+        }catch (InterruptedException e){
+            log.error(e.getLocalizedMessage());
         }
+
     }
 
     private List<BankBotScbTransactionResponse> fetchScbTransaction(Bank bank) {
