@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.game.b1ingservice.commons.Constants.MESSAGE_ADMIN_DEPOSIT;
+import static com.game.b1ingservice.commons.Constants.MESSAGE_DEPOSIT;
 
 @Service
 @Slf4j
@@ -97,9 +98,13 @@ public class BankBotServiceImpl implements BankBotService {
                     if (0 == result.getCode()){
                         depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
 
-                        lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT,
-                                wallet.getUser().getUsername(), depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)) ,
-                                wallet.getUser().getAgent().getLineToken());
+                       WebUser webUser = wallet.getUser();
+                        if (webUser != null) {
+                            lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_DEPOSIT,
+                                    webUser.getUsername(),
+                                    depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)) ,
+                                    webUser.getAgent().getLineToken());
+                        }
 
                         walletRepository.depositCredit(request.getAmount(), wallet.getUser().getId());
                         webUserRepository.updateDepositRef(result.getResult().getRef(), wallet.getUser().getId());
