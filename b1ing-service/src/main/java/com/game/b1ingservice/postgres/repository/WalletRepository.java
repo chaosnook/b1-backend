@@ -77,6 +77,12 @@ public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecif
 
     @Transactional
     @Modifying
+    @Query(value = "UPDATE wallet SET credit = credit + ? ,turn_over = turn_over + ? , version=version+1  WHERE user_id = ? ", nativeQuery = true)
+    int depositCreditAndTurnOverNonMultiply(BigDecimal credit,BigDecimal creditMul, Long userId);
+
+
+    @Transactional
+    @Modifying
     @Query(value = "UPDATE wallet SET credit = credit + ? ,turn_over = turn_over + (?*?) , version=version+1  WHERE user_id = ? ", nativeQuery = true)
     int depositCreditAndTurnOver(BigDecimal credit,BigDecimal creditMul, Integer turnOver, Long userId);
 

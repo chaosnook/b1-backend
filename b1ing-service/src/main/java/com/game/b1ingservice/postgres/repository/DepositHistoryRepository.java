@@ -2,12 +2,14 @@ package com.game.b1ingservice.postgres.repository;
 
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
+import com.game.b1ingservice.postgres.entity.PromotionHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DepositHistoryRepository extends JpaRepository<DepositHistory, Long>, JpaSpecificationExecutor<DepositHistory> {
@@ -19,4 +21,5 @@ public interface DepositHistoryRepository extends JpaRepository<DepositHistory, 
 
     List<DepositHistory> findAllByUser_AgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(Agent agent, Instant startDate, Instant endDate, List<String> types);
 
+    Boolean existsByUser_Id(Long userId);
 }

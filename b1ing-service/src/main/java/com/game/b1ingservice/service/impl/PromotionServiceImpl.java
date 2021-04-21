@@ -6,10 +6,7 @@ import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.condition.ConditionResponse;
 import com.game.b1ingservice.payload.promotion.*;
 import com.game.b1ingservice.postgres.entity.*;
-import com.game.b1ingservice.postgres.repository.AdminUserRepository;
-import com.game.b1ingservice.postgres.repository.AgentRepository;
-import com.game.b1ingservice.postgres.repository.ConditionRepository;
-import com.game.b1ingservice.postgres.repository.PromotionRepository;
+import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.ConditionService;
 import com.game.b1ingservice.service.PromotionService;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +17,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -31,6 +29,12 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Autowired
     PromotionRepository promotionRepository;
+
+    @Autowired
+    PromotionHistoryRepository promotionHistoryRepository;
+
+    @Autowired
+    DepositHistoryRepository depositHistoryRepository;
 
     @Autowired
     ConditionService conditionService;
@@ -158,8 +162,24 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Override
     public List<Promotion> getEffectivePromotion(PromotionEffectiveRequest request) {
-        List<Promotion> promotionList = promotionRepository.findByDateBetweenStartTimeAndEndTimeAndMaxTopupAndMinTopup(Date.from(request.getTransactionDate()),request.getAmount());
-        return promotionList;
+        List<Promotion> promotionList = promotionRepository.findByMaxTopupAndMinTopup(request.getAmount());
+        List<Promotion> effectivePromotion = new ArrayList<>();
+        promotionList.parallelStream().forEach(promotion -> {
+            if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.FIRSTTIME)){
+                if (!promotionHistoryRepository.existsByUser_IdAndPromotion_Id(request.getUser().getId(),promotion.getId()))
+                    effectivePromotion.add(promotion);
+            }else if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.NEWUSER)){
+                if (!depositHistoryRepository.existsByUser_Id(request.getUser().getId()))
+                    effectivePromotion.add(promotion);
+            }else if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.ALLDAY)){
+                effectivePromotion.add(promotion);
+            }else if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.GOLDTIME)){
+
+            }
+        });
+
+
+        return effectivePromotion;
     }
 
     @Override
