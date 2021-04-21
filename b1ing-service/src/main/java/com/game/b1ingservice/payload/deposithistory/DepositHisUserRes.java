@@ -12,6 +12,7 @@ public class DepositHisUserRes {
     private String status;
     private BigDecimal value;
     private BigDecimal bonus;
+    private BigDecimal total;
     private String username;
     private String reason;
 

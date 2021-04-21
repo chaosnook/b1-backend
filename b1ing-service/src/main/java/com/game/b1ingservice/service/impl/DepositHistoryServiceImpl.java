@@ -344,6 +344,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         depHis.setStatus(depositHistory.getStatus());
         depHis.setValue(depositHistory.getAmount());
         depHis.setBonus(depositHistory.getBonusAmount());
+        depHis.setTotal(depositHistory.getAfterAmount().add(depositHistory.getBonusAmount()));
         return depHis;
     };
 }
