@@ -54,9 +54,10 @@ public class TokenAuthenticationService {
 
         boolean checkAdmin = adminService.checkAdmin(userId, prefix);
 
-        return checkAdmin && userId != null ?
-                new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList())
-                : null;
+        return new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList());
+//        return checkAdmin && userId != null ?
+//                new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList())
+//                : null;
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {
