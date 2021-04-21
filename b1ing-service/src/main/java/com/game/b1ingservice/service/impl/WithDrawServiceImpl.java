@@ -22,7 +22,6 @@ import java.math.RoundingMode;
 import java.util.Optional;
 
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.MIN_WITHDRAW_CREDIT;
-import static com.game.b1ingservice.commons.Constants.MESSAGE_WITHDRAW;
 
 
 @Slf4j
@@ -120,8 +119,8 @@ public class WithDrawServiceImpl implements WithDrawService {
                 withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.PENDING_APPROVE);
             }
 
-            lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW, webUser.getUsername(), creditWithDraw.setScale(2, RoundingMode.HALF_DOWN)) ,
-                    agent.getLineToken());
+//            lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW, webUser.getUsername(), creditWithDraw.setScale(2, RoundingMode.HALF_DOWN)) ,
+//                    agent.getLineToken());
 
         } else {
             withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);

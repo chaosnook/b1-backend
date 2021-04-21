@@ -24,6 +24,7 @@ public class DepositHistoryController {
 
     @PostMapping(value = "/search/list/depositHistory", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> searchListDepositHistory(@RequestBody DepositHistorySearchRequest req){
+        req.setSummary(false);
         SearchDepositHistorySpecification specification = new SearchDepositHistorySpecification(req);
         Page<DepositListHistorySearchResponse> searchResponse = depositHistoryService.findByCriteria(specification, specification.getPageable(), req.getType());
         return ResponseHelper.successPage(searchResponse, "data", Constants.MESSAGE.MSG_00000.msg);
@@ -31,7 +32,9 @@ public class DepositHistoryController {
 
     @PostMapping(value = "/search/summary/depositHistory", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> searchSummaryDepositHistory(@RequestBody DepositHistorySearchRequest req){
+        req.setSummary(true);
         SearchDepositHistorySpecification specification = new SearchDepositHistorySpecification(req);
+
         Page<DepositSummaryHistorySearchResponse> searchResponse = depositHistoryService.findSummaryByCriteria(specification, specification.getPageable(), req.getType());
         return ResponseHelper.successPage(searchResponse, "data", Constants.MESSAGE.MSG_00000.msg);
     }

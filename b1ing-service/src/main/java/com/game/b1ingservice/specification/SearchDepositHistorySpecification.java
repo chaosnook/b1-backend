@@ -36,7 +36,7 @@ public class SearchDepositHistorySpecification extends SearchPageSpecification<D
 
         if (StringUtils.isNotEmpty(searchBody.getType())) {
             if("ERROR".equals(searchBody.getType())) {
-                predicates.add(criteriaBuilder.equal(root.get("status"), Constants.DEPOSIT_STATUS.ERROR));
+                predicates.add(criteriaBuilder.isNotNull(root.get("mistakeType")));
             } else if("TRUEWALLET".equals(searchBody.getType())) {
                 predicates.add(criteriaBuilder.equal(root.get("type"), "TRUEWALLET"));
             }
@@ -53,6 +53,10 @@ public class SearchDepositHistorySpecification extends SearchPageSpecification<D
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.<Instant>get("createdDate"), DateUtils.convertStartDateTime(searchBody.getCreatedDateFrom()).toInstant()));
         } else if (parseCreateDateTo) {
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Instant>get("createdDate"), DateUtils.convertEndDateTime(searchBody.getCreatedDateTo()).toInstant()));
+        }
+
+        if (searchBody.isSummary()) {
+            predicates.add(criteriaBuilder.equal(root.get("status"), Constants.DEPOSIT_STATUS.SUCCESS));
         }
 
         return super.buildParallelPredicate(root, query, criteriaBuilder);
