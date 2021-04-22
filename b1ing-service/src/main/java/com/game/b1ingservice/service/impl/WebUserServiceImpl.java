@@ -7,17 +7,15 @@ import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.admin.LoginRequest;
 import com.game.b1ingservice.payload.amb.*;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
-import com.game.b1ingservice.payload.deposithistory.DepositListHistorySearchResponse;
 import com.game.b1ingservice.payload.userinfo.UserInfoResponse;
 import com.game.b1ingservice.payload.userinfo.UserProfile;
-import com.game.b1ingservice.payload.webuser.WebUserRequest;
-import com.game.b1ingservice.payload.webuser.WebUserResponse;
-import com.game.b1ingservice.payload.webuser.WebUserUpdate;
-import com.game.b1ingservice.payload.webuser.*;
 import com.game.b1ingservice.payload.wallet.WalletRequest;
-import com.game.b1ingservice.postgres.entity.*;
+import com.game.b1ingservice.payload.webuser.*;
+import com.game.b1ingservice.postgres.entity.AffiliateUser;
+import com.game.b1ingservice.postgres.entity.Agent;
+import com.game.b1ingservice.postgres.entity.Wallet;
+import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
-import com.game.b1ingservice.postgres.jdbc.dto.SearchWebUserDTO;
 import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AMBService;
@@ -29,19 +27,19 @@ import com.game.b1ingservice.utils.JwtTokenUtil;
 import com.game.b1ingservice.utils.PasswordGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static com.game.b1ingservice.commons.Constants.ERROR.*;
+import static com.game.b1ingservice.commons.Constants.ERROR.ERR_04003;
+import static com.game.b1ingservice.commons.Constants.ERROR.ERR_04004;
 
 @Service
 public class WebUserServiceImpl implements WebUserService {
@@ -234,7 +232,7 @@ public class WebUserServiceImpl implements WebUserService {
         webUserResponse.setLastName(users.getLastName());
         webUserResponse.setFullName(users.getFirstName() + " " + users.getLastName());
         webUserResponse.setLine(users.getLine());
-        webUserResponse.setIsBonus(users.getIsBonus());
+        webUserResponse.setIsBonus(Boolean.valueOf(users.getIsBonus()));
 
         webUserResponse.setCreatedDate(users.getCreatedDate());
         webUserResponse.setUpdatedDate(users.getUpdatedDate());

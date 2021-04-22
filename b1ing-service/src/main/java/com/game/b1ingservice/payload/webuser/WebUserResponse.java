@@ -16,7 +16,7 @@ public class WebUserResponse {
     private String lastName;
     private String fullName;
     private String line;
-    private String isBonus;
+    private Boolean isBonus;
     private String type;
     private int typeUser;
     private String searchValue;

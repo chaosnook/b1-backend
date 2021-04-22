@@ -62,13 +62,9 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
         List<DepositListHistorySearchResponse> listSummary;
         if("SEVEN".equals(type)) {
-
             listSummary = findUserDepositSevenDay(searchData);
-
         } else {
-
             listSummary = searchData.getContent();
-
         }
 
         return summaryHistory(listSummary, pageable);
@@ -332,7 +328,6 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         searchResponse.setDeleteFlag(depositHistory.getDeleteFlag());
         searchResponse.setVersion(depositHistory.getVersion());
 
-        Map<String, Object> configMap = new HashMap<>();
         return searchResponse;
     };
 
@@ -344,7 +339,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         depHis.setStatus(depositHistory.getStatus());
         depHis.setValue(depositHistory.getAmount());
         depHis.setBonus(depositHistory.getBonusAmount());
-        depHis.setTotal(depositHistory.getAfterAmount().add(depositHistory.getBonusAmount()));
+        depHis.setTotal(depositHistory.getAmount().add(depositHistory.getBonusAmount()));
         return depHis;
     };
 }
