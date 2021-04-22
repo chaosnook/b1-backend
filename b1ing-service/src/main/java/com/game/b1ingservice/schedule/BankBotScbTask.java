@@ -67,7 +67,7 @@ public class BankBotScbTask {
                         }
                         request.setType("Deposit");
                         request.setRemark(transaction.getTxnRemark());
-                        request.setTransactionId(DigestUtils.sha1Hex(request.getTransactionDate().toString() + (request.getRemark())));
+                        request.setTransactionId(DigestUtils.sha1Hex(transaction.getTxnDateTime() + (request.getRemark())));
                         request = extractAccount(request);
                         log.info(request.toString());
                         bankBotService.addCredit(request);
