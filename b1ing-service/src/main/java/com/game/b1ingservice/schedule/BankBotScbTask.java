@@ -66,11 +66,9 @@ public class BankBotScbTask {
                             log.error("scheduleFixedRateTask date " , e);
                         }
                         request.setType("Deposit");
-                        request.setRemark(transaction.getTxnRemark());
-                        request.setTransactionId(DigestUtils.md5Hex(transaction.getTxnDateTime() + (request.getRemark())));
+                        request.setRemark(transaction.getTxnRemark().trim());
+                        request.setTransactionId(DigestUtils.sha1Hex(transaction.getTxnDateTime() + (request.getRemark())));
 
-                        log.info("check hex sha1 {} : md5 {}" , DigestUtils.sha1Hex(transaction.getTxnDateTime() + (request.getRemark())) ,
-                                DigestUtils.md5Hex(transaction.getTxnDateTime() + (request.getRemark())));
 
                         request = extractAccount(request);
                         log.info(request.toString());
