@@ -3,9 +3,7 @@ package com.game.b1ingservice.schedule;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.game.b1ingservice.payload.bankbot.BankBotAddCreditRequest;
-import com.game.b1ingservice.payload.bankbot.BankBotAddCreditTrueWalletRequest;
 import com.game.b1ingservice.payload.bankbot.BankBotScbTransactionResponse;
-import com.game.b1ingservice.payload.bankbot.BankBotTrueTransactionResponse;
 import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.repository.BankRepository;
 import com.game.b1ingservice.service.BankBotService;
@@ -44,7 +42,8 @@ public class BankBotScbTask {
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-    @Scheduled(cron = "0,30 * * * * *")
+
+    @Scheduled(cron = "${bank.schedule.cron}")
     public void scheduleFixedRateTask() {
         try{
             TimeUnit.SECONDS.sleep(new Random().nextInt(5));
@@ -52,6 +51,7 @@ public class BankBotScbTask {
             for (Bank bank : lists) {
                 if (!bank.getBotIp().startsWith("100.101.1")) {
                     List<BankBotScbTransactionResponse> transactionList = fetchScbTransaction(bank);
+                    log.debug("sbc transaction : {}" , transactionList);
                     for (BankBotScbTransactionResponse transaction : transactionList) {
                         BankBotAddCreditRequest request = new BankBotAddCreditRequest();
                         request.setBotType("SCB");
@@ -63,7 +63,7 @@ public class BankBotScbTask {
                             Date d = sdf.parse(transaction.getTxnDateTime().replace(".000+07:00", ""));
                             request.setTransactionDate(d.toInstant());
                         } catch (Exception e) {
-
+                            log.error("scheduleFixedRateTask date " , e);
                         }
                         request.setType("Deposit");
                         request.setRemark(transaction.getTxnRemark());
