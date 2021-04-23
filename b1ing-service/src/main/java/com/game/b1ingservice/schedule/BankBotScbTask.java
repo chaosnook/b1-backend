@@ -51,7 +51,7 @@ public class BankBotScbTask {
             for (Bank bank : lists) {
                 if (!bank.getBotIp().startsWith("100.101.1")) {
                     List<BankBotScbTransactionResponse> transactionList = fetchScbTransaction(bank);
-                    log.debug("sbc transaction : {}" , transactionList);
+                    log.info("sbc transaction : {}" , transactionList);
                     for (BankBotScbTransactionResponse transaction : transactionList) {
                         BankBotAddCreditRequest request = new BankBotAddCreditRequest();
                         request.setBotType("SCB");
