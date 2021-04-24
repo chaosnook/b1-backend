@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import static com.game.b1ingservice.commons.Constants.MESSAGE_DEPOSIT;
 import static com.game.b1ingservice.commons.Constants.MESSAGE_POINT_TRANSFER;
 
 @Slf4j
@@ -113,12 +112,12 @@ public class PointServiceImpl implements PointService {
 
         historyDTO = pointHistoryService.create(historyDTO, webUser);
 
-        if (wallet.getPoint().compareTo(point) < 0) {
-            historyDTO.setStatus(Constants.POINT_TRANS_STATUS.ERROR);
-            historyDTO.setReason(Constants.ERROR.ERR_04002.msg);
-            pointHistoryService.updateStatus(historyDTO);
-            throw new ErrorMessageException(Constants.ERROR.ERR_04002);
-        }
+//        if (wallet.getPoint().compareTo(point) < 0) {
+//            historyDTO.setStatus(Constants.POINT_TRANS_STATUS.ERROR);
+//            historyDTO.setReason(Constants.ERROR.ERR_04002.msg);
+//            pointHistoryService.updateStatus(historyDTO);
+//            throw new ErrorMessageException(Constants.ERROR.ERR_04002);
+//        }
 
         int updated = this.earnPoint(point, webUser.getId());
 
