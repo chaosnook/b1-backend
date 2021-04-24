@@ -92,10 +92,11 @@ public class BankBotServiceImpl implements BankBotService {
             if (wallets.size() == 1) {
                 Wallet wallet = wallets.get(0);
                 depositHistory.setBeforeAmount(wallet.getCredit());
-                depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()));
+
                 depositHistory.setUser(wallet.getUser());
                 depositHistory.setBank(wallet.getBank());
                 PromotionEffectiveResponse promotionBonus = mapPromotion(depositHistory,request.getTransactionDate());
+                depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()).add(promotionBonus.getBonus()));
                 depositHistory.setBonusAmount(promotionBonus.getBonus());
                 try {
                     AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory,wallet);
@@ -158,12 +159,12 @@ public class BankBotServiceImpl implements BankBotService {
             if (wallets.size() == 1) {
                 Wallet wallet = wallets.get(0);
                 depositHistory.setBeforeAmount(wallet.getCredit());
-                depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()));
                 depositHistory.setUser(wallet.getUser());
                 depositHistory.setTrueWallet(wallet.getTrueWallet());
                 depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
                 PromotionEffectiveResponse promotionBonus = mapPromotion(depositHistory,request.getTransactionDate());
                 depositHistory.setBonusAmount(promotionBonus.getBonus());
+                depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()).add(promotionBonus.getBonus()));
                 try {
 
                     AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory,wallet);
