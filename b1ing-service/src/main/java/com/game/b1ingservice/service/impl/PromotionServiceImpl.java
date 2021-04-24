@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -174,7 +174,8 @@ public class PromotionServiceImpl implements PromotionService {
             }else if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.ALLDAY)){
                 effectivePromotion.add(promotion);
             }else if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.GOLDTIME)){
-
+                if (promotion.getStartTime().before(Date.from(request.getTransactionDate())) && promotion.getEndTime().after(Date.from(request.getTransactionDate())))
+                    effectivePromotion.add(promotion);
             }
         });
 
@@ -196,7 +197,10 @@ public class PromotionServiceImpl implements PromotionService {
         promotionHistory.setTurnOver(BigDecimal.ZERO);
         promotion.getCondition().forEach(condition -> {
            if (request.getAmount().compareTo(condition.getMinTopup())>=0 && request.getAmount().compareTo(condition.getMaxTopup())<=0){
-                promotionHistory.setBonus(condition.getBonus());
+                if (promotion.getTypeBonus().equals(Constants.AFFILIATE_TYPE.FIX))
+                    promotionHistory.setBonus(condition.getBonus());
+                else if (promotion.getTypeBonus().equals(Constants.AFFILIATE_TYPE.PERCENT))
+                    promotionHistory.setBonus(request.getAmount().multiply(condition.getBonus()).divide(BigDecimal.valueOf(100)));
            }
         });
 
