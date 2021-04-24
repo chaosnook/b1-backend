@@ -57,7 +57,7 @@ public class TrueWalletServiceImpl implements TrueWalletService {
     @Override
     public List<TrueWalletResponse> getTrueWallet(UserPrincipal principal) {
         List<TrueWalletResponse> resp = new ArrayList<>();
-        List<TrueWallet> listTrueWallet = trueWalletRepository.findAllByPrefix(principal.getPrefix(), Sort.by(Sort.Direction.ASC, "id"));
+        List<TrueWallet> listTrueWallet = trueWalletRepository.findAllByPrefixOrderByIdDesc(principal.getPrefix(), Sort.by(Sort.Direction.ASC, "id"));
 
         for (TrueWallet truewallet : listTrueWallet) {
             TrueWalletResponse truewalletResp = new TrueWalletResponse();
