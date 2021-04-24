@@ -40,7 +40,7 @@ public class BankBotScbTask {
     @Autowired
     private BankBotService bankBotService;
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
 
     @Scheduled(cron = "${bank.schedule.cron}")
