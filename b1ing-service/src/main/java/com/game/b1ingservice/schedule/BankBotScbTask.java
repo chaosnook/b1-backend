@@ -40,7 +40,7 @@ public class BankBotScbTask {
     @Autowired
     private BankBotService bankBotService;
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
 
     @Scheduled(cron = "${bank.schedule.cron}")
@@ -60,7 +60,7 @@ public class BankBotScbTask {
                         request.setAccountNo(transaction.getAccountNo());
                         request.setAmount(BigDecimal.valueOf(transaction.getTxnAmount()));
                         try {
-                            Date d = sdf.parse(transaction.getTxnDateTime().replace(".000+07:00", ""));
+                            Date d = sdf.parse(transaction.getTxnDateTime());
                             request.setTransactionDate(d.toInstant());
                         } catch (Exception e) {
                             log.error("scheduleFixedRateTask date " , e);
