@@ -149,8 +149,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public List<AdminUserResponse> listByPrefix(String prefix) {
-        List<AdminUserResponse> list = adminUserRepository.findByPrefix(prefix).stream().map(converter).collect(Collectors.toList());
-        return list;
+        return  adminUserRepository.findByPrefix(prefix).stream().map(converter).collect(Collectors.toList());
     }
 
     @Override
