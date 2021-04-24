@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 @Data
 public class CountRefillDTO {
+    private Long id;
     private String username;
     private Integer depositCount;
     private BigDecimal Deposit;
