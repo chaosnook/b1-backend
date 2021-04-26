@@ -34,6 +34,8 @@ public class SearchAffiliateHistoryJdbcRepository {
             if ((null != affHistoryRequest.getUsername()) && (!"".equals(affHistoryRequest.getUsername()))) {
                 sql.append("and u2.username = ? ");
             }
+
+            sql.append("and ph.status ='SUCCESS' ");
             sql.append("and ph.type = 'EARN_POINT' ");
             sql.append("and a.prefix = ? ");
             sql.append("group by u2.username ");

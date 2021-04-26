@@ -382,14 +382,13 @@ public class AdminServiceImpl implements AdminService {
             throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
         }
 
-        CountRefillResponse resObj = new CountRefillResponse();
-
         List<CountRefillDTO> listCountDeposit = countRefillJdbcRepository.depositCount(countRefillRequest, principal);
 
 
         List<CountRefillDTO> result = new ArrayList<>();
         for (CountRefillDTO countRefillDTOD : listCountDeposit) {
             CountRefillDTO deposit = new CountRefillDTO();
+            deposit.setId(countRefillDTOD.getId());
             deposit.setUsername(countRefillDTOD.getUsername());
             deposit.setDepositCount(countRefillDTOD.getDepositCount());
             deposit.setDeposit(countRefillDTOD.getDeposit());

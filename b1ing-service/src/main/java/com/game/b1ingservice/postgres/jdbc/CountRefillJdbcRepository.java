@@ -1,10 +1,8 @@
 package com.game.b1ingservice.postgres.jdbc;
 
 import com.game.b1ingservice.payload.admin.CountRefillRequest;
-import com.game.b1ingservice.payload.admin.ProfitLossRequest;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.postgres.jdbc.dto.CountRefillDTO;
-import com.game.b1ingservice.postgres.jdbc.dto.ProfitLoss;
 import com.game.b1ingservice.service.AdminService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 @Slf4j
@@ -31,7 +28,7 @@ public class CountRefillJdbcRepository {
         List<CountRefillDTO> deposit = new ArrayList<>();
         try {
             StringBuilder sql = new StringBuilder();
-            sql.append("select us.username, dh.count depositCount, dh.deposit, wh.count withdrawCount, wh.withdraw , (dh.deposit - wh.withdraw )as profitloss ");
+            sql.append("select us.id, us.username, CASE WHEN dh.count IS NULL THEN 0 ELSE dh.count END as  depositCount, CASE WHEN dh.deposit IS NULL THEN 0 ELSE dh.deposit END as deposit, CASE WHEN wh.count IS NULL THEN 0 ELSE wh.count END as withdrawCount, CASE WHEN wh.withdraw IS NULL THEN 0 ELSE wh.withdraw END as withdraw , (CASE WHEN dh.deposit IS NULL THEN 0 ELSE dh.deposit END - CASE WHEN wh.withdraw IS NULL THEN 0 ELSE wh.withdraw END )as profitloss ");
             sql.append("from users us ");
             sql.append("left join (select (u.username) as username, count(d.id) as count, sum(d.amount) as deposit ");
             sql.append("from users u ");

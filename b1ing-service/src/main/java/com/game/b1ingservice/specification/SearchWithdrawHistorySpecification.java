@@ -28,12 +28,16 @@ public class SearchWithdrawHistorySpecification extends SearchPageSpecification<
 
         if (StringUtils.isNotEmpty(searchBody.getStatus())) {
             String status = StringUtils.trimToEmpty(searchBody.getStatus());
-            predicates.add(criteriaBuilder.like(root.<String>get("status"), "%" + status + "%"));
+            predicates.add(criteriaBuilder.equal(root.<String>get("status"), status));
         }
 
         if (StringUtils.isNotEmpty(searchBody.getIsAuto())) {
-            int isAuto = Integer.parseInt(searchBody.getIsAuto());
-            predicates.add(criteriaBuilder.equal(root.<String>get("isAuto"), isAuto));
+            Boolean isAuto = searchBody.getIsAuto().equals("1");
+            if (isAuto) {
+                predicates.add(criteriaBuilder.equal(root.<Boolean>get("isAuto"), isAuto));
+            } else {
+                predicates.add(criteriaBuilder.notEqual(root.<Boolean>get("isAuto"), true));
+            }
         }
 
         boolean parseCreateDateFrom = DateUtils.canCastDateTime(searchBody.getCreatedDateFrom());
