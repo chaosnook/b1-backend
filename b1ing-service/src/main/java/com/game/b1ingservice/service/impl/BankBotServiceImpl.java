@@ -95,9 +95,18 @@ public class BankBotServiceImpl implements BankBotService {
 
                 depositHistory.setUser(wallet.getUser());
                 depositHistory.setBank(wallet.getBank());
+
                 PromotionEffectiveResponse promotionBonus = mapPromotion(depositHistory,request.getTransactionDate());
-                depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()).add(promotionBonus.getBonus()));
-                depositHistory.setBonusAmount(promotionBonus.getBonus());
+                BigDecimal turnOver = BigDecimal.ZERO;
+                if (wallet.getUser().getIsBonus().equals("true")){
+                    depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()).add(promotionBonus.getBonus()));
+                    depositHistory.setBonusAmount(promotionBonus.getBonus());
+                    turnOver = promotionBonus.getTurnOver();
+                } else {
+                    depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()));
+                    depositHistory.setBonusAmount(BigDecimal.ZERO);
+                }
+
                 try {
                     AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory,wallet);
                     log.info("amb response : {}", result);
@@ -111,7 +120,7 @@ public class BankBotServiceImpl implements BankBotService {
                                     depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)) ,
                                     webUser.getAgent().getLineToken());
                         }
-                        walletRepository.depositCreditAndTurnOverNonMultiply(request.getAmount().add(promotionBonus.getBonus()), promotionBonus.getTurnOver(), wallet.getUser().getId());
+                        walletRepository.depositCreditAndTurnOverNonMultiply(depositHistory.getAmount().add(depositHistory.getBonusAmount()), turnOver, wallet.getUser().getId());
                         webUserRepository.updateDepositRef(result.getResult().getRef(), wallet.getUser().getId());
                         // check affiliate
                         affiliateService.earnPoint(wallet.getUser().getId(), request.getAmount(), wallet.getUser().getAgent().getPrefix());
@@ -163,8 +172,16 @@ public class BankBotServiceImpl implements BankBotService {
                 depositHistory.setTrueWallet(wallet.getTrueWallet());
                 depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
                 PromotionEffectiveResponse promotionBonus = mapPromotion(depositHistory,request.getTransactionDate());
-                depositHistory.setBonusAmount(promotionBonus.getBonus());
-                depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()).add(promotionBonus.getBonus()));
+
+                BigDecimal turnOver = BigDecimal.ZERO;
+                if (wallet.getUser().getIsBonus().equals("true")){
+                    depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()).add(promotionBonus.getBonus()));
+                    depositHistory.setBonusAmount(promotionBonus.getBonus());
+                    turnOver = promotionBonus.getTurnOver();
+                } else {
+                    depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()));
+                    depositHistory.setBonusAmount(BigDecimal.ZERO);
+                }
                 try {
 
                     AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory,wallet);
@@ -176,7 +193,7 @@ public class BankBotServiceImpl implements BankBotService {
                                 wallet.getUser().getUsername(), depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)) ,
                                 wallet.getUser().getAgent().getLineToken());
 
-                        walletRepository.depositCreditAndTurnOverNonMultiply(request.getAmount().add(promotionBonus.getBonus()), promotionBonus.getTurnOver(), wallet.getUser().getId());
+                        walletRepository.depositCreditAndTurnOverNonMultiply(depositHistory.getAmount().add(depositHistory.getBonusAmount()), turnOver, wallet.getUser().getId());
                         webUserRepository.updateDepositRef(result.getResult().getRef(), wallet.getUser().getId());
                         // check affiliate
                         affiliateService.earnPoint(wallet.getUser().getId(), request.getAmount(), wallet.getUser().getAgent().getPrefix());
