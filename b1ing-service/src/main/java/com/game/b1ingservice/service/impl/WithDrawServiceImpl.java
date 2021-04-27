@@ -22,6 +22,8 @@ import java.math.RoundingMode;
 import java.util.Optional;
 
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.MIN_WITHDRAW_CREDIT;
+import static com.game.b1ingservice.commons.Constants.MESSAGE_WITHDRAW;
+import static com.game.b1ingservice.commons.Constants.MESSAGE_WITHDRAW_REMAIN;
 
 
 @Slf4j
@@ -112,9 +114,13 @@ public class WithDrawServiceImpl implements WithDrawService {
                     withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.SUCCESS);
                     withdrawHistory.setReason(bankBotResult.getQrString());
                     withdrawHistory.setRemainBalance(bankBotResult.getRemainingBalance());
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW+MESSAGE_WITHDRAW_REMAIN,webUser.getUsername(), creditWithDraw, bankBotResult.getRemainingBalance()) ,
+                            wallet.getUser().getAgent().getLineToken());
                 }else {
                     withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);
                     withdrawHistory.setReason(bankBotResult.getMessege());
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW,webUser.getUsername(), creditWithDraw) ,
+                            wallet.getUser().getAgent().getLineToken());
                 }
 
             } else {
