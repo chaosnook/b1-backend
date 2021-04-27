@@ -105,14 +105,16 @@ public class WithDrawServiceImpl implements WithDrawService {
                 request.setAmount(creditWithDraw);
                 request.setAccountTo(webUser.getAccountNumber());
                 request.setBankCode(webUser.getBankName());
-                BankBotScbWithdrawCreditResponse depositResult = bankBotService.withDrawCredit(request);
+                BankBotScbWithdrawCreditResponse bankBotResult = bankBotService.withDrawCredit(request);
+                log.info("bankbot withdraw response ", bankBotResult);
                 withdrawHistory.setIsAuto(true);
-                if (depositResult.getStatus()){
+                if (bankBotResult.getStatus()){
                     withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.SUCCESS);
-                    withdrawHistory.setReason(depositResult.getQrString());
+                    withdrawHistory.setReason(bankBotResult.getQrString());
+                    withdrawHistory.setRemainBalance(bankBotResult.getRemainingBalance());
                 }else {
                     withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);
-                    withdrawHistory.setReason(depositResult.getMessege());
+                    withdrawHistory.setReason(bankBotResult.getMessege());
                 }
 
             } else {

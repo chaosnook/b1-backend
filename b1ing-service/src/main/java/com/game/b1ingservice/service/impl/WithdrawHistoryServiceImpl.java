@@ -170,6 +170,9 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
         } else {
             searchResponse.setAdmin(withdrawHistory.getAdmin().getUsername());
         }
+        searchResponse.setRemainBalance(withdrawHistory.getRemainBalance());
+
+
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a");
 

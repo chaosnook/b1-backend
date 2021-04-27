@@ -20,6 +20,8 @@ public class WithdrawListHistorySearchResponse {
     private String reason;
     private String admin;
 
+    private BigDecimal remainBalance;
+
     private int version;
     private String createdDate;
     private String updatedDate;

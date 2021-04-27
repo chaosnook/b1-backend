@@ -265,6 +265,9 @@ public class Constants {
 
     public static String MESSAGE_WITHDRAW = "User %s ถอน credit จำนวน %s บาท";
 
+    public static String MESSAGE_WITHDRAW_REMAIN = " ยอดเงินคงเหลือ %s บาท";
+
+
     public static String MESSAGE_DEPOSIT = "User %s เติม credit จำนวน %s บาท";
 
     public static String MESSAGE_ADMIN_DEPOSIT = "Admin %s เติม credit ให้ User %s จำนวน %s บาท";

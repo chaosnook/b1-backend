@@ -144,10 +144,11 @@ public class AMBServiceImpl implements AMBService {
         } catch (Exception e) {
             log.error("withdraw", e);
             ambResponse.setCode(AMB_ERROR);
-        } finally {
-            lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW,username, withdrawReq.getAmount()) ,
-                    agent.getLineToken());
         }
+//        finally {
+//            lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW,username, withdrawReq.getAmount()) ,
+//                    agent.getLineToken());
+//        }
         return ambResponse;
     }
 

@@ -33,7 +33,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.game.b1ingservice.commons.Constants.MESSAGE_ADMIN_DEPOSIT;
+import static com.game.b1ingservice.commons.Constants.*;
 
 @Slf4j
 @Service
@@ -268,22 +268,30 @@ public class AdminServiceImpl implements AdminService {
                     request.setAccountTo(webUser.getAccountNumber());
                     request.setBankCode(webUser.getBankName());
 
-                    BankBotScbWithdrawCreditResponse depositResult = bankBotService.withDrawCredit(request);
-                    if (depositResult.getStatus()){
+                    BankBotScbWithdrawCreditResponse withdrawResult = bankBotService.withDrawCredit(request);
+                    log.info("bankbot withdraw response ", withdrawResult);
+                    if (withdrawResult.getStatus()){
                         withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.SUCCESS);
-                        withdrawHistory.setReason(depositResult.getQrString());
+                        withdrawHistory.setReason(withdrawResult.getQrString());
+                        withdrawHistory.setRemainBalance(withdrawResult.getRemainingBalance());
+                        lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW+MESSAGE_WITHDRAW_REMAIN,req.getUsername(), req.getCredit(), withdrawResult.getRemainingBalance()) ,
+                                wallet.getUser().getAgent().getLineToken());
                     }else {
                         withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);
-                        withdrawHistory.setReason(depositResult.getMessege());
+                        withdrawHistory.setReason(withdrawResult.getMessege());
+                        lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW,req.getUsername(), req.getCredit()) ,
+                                wallet.getUser().getAgent().getLineToken());
                     }
                     withdrawHistoryRepository.save(withdrawHistory);
+
 
                 } else {
                     //if error
                     withdrawHistory.setReason(errorMessage);
                     withdrawHistory.setStatus(Constants.DEPOSIT_STATUS.ERROR);
                     withdrawHistoryRepository.save(withdrawHistory);
-
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW,req.getUsername(), req.getCredit()) ,
+                            wallet.getUser().getAgent().getLineToken());
                     throw new ErrorMessageException(Constants.ERROR.ERR_10001);
                 }
 
