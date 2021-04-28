@@ -116,7 +116,7 @@ public class Constants {
         ERR_06008("max withdraw ห้ามว่าง"),
         ERR_04002("คุณมี Point ไม่เพียงพอ"),
         ERR_04003("คุณมี Credit ไม่เพียงพอ กรุณาเติมเงิน"),
-        ERR_04004("คุณมี Turn over อีก %s บาท"),
+        ERR_04004("คุณมี Turn over อีก %s credit"),
         ERR_04005("คุณมี Credit ไม่เพียงพอ"),
         ERR_09001("BotType ห้ามว่าง"),
         ERR_09002("TransactionId ห้ามว่าง"),
