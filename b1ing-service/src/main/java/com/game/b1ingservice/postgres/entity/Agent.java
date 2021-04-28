@@ -36,6 +36,10 @@ public class Agent extends DateAudit<String> implements Serializable {
     private String background;
     @Column(name = "line_token", columnDefinition = "character varying(500)")
     private String lineToken;
+
+    @Column(name = "line_token_withdraw", columnDefinition = "character varying(500)")
+    private String lineTokenWithdraw;
+
     @NotNull
     @Column(name = "prefix", columnDefinition = "character varying(50)")
     private String prefix;

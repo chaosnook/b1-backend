@@ -275,12 +275,12 @@ public class AdminServiceImpl implements AdminService {
                         withdrawHistory.setReason(withdrawResult.getQrString());
                         withdrawHistory.setRemainBalance(withdrawResult.getRemainingBalance());
                         lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW+MESSAGE_WITHDRAW_REMAIN,req.getUsername(), req.getCredit(), withdrawResult.getRemainingBalance()) ,
-                                wallet.getUser().getAgent().getLineToken());
+                                wallet.getUser().getAgent().getLineTokenWithdraw());
                     }else {
                         withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);
                         withdrawHistory.setReason(withdrawResult.getMessege());
                         lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW,req.getUsername(), req.getCredit()) ,
-                                wallet.getUser().getAgent().getLineToken());
+                                wallet.getUser().getAgent().getLineTokenWithdraw());
                     }
                     withdrawHistoryRepository.save(withdrawHistory);
 
@@ -291,7 +291,7 @@ public class AdminServiceImpl implements AdminService {
                     withdrawHistory.setStatus(Constants.DEPOSIT_STATUS.ERROR);
                     withdrawHistoryRepository.save(withdrawHistory);
                     lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW,req.getUsername(), req.getCredit()) ,
-                            wallet.getUser().getAgent().getLineToken());
+                            wallet.getUser().getAgent().getLineTokenWithdraw());
                     throw new ErrorMessageException(Constants.ERROR.ERR_10001);
                 }
 

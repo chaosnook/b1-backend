@@ -20,6 +20,7 @@ public class AgentRequest {
     private String companyName;
     private String lineId;
     private String lineToken;
+    private String lineTokenWithdraw;
     private String logo;
     private String prefix;
     private String website;

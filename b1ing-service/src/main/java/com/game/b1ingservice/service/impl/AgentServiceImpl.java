@@ -63,6 +63,7 @@ public class AgentServiceImpl implements AgentService {
             agent.setCompanyName(agentReq.getCompanyName());
             agent.setLineId(agentReq.getLineId());
             agent.setLineToken(agentReq.getLineToken());
+            agent.setLineTokenWithdraw(agentReq.getLineTokenWithdraw());
             agent.setWebsite(agentReq.getWebsite());
             agent.setBackground(agentReq.getBackground());
             agent.setLogo(agentReq.getLogo());
@@ -101,6 +102,7 @@ public class AgentServiceImpl implements AgentService {
         agentResponse.setLogo(agent.getLogo());
         agentResponse.setBackground(agent.getBackground());
         agentResponse.setLineToken(agent.getLineToken());
+        agentResponse.setLineTokenWithdraw(agent.getLineTokenWithdraw());
 
         agentResponse.setCreatedDate(agent.getCreatedDate());
         agentResponse.setUpdatedDate(agent.getUpdatedDate());
