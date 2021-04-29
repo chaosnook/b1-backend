@@ -18,11 +18,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.game.b1ingservice.commons.Constants.WITHDRAW_STATUS.SUCCESS;
 
 @Service
 public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
@@ -39,13 +40,15 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     public List<WithdrawHisUserRes> searchByUser(WithdrawHisUserReq withDrawRequest, String username) {
         List<WithdrawHistory> depositHistories = new ArrayList<>();
         if (withDrawRequest.getStartDate() != null && withDrawRequest.getPrevDate() != null) {
-            depositHistories = withdrawHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenOrderByCreatedDateDesc(username,
+            depositHistories = withdrawHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenAndStatusOrderByCreatedDateDesc(username,
                     DateUtils.atStartOfDay(DateUtils.convertStartDate(withDrawRequest.getPrevDate())).toInstant(),
-                    DateUtils.atEndOfDay(DateUtils.convertEndDate(withDrawRequest.getStartDate())).toInstant());
+                    DateUtils.atEndOfDay(DateUtils.convertEndDate(withDrawRequest.getStartDate())).toInstant(),
+                    SUCCESS);
         } else if (withDrawRequest.getStartDate() != null) {
-            depositHistories = withdrawHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenOrderByCreatedDateDesc(username,
+            depositHistories = withdrawHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenAndStatusOrderByCreatedDateDesc(username,
                     DateUtils.atStartOfDay(DateUtils.convertStartDate(withDrawRequest.getStartDate())).toInstant(),
-                    DateUtils.atEndOfDay(DateUtils.convertEndDate(withDrawRequest.getStartDate())).toInstant());
+                    DateUtils.atEndOfDay(DateUtils.convertEndDate(withDrawRequest.getStartDate())).toInstant(),
+                    SUCCESS);
         }
         return depositHistories.stream().map(converterUser).collect(Collectors.toList());
     }
