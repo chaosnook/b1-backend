@@ -251,9 +251,10 @@ public class BankBotServiceImpl implements BankBotService {
         return response;
     }
 
-    private AmbResponse<DepositRes> sendToAskMeBet(DepositHistory depositHistory,Wallet wallet){
+    private AmbResponse<DepositRes> sendToAskMeBet(DepositHistory depositHistory, Wallet wallet){
         DepositReq depositReq = DepositReq.builder().amount(depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build();
-        return ambService.deposit(depositReq, wallet.getUser().getUsername(),wallet.getUser().getAgent());
+        WebUser user = wallet.getUser();
+        return ambService.deposit(depositReq, user.getUsernameAmb(), user.getAgent());
     }
     private PromotionEffectiveResponse mapPromotion(DepositHistory depositHistory, Instant transactionDate){
         PromotionEffectiveRequest effectiveRequest = new PromotionEffectiveRequest();

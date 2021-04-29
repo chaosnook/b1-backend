@@ -97,10 +97,11 @@ public class MistakeServiceImpl implements MistakeService {
         switch (mistakeReq.getType()) {
             case Constants.PROBLEM.NO_SLIP:
                 ambResponse = ambService.deposit(DepositReq.builder()
-                        .amount(credit.toPlainString()).build(), username, agent);
+                        .amount(credit.toPlainString()).build(), user.getUsernameAmb(), agent);
                 if (ambResponse.getCode() == 0) {
 
-                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT,principal.getUsername(), username ,credit.toPlainString()) ,
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT, principal.getUsername(),
+                            username, credit.toPlainString()) ,
                             agent.getLineToken());
 
                     walletRepository.depositCredit(credit, user.getId());
@@ -127,7 +128,7 @@ public class MistakeServiceImpl implements MistakeService {
 
             case Constants.PROBLEM.ADD_CREDIT:
                 ambResponse = ambService.deposit(DepositReq.builder()
-                        .amount(credit.toPlainString()).build(), username, agent);
+                        .amount(credit.toPlainString()).build(), user.getUsernameAmb(), agent);
 
                 if (ambResponse.getCode() == 0) {
 
@@ -158,7 +159,7 @@ public class MistakeServiceImpl implements MistakeService {
 
             case Constants.PROBLEM.CUT_CREDIT:
                 AmbResponse<WithdrawRes> withdrawRes = ambService.withdraw(WithdrawReq.builder()
-                        .amount(credit.toPlainString()).build(), username, agent);
+                        .amount(credit.toPlainString()).build(), user.getUsernameAmb(), agent);
 
                 if (withdrawRes.getCode() == 0) {
                     walletRepository.withDrawCredit(credit, user.getId());

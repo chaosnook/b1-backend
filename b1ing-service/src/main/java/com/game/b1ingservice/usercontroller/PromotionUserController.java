@@ -18,7 +18,6 @@ import java.util.List;
 @RequestMapping(value = "/api/user")
 public class PromotionUserController {
 
-
     @Autowired
     private PromotionService promotionService;
 

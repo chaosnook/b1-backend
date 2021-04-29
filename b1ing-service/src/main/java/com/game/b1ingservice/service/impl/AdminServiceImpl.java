@@ -194,7 +194,7 @@ public class AdminServiceImpl implements AdminService {
                 Agent agent = wallet.getUser().getAgent();
                 AmbResponse<DepositRes> ambResponse = ambService.deposit(DepositReq.builder()
                     .amount(credit.toPlainString())
-                    .build(), req.getUsername(), agent);
+                    .build(), webUser.getUsernameAmb(), agent);
 
                 String errorMessage = "";
                 if (ambResponse.getCode() == 0) {
@@ -257,7 +257,7 @@ public class AdminServiceImpl implements AdminService {
 
                 AmbResponse<WithdrawRes> ambResponse = ambService.withdraw(WithdrawReq.builder()
                         .amount(req.getCredit().toString())
-                        .build(), req.getUsername(), wallet.getUser().getAgent());
+                        .build(), webUser.getUsernameAmb(), webUser.getAgent());
 
                 String errorMessage = "";
                 if (ambResponse.getCode() == 0) {

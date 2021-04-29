@@ -12,7 +12,6 @@ import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.ConfigRepository;
 import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.AMBService;
-import com.game.b1ingservice.service.LineNotifyService;
 import com.game.b1ingservice.utils.AESUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -27,7 +26,6 @@ import java.util.Optional;
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.*;
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG_TYPE.AMB_CONFIG;
 import static com.game.b1ingservice.commons.Constants.AMB_ERROR;
-import static com.game.b1ingservice.commons.Constants.MESSAGE_WITHDRAW;
 
 @Slf4j
 @Service
@@ -48,9 +46,6 @@ public class AMBServiceImpl implements AMBService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private LineNotifyService lineNotifyService;
-
     @Value("${agent.b1ing.url}")
     private String urlApi;
 
@@ -60,7 +55,7 @@ public class AMBServiceImpl implements AMBService {
     public AmbResponse<CreateUserRes> createUser(CreateUserReq createUserReq, Agent agent) {
         AmbResponse<CreateUserRes> ambResponse = new AmbResponse<>();
         try {
-            String signature = String.format("%s:%s:%s", createUserReq.getMemberLoginName(), createUserReq.getMemberLoginPass(), agent.getPrefix().toLowerCase());
+            String signature = String.format("%s:%s:%s", createUserReq.getMemberLoginName(), createUserReq.getMemberLoginPass(), agent.getCompanyName().toLowerCase());
             createUserReq.setSignature(DigestUtils.md5Hex(signature));
 
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(createUserReq), MEDIA_JSON);
@@ -92,7 +87,7 @@ public class AMBServiceImpl implements AMBService {
     public AmbResponse resetPassword(ResetPasswordReq resetPasswordReq, String username, Agent agent) {
         AmbResponse ambResponse = new AmbResponse<>();
         try {
-            String signature = String.format("%s:%s", resetPasswordReq.getPassword(), agent.getPrefix().toLowerCase());
+            String signature = String.format("%s:%s", resetPasswordReq.getPassword(), agent.getCompanyName().toLowerCase());
             resetPasswordReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(resetPasswordReq), MEDIA_JSON);
             Request request = new Request.Builder()
@@ -122,7 +117,7 @@ public class AMBServiceImpl implements AMBService {
     public AmbResponse<WithdrawRes> withdraw(WithdrawReq withdrawReq, String username, Agent agent) {
         AmbResponse<WithdrawRes> ambResponse = new AmbResponse<>();
         try {
-            String signature = String.format("%s:%s:%s", withdrawReq.getAmount(), username, agent.getPrefix().toLowerCase());
+            String signature = String.format("%s:%s:%s", withdrawReq.getAmount(), username, agent.getCompanyName().toLowerCase());
             withdrawReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(withdrawReq), MEDIA_JSON);
             Request request = new Request.Builder()
@@ -156,7 +151,7 @@ public class AMBServiceImpl implements AMBService {
     public AmbResponse<DepositRes> deposit(DepositReq depositReq, String username, Agent agent) {
         AmbResponse<DepositRes> ambResponse = new AmbResponse<>();
         try {
-            String signature = String.format("%s:%s:%s", depositReq.getAmount(), username, agent.getPrefix().toLowerCase());
+            String signature = String.format("%s:%s:%s", depositReq.getAmount(), username, agent.getCompanyName().toLowerCase());
             depositReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(depositReq), MEDIA_JSON);
             Request request = new Request.Builder()
@@ -187,7 +182,7 @@ public class AMBServiceImpl implements AMBService {
     public AmbResponse<GameStatusRes> getGameStatus(GameStatusReq gameStatusReq, Agent agent) {
         AmbResponse<GameStatusRes> ambResponse = new AmbResponse<>();
         try {
-            String signature = String.format("%s:%s", agent.getPrefix().toLowerCase(), agent.getClientName());
+            String signature = String.format("%s:%s", agent.getCompanyName().toLowerCase(), agent.getClientName());
             gameStatusReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(gameStatusReq), MEDIA_JSON);
             Request request = new Request.Builder()
@@ -218,7 +213,7 @@ public class AMBServiceImpl implements AMBService {
         AmbResponse<WinLoseResponse> ambResponse = new AmbResponse<>();
         try {
             Request request = new Request.Builder()
-                    .url(String.format("%s/winLose/%s/%s/%s", urlApi, agent.getKey(), winLoseReq.getUsername(), winLoseReq.getDepositRef()))
+                    .url(String.format("%s/winLose/%s/%s/%s", urlApi, agent.getKey(), winLoseReq.getUsernameAmb(), winLoseReq.getDepositRef()))
                     .method("GET", null)
                     .build();
 
@@ -303,14 +298,16 @@ public class AMBServiceImpl implements AMBService {
 
         String password = AESUtils.decrypt(opt.get().getPassword());
 
-        String urlGame = String.format("%s?username=%s&password=%s&url=%s/#?prefix=%s&hash=%s", url, username, password, urlUser, prefix, hash);
-        String urlMobileGame = String.format("%s?username=%s&password=%s&url=%s/#?prefix=%s&hash=%s", urlMobile, username, password, urlUser, prefix, hash);
+        String urlGame = String.format("%s?username=%s&password=%s&url=%s/#?prefix=%s&hash=%s", url,
+                opt.get().getUsernameAmb(), password, urlUser, agent.get().getCompanyName(), hash);
+
+        String urlMobileGame = String.format("%s?username=%s&password=%s&url=%s/#?prefix=%s&hash=%s", urlMobile,
+                opt.get().getUsernameAmb(), password, urlUser, agent.get().getCompanyName(), hash);
 
         GameLinkRes gameLinkRes = new GameLinkRes();
         gameLinkRes.setUrlWebProduct(urlGame);
         gameLinkRes.setUrlMobileProduct(urlMobileGame);
         return gameLinkRes;
     }
-
 
 }

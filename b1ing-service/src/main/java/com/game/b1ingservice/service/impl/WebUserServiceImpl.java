@@ -120,7 +120,10 @@ public class WebUserServiceImpl implements WebUserService {
             throw new ErrorMessageException(Constants.ERROR.ERR_99999);
         }
 
-        user.setUsername(ambResponse.getResult().getLoginName());
+        // user web
+        user.setUsername(prefix.concat(username));
+        // user amb
+        user.setUsernameAmb(ambResponse.getResult().getLoginName());
 
         WebUser userResp = webUserRepository.save(user);
 
@@ -259,7 +262,7 @@ public class WebUserServiceImpl implements WebUserService {
             user.setPassword(AESUtils.encrypt(password));
 
             // Call reset password at AMB
-            AmbResponse ambResponse = ambService.resetPassword(ResetPasswordReq.builder().password(password).build(), user.getUsername(), opt.get().getAgent());
+            AmbResponse ambResponse = ambService.resetPassword(ResetPasswordReq.builder().password(password).build(), user.getUsernameAmb(), opt.get().getAgent());
             if (ambResponse.getCode() != 0) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_99999);
             }
@@ -333,7 +336,7 @@ public class WebUserServiceImpl implements WebUserService {
         if (objects.size() == 0) {
             return new ArrayList<>();
         }
-        return mapper.convertValue(webUserRepository.getAllUser(agentId), new TypeReference<List<WinLoseReq>>() {
+        return mapper.convertValue(objects, new TypeReference<List<WinLoseReq>>() {
         });
     }
 

@@ -68,7 +68,7 @@ public class WalletServiceImpl implements WalletService {
             throw new ErrorMessageException(Constants.ERROR.ERR_00007);
         }
         WebUser webUser = wallet.getUser();
-        AmbResponse<GetCreditRes> ambRes = ambService.getCredit(username, webUser.getAgent());
+        AmbResponse<GetCreditRes> ambRes = ambService.getCredit(webUser.getUsernameAmb(), webUser.getAgent());
 
         if (ambRes.getCode() != 0) {
             throw new ErrorMessageException(Constants.ERROR.ERR_99999);

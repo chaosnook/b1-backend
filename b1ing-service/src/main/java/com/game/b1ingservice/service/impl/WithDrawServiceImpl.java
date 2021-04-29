@@ -85,7 +85,7 @@ public class WithDrawServiceImpl implements WithDrawService {
 
         AmbResponse<WithdrawRes> ambRes = ambService.withdraw(
                 WithdrawReq.builder().amount(creditWithDraw.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build(),
-                username, webUser.getAgent());
+                webUser.getUsernameAmb(), webUser.getAgent());
 
         if (ambRes.getCode() != 0) {
             withdrawHistory.setReason("API AMB Error");

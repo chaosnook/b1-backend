@@ -1,11 +1,7 @@
 package com.game.b1ingservice.postgres.repository;
 
-import com.game.b1ingservice.payload.webuser.WebUserSearchRequest;
 import com.game.b1ingservice.postgres.entity.Agent;
-import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.entity.WebUser;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -34,7 +30,7 @@ public interface WebUserRepository extends JpaRepository<WebUser, Long>, JpaSpec
 
 
 
-    @Query(value = "select id, username, deposit_ref as depositRef FROM users  where agent_id = ? and delete_flag = 0 and deposit_ref is not null", nativeQuery = true)
+    @Query(value = "select id, username,username_amb as usernameAmb, deposit_ref as depositRef FROM users where agent_id = ? and delete_flag = 0 and deposit_ref is not null", nativeQuery = true)
     List<Map> getAllUser(Long agentId);
 
     @Transactional

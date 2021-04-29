@@ -14,6 +14,9 @@ public class WinLoseReq implements Serializable {
     private Long id;
     private String username;
 
+    @JsonProperty("usernameamb")
+    private String usernameAmb;
+
     @JsonProperty("depositref")
     private String depositRef;
 }

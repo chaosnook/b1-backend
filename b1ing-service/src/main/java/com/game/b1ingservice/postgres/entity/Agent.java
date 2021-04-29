@@ -23,9 +23,16 @@ public class Agent extends DateAudit<String> implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // for AMB prefix
     @NotNull
     @Column(name = "company_name", columnDefinition = "character varying(50)")
     private String companyName;
+
+    // for web prefix
+    @NotNull
+    @Column(name = "prefix", columnDefinition = "character varying(50)")
+    private String prefix;
+
     @Column(name = "website", columnDefinition = "character varying(50)")
     private String website;
     @Column(name = "line_id", columnDefinition = "character varying(50)")
@@ -39,11 +46,6 @@ public class Agent extends DateAudit<String> implements Serializable {
 
     @Column(name = "line_token_withdraw", columnDefinition = "character varying(500)")
     private String lineTokenWithdraw;
-
-    @NotNull
-    @Column(name = "prefix", columnDefinition = "character varying(50)")
-    private String prefix;
-
 
     @Column(name = "key", columnDefinition = "character varying(50)")
     private String key;

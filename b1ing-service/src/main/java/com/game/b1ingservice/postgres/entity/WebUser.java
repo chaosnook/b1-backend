@@ -8,22 +8,27 @@ import lombok.ToString;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.List;
 
 @Data
 @Entity
-@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"username"})})
+@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"username", "username_amb"})})
 @Where(clause = "delete_flag = 0")
 public class WebUser extends DateAudit<String> implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    // user for web
     @Column(name = "username", columnDefinition = "character varying(50)")
     private String username;
+
+    // user for amb
+    @Column(name = "username_amb", columnDefinition = "character varying(50)")
+    private String usernameAmb;
+
     @Column(name = "password", columnDefinition = "character varying(500)")
     private String password;
     @Column(name = "tel", columnDefinition = "character varying(50)")

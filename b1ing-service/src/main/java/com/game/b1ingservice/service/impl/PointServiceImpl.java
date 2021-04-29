@@ -74,7 +74,7 @@ public class PointServiceImpl implements PointService {
             throw new ErrorMessageException(Constants.ERROR.ERR_04002);
         }
 
-        int updated = this.transferPointToCredit(point, webUser.getId(), username, webUser.getAgent());
+        int updated = this.transferPointToCredit(point, webUser.getId(), webUser.getUsernameAmb(), webUser.getAgent());
 
         PointTransResponse response = new PointTransResponse();
         response.setStatus(updated == 1);
@@ -146,7 +146,8 @@ public class PointServiceImpl implements PointService {
         try {
             int updated;
             point = point.setScale(2, RoundingMode.HALF_DOWN);
-            AmbResponse<DepositRes> deposit = ambService.deposit(DepositReq.builder().amount(point.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build(), username, agent);
+            AmbResponse<DepositRes> deposit = ambService.deposit(DepositReq.builder().amount(point.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build(),
+                    username, agent);
 
             if (deposit.getCode() == 0) {
 
