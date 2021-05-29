@@ -299,10 +299,10 @@ public class AMBServiceImpl implements AMBService {
         String password = AESUtils.decrypt(opt.get().getPassword());
 
         String urlGame = String.format("%s?username=%s&password=%s&url=%s/#?prefix=%s&hash=%s", url,
-                opt.get().getUsernameAmb(), password, urlUser, agent.get().getCompanyName(), hash);
+                opt.get().getUsernameAmb(), password, urlUser, agent.get().getClientName(), hash);
 
         String urlMobileGame = String.format("%s?username=%s&password=%s&url=%s/#?prefix=%s&hash=%s", urlMobile,
-                opt.get().getUsernameAmb(), password, urlUser, agent.get().getCompanyName(), hash);
+                opt.get().getUsernameAmb(), password, urlUser, agent.get().getClientName(), hash);
 
         GameLinkRes gameLinkRes = new GameLinkRes();
         gameLinkRes.setUrlWebProduct(urlGame);
