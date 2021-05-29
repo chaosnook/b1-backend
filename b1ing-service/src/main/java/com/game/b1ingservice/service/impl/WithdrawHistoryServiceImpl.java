@@ -19,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -87,7 +88,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     Function<WithdrawHistory, WithdrawHisUserRes> converterUser = withdrawHistory -> {
         WithdrawHisUserRes witHis = new WithdrawHisUserRes();
         witHis.setReason(withdrawHistory.getReason());
-        witHis.setCreatedDate(withdrawHistory.getCreatedDate());
+        witHis.setCreatedDate(withdrawHistory.getCreatedDate().atZone(ZoneId.systemDefault()).toLocalDateTime());
         witHis.setStatus(withdrawHistory.getStatus());
         witHis.setValue(withdrawHistory.getAmount());
         return witHis;

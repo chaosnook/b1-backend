@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -335,7 +336,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     Function<DepositHistory, DepositHisUserRes> converterUser = depositHistory -> {
         DepositHisUserRes depHis = new DepositHisUserRes();
         depHis.setReason(depositHistory.getReason());
-        depHis.setCreatedDate(depositHistory.getCreatedDate());
+        depHis.setCreatedDate(depositHistory.getCreatedDate().atZone(ZoneId.systemDefault()).toLocalDateTime());
         depHis.setStatus(depositHistory.getStatus());
         depHis.setValue(depositHistory.getAmount());
         depHis.setBonus(depositHistory.getBonusAmount());

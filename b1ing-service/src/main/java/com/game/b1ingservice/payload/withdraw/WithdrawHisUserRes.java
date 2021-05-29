@@ -3,12 +3,12 @@ package com.game.b1ingservice.payload.withdraw;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
 public class WithdrawHisUserRes {
 
-    private Instant createdDate;
+    private LocalDateTime createdDate;
     private String status;
     private BigDecimal value;
     private BigDecimal bonus;
