@@ -6,7 +6,6 @@ import com.game.b1ingservice.payload.affiliate.AffConditionRequest;
 import com.game.b1ingservice.payload.affiliate.AffiliateDTO;
 import com.game.b1ingservice.payload.affiliate.AffiliateImgResponse;
 import com.game.b1ingservice.payload.affiliate.AffiliateResult;
-import com.game.b1ingservice.payload.point.PointTransRequest;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.AffiliateService;
@@ -128,10 +127,10 @@ public class AffiliateServiceImpl implements AffiliateService {
                     boolean isForever = affiliate.isForever();
                     if (!isForever) {
                         if (pointHistoryService.checkNonForever(userDepos, affUserId) == 0) {
-                            pointService.earnPoint(bonusNo.setScale(2, RoundingMode.HALF_DOWN), userDepos, affUserId, prefix);
+                            pointService.earnPoint(bonusNo.setScale(2, RoundingMode.HALF_DOWN), userDepos, affUserId, prefix, affiliate.getMaxWallet());
                         }
                     } else {
-                        pointService.earnPoint(bonusNo.setScale(2, RoundingMode.HALF_DOWN), userDepos, affUserId, prefix);
+                        pointService.earnPoint(bonusNo.setScale(2, RoundingMode.HALF_DOWN), userDepos, affUserId, prefix, affiliate.getMaxWallet());
                     }
 
                 }

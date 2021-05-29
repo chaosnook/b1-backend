@@ -94,10 +94,21 @@ public class PointServiceImpl implements PointService {
     }
 
     @Override
-    public PointTransResponse earnPoint(BigDecimal point, Long depositUser, Long userId, String prefix) {
+    public PointTransResponse earnPoint(BigDecimal point, Long depositUser, Long userId, String prefix, BigDecimal maxWallet) {
         Wallet wallet = walletRepository.findFirstByUser_IdAndUser_Agent_Prefix(userId, prefix);
         if (wallet == null) {
             throw new ErrorMessageException(Constants.ERROR.ERR_00011);
+        }
+
+        // check max point in wallet
+        if (maxWallet != null && !maxWallet.equals(BigDecimal.ZERO) && wallet.getPoint() != null && point != null) {
+            BigDecimal pointCheck = wallet.getPoint().add(point);
+            if (wallet.getPoint().compareTo(maxWallet) >= 0) {
+                log.info("can't earn point for user {} is maximum point", userId);
+                return null;
+            } else if (pointCheck.compareTo(maxWallet) > 0) {
+                point = maxWallet.subtract(wallet.getPoint());
+            }
         }
 
         WebUser webUser = wallet.getUser();
@@ -151,7 +162,7 @@ public class PointServiceImpl implements PointService {
 
             if (deposit.getCode() == 0) {
 
-                lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_POINT_TRANSFER, username, point.setScale(2, RoundingMode.HALF_DOWN)) ,
+                lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_POINT_TRANSFER, username, point.setScale(2, RoundingMode.HALF_DOWN)),
                         agent.getLineToken());
 
                 webUserRepository.updateDepositRef(deposit.getResult().getRef(), userId);

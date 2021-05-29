@@ -9,5 +9,5 @@ public interface PointService {
 
     PointTransResponse pointTransfer(PointTransRequest transRequest, String username, String prefix);
 
-    PointTransResponse earnPoint(BigDecimal point, Long depositUser, Long userId, String prefix);
+    PointTransResponse earnPoint(BigDecimal point, Long depositUser, Long userId, String prefix, BigDecimal maxWallet);
 }
