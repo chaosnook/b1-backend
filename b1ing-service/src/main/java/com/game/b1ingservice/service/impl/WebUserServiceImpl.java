@@ -25,6 +25,7 @@ import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.utils.AESUtils;
 import com.game.b1ingservice.utils.JwtTokenUtil;
 import com.game.b1ingservice.utils.PasswordGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -41,14 +42,12 @@ import java.util.function.Function;
 import static com.game.b1ingservice.commons.Constants.ERROR.ERR_04003;
 import static com.game.b1ingservice.commons.Constants.ERROR.ERR_04004;
 
+@Slf4j
 @Service
 public class WebUserServiceImpl implements WebUserService {
 
     @Autowired
     private WebUserRepository webUserRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     private PasswordGenerator passwordGenerator;
@@ -59,18 +58,12 @@ public class WebUserServiceImpl implements WebUserService {
     @Autowired
     private WalletService walletService;
 
-    @Autowired
-    private AffiliateHistoryRepository affiliateHistoryRepository;
-
 
     @Autowired
     private AffiliateUserRepository affiliateUserRepository;
 
     @Autowired
     private WebUserJdbcRepository webUserJdbcRepository;
-
-    @Autowired
-    private ConfigRepository configRepository;
 
     @Autowired
     private AMBService ambService;
@@ -116,6 +109,7 @@ public class WebUserServiceImpl implements WebUserService {
                 .memberLoginPass(req.getPassword())
                 .build(), opt.get());
 
+        log.info("create user response : {}" , ambResponse);
         if (ambResponse.getCode() != 0) {
             throw new ErrorMessageException(Constants.ERROR.ERR_99999);
         }
