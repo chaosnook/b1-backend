@@ -338,7 +338,8 @@ public class WebUserServiceImpl implements WebUserService {
 
     @Override
     public boolean verifyTel(String tel, String prefix) {
-        Optional<WebUser> webUser = webUserRepository.findByTelAndAgent_Prefix(tel, prefix);
+        String username = prefix.toLowerCase(Locale.ROOT).concat(tel.substring(3));
+        Optional<WebUser> webUser = webUserRepository.findFirstByUsernameAndAgent_Prefix(username, prefix);
         return webUser.isPresent();
     }
 
@@ -347,7 +348,6 @@ public class WebUserServiceImpl implements WebUserService {
         UserProfile profile = convertProfile(webUser, agent, false);
         userInfo.setProfile(profile);
         userInfo.setToken(jwtTokenUtil.generateToken(mapper.convertValue(profile, Map.class), "user"));
-
         return userInfo;
     }
 
