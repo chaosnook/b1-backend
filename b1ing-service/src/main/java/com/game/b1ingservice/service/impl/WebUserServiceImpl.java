@@ -17,7 +17,10 @@ import com.game.b1ingservice.postgres.entity.Wallet;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.SummaryRegisterUser;
-import com.game.b1ingservice.postgres.repository.*;
+import com.game.b1ingservice.postgres.repository.AffiliateUserRepository;
+import com.game.b1ingservice.postgres.repository.AgentRepository;
+import com.game.b1ingservice.postgres.repository.WalletRepository;
+import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.AffiliateService;
 import com.game.b1ingservice.service.WalletService;
@@ -31,7 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -88,7 +90,7 @@ public class WebUserServiceImpl implements WebUserService {
         }
 
         String tel = req.getTel();
-        String username = tel.substring(1);
+        String username = tel.substring(3);
 
         WebUser user = new WebUser();
         user.setAgent(opt.get());
@@ -284,7 +286,7 @@ public class WebUserServiceImpl implements WebUserService {
                 throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
             }
 
-            Optional<WebUser> opt = webUserRepository.findByUsernameAndAgent(username, agent.get());
+            Optional<WebUser> opt = webUserRepository.findByUsernameAndAgent(username.toLowerCase(Locale.ROOT), agent.get());
             if (opt.isPresent() && AESUtils.decrypt(opt.get().getPassword()).equals(password)) {
                 return convert(opt.get(), agent.get());
             }
