@@ -52,6 +52,13 @@ public class ResponseHelper {
         return response(HttpStatus.BAD_REQUEST, data);
     }
 
+    public static ResponseEntity<Object> authError(String message) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("message", message);
+        data.put("status", false);
+        return response(HttpStatus.UNAUTHORIZED, data);
+    }
+
     public static ResponseEntity<Object> successPage(Page<?> page, String propertyName, String message) {
 
         PageObject pageable = new PageObject();

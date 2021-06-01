@@ -27,6 +27,13 @@ public interface AdminUserRepository extends JpaRepository<AdminUser, Long>, Jpa
 
     @Transactional
     @Modifying
+    @Query(value = "UPDATE admins SET last_login_token = ? WHERE username = ? ", nativeQuery = true)
+    int updateLastToken(String token, String username);
+
+    boolean existsByIdAndLastLoginToken(Long id, String token);
+
+    @Transactional
+    @Modifying
     @Query(value = "UPDATE admins SET mistake_limit = 0", nativeQuery = true)
     void clearMistakeLimit();
 

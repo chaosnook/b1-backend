@@ -1,14 +1,10 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
-import com.game.b1ingservice.payload.affiliate.AffHistoryRequest;
-import com.game.b1ingservice.payload.bankdeposit.BankDepositList;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.userinfo.UserInfoResponse;
 import com.game.b1ingservice.payload.webuser.*;
 import com.game.b1ingservice.postgres.jdbc.WebUserJdbcRepository;
-import com.game.b1ingservice.postgres.jdbc.dto.SearchAffiHistoryDTO;
-import com.game.b1ingservice.postgres.jdbc.dto.SearchWebUserDTO;
 import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.specification.SearchWebUserSpecification;
 import com.game.b1ingservice.utils.ResponseHelper;
@@ -21,9 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
 
 @RestController
 @RequestMapping(value = "api/admin")
@@ -59,10 +52,10 @@ public class WebUserController {
     }
 
     @PostMapping(value = "/webuser/search", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> search(@RequestBody WebUserSearchRequest request){
+    public ResponseEntity<?> search(@RequestBody WebUserSearchRequest request) {
         SearchWebUserSpecification specification = new SearchWebUserSpecification(request);
-        Page<WebUserResponse> users = webUserService.findByCriteria(specification,specification.getPageable(), request);
-        return ResponseHelper.successPage(users, "datas",Constants.MESSAGE.MSG_00000.msg);
+        Page<WebUserResponse> users = webUserService.findByCriteria(specification, specification.getPageable(), request);
+        return ResponseHelper.successPage(users, "datas", Constants.MESSAGE.MSG_00000.msg);
     }
 
     //ไม่ได้ใช้แล้ว

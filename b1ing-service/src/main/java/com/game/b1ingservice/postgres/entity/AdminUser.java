@@ -37,6 +37,9 @@ public class AdminUser extends DateAudit<String> implements Serializable {
     @Column(name = "prefix", columnDefinition = "character varying(50)")
     private String prefix;
 
+    @Column(name = "last_login_token", columnDefinition = "character varying(50)")
+    private String lastLoginToken;
+
     @Column(name = "mistake_limit")
     private Integer mistakeLimit = 0;
 

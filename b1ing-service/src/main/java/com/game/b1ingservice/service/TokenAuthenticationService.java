@@ -42,22 +42,18 @@ public class TokenAuthenticationService {
 
         String agentIdString = jwtTokenUtil.getDataToken(token, "agentId");
 
-        Long agentId = StringUtils.isEmpty(agentIdString)?null:Long.valueOf(agentIdString);
+        Long agentId = StringUtils.isEmpty(agentIdString) ? null : Long.valueOf(agentIdString);
 
         String type = jwtTokenUtil.getDataToken(token, "type");
 
         String prefix = jwtTokenUtil.getDataToken(token, "prefix");
 
 
-        UserPrincipal principal = new UserPrincipal(userId, username, "", agentId, type,null);
+        UserPrincipal principal = new UserPrincipal(userId, username, "", agentId, type, null);
         principal.setPrefix(prefix);
 
-        boolean checkAdmin = adminService.checkAdmin(userId, prefix);
 
         return new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList());
-//        return checkAdmin && userId != null ?
-//                new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList())
-//                : null;
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {

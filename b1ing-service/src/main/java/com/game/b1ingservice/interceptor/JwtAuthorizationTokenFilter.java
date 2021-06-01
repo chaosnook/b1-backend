@@ -38,15 +38,13 @@ public class JwtAuthorizationTokenFilter extends OncePerRequestFilter {
                     "/api/user/auth",
                     "/api/user/register",
                     "/api/file/downloadFile/*"
-//                    "/api/file/uploadMultipleFiles"
-//                    "/api/admin/register"
             ));
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws IOException, ServletException {
 
-        if (request.getContentType() != null && request.getContentType().contains(MediaType.MULTIPART_FORM_DATA_VALUE)){
+        if (request.getContentType() != null && request.getContentType().contains(MediaType.MULTIPART_FORM_DATA_VALUE)) {
             try {
                 Authentication authentication = tokenAuthenticationService.getAuthentication(request);
 
@@ -60,7 +58,7 @@ public class JwtAuthorizationTokenFilter extends OncePerRequestFilter {
             }
 
             filterChain.doFilter(request, response);
-        }else {
+        } else {
             MultiReadRequest multiReadRequest = new MultiReadRequest(request);
             log.info("Log header : host  {} : Proto {} : Port {}", multiReadRequest.getHeader("X-Forwarded-Host"),
                     multiReadRequest.getHeader("X-Forwarded-Proto"),

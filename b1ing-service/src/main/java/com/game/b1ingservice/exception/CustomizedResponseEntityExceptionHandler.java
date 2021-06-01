@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -33,8 +32,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.text.MessageFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -165,6 +162,17 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
 
         return ResponseHelper.response(HttpStatus.PRECONDITION_FAILED, resError);
     }
+
+    @ExceptionHandler(DuplicateLoginException.class)
+    public final ResponseEntity handleDuplicateLoginException(DuplicateLoginException ex, WebRequest request) {
+        log.error(ex.getMessage(), ex);
+        ApiResponse resError = new ApiResponse();
+        resError.setStatus(false);
+        resError.setMessage(Constants.ERROR.ERR_77777.msg);
+        resError.setErrors(new ArrayList<>());
+        return ResponseHelper.response(HttpStatus.UNAUTHORIZED, resError);
+    }
+
     @SneakyThrows
     @ExceptionHandler(InvalidDataAccessResourceUsageException.class)
     public final ResponseEntity<Object> handleInvalidDataAccessResourceUsageException(InvalidDataAccessResourceUsageException ex, WebRequest request) {

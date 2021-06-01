@@ -19,24 +19,23 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
-
 @RestController
 @RequestMapping("/api/admin")
 @Slf4j
 public class AdminController {
 
     @Autowired
-    RegisterValidator registerValidator;
+    private RegisterValidator registerValidator;
     @Autowired
-    UpdateValidator updateValidator;
+    private UpdateValidator updateValidator;
     @Autowired
-    PrefixValidator prefixValidator;
+    private PrefixValidator prefixValidator;
     @Autowired
-    AdminService adminService;
+    private AdminService adminService;
     @Autowired
-    AddCreditValidator addCreditValidator;
+    private AddCreditValidator addCreditValidator;
     @Autowired
-    WithdrawValidator withdrawValidator;
+    private WithdrawValidator withdrawValidator;
 
     @PostMapping(value = "/auth",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
@@ -131,7 +130,6 @@ public class AdminController {
         adminService.approve(req, principal);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
-
 
 
 }

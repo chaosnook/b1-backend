@@ -10,21 +10,32 @@ import java.util.List;
 
 @Service
 public interface AdminService {
+
     ResponseEntity<?> loginAdmin(String username, String password, LoginRequest loginRequest);
+
     void registerAdmin(RegisterRequest registerRequest, UserPrincipal principal);
+
     void updateAdmin(AdminUpdateRequest adminUpdateRequest, UserPrincipal principal);
+
     List<AdminUserResponse> listByPrefix(String prefix);
 
     AdminUserResponse findAdminByUsernamePrefix(String username, String prefix);
 
     void addCredit(AddCreditRequest req, UserPrincipal principal);
+
     void withdrawCredit(WithdrawRequest req, UserPrincipal principal);
+
     void withdrawManual(WithdrawManualReq req, UserPrincipal principal);
+
     void approve(ApproveReq req, UserPrincipal principal);
 
     ProfitReportResponse profitReport(ProfitReportRequest profitReportRequest, UserPrincipal principal);
+
     ProfitLossResponse profitLoss(ProfitLossRequest profitLossRequest, UserPrincipal principal);
+
     List<CountRefillDTO> countRefill(CountRefillRequest countRefillRequest, UserPrincipal principal);
 
     boolean checkAdmin(Long userId, String prefix);
+
+    boolean checkLastUQToken(Long id, String lastUUID);
 }
