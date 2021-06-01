@@ -33,8 +33,15 @@ public class ValidationInterceptor implements HandlerInterceptor {
         log.info("uri : {}", request.getRequestURI());
 
         String token = getJwtFromRequest(request);
-        String prefix = jwtTokenUtil.getDataToken(token, "prefix");
-        Long userId = Long.valueOf(jwtTokenUtil.getDataToken(token, "userId"));
+
+        String prefix = "";
+        Long userId = 0L;
+        try {
+            prefix = jwtTokenUtil.getDataToken(token, "prefix");
+            userId = Long.valueOf(jwtTokenUtil.getDataToken(token, "userId"));
+        } catch (Exception e) {
+            //ignore
+        }
 
         boolean checkAdmin = adminService.checkAdmin(userId, prefix);
         if (checkAdmin) {
