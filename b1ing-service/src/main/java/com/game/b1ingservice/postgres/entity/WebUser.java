@@ -50,6 +50,12 @@ public class WebUser extends DateAudit<String> implements Serializable {
     @Column(name = "block_bonus", columnDefinition = "boolean default false")
     private Boolean blockBonus;
 
+    @Column(name = "deposit_auto", columnDefinition = "boolean default true")
+    private Boolean depositAuto;
+
+    @Column(name = "withdraw_auto", columnDefinition = "boolean default true")
+    private Boolean withdrawAuto;
+
     @Column(name = "deposit_ref")
     private String depositRef;
 

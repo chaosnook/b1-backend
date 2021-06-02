@@ -18,6 +18,9 @@ public class WebUserResponse {
     private String line;
     private Boolean isBonus;
     private Boolean blockBonus;
+    private Boolean depositAuto;
+    private Boolean withdrawAuto;
+
     private String type;
     private int typeUser;
     private String searchValue;

@@ -14,4 +14,7 @@ public class WebUserUpdate {
     private String isBonus;
     private String affiliate;
     private String blockBonus;
+
+    private String depositAuto;
+    private String withdrawAuto;
 }

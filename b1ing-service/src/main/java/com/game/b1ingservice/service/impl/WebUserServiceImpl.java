@@ -103,7 +103,16 @@ public class WebUserServiceImpl implements WebUserService {
         user.setLastName(req.getLastName());
         user.setLine(req.getLine());
         user.setIsBonus(req.getIsBonus());
-        user.setBlockBonus(req.getBlockBonus().equalsIgnoreCase("true"));
+
+        if (req.getBlockBonus() != null) {
+            user.setBlockBonus(req.getBlockBonus().equalsIgnoreCase("true"));
+        }
+        if (req.getDepositAuto() != null) {
+            user.setDepositAuto(req.getDepositAuto().equalsIgnoreCase("true"));
+        }
+        if (req.getWithdrawAuto() != null) {
+            user.setWithdrawAuto(req.getWithdrawAuto().equalsIgnoreCase("true"));
+        }
 
         // Call create usr AMB
         AmbResponse<CreateUserRes> ambResponse = ambService.createUser(CreateUserReq.builder()
@@ -112,7 +121,7 @@ public class WebUserServiceImpl implements WebUserService {
                 .memberLoginPass(req.getPassword())
                 .build(), opt.get());
 
-        log.info("create user response : {}" , ambResponse);
+        log.info("create user response : {}", ambResponse);
         if (ambResponse.getCode() != 0) {
             throw new ErrorMessageException(Constants.ERROR.ERR_99999);
         }
@@ -157,7 +166,16 @@ public class WebUserServiceImpl implements WebUserService {
             user.setTel(req.getTel());
             user.setLine(req.getLine());
             user.setIsBonus(req.getIsBonus());
-            user.setBlockBonus(req.getBlockBonus().equalsIgnoreCase("true"));
+
+            if (req.getBlockBonus() != null) {
+                user.setBlockBonus(req.getBlockBonus().equalsIgnoreCase("true"));
+            }
+            if (req.getDepositAuto() != null) {
+                user.setDepositAuto(req.getDepositAuto().equalsIgnoreCase("true"));
+            }
+            if (req.getWithdrawAuto() != null) {
+                user.setWithdrawAuto(req.getWithdrawAuto().equalsIgnoreCase("true"));
+            }
 
             WebUser userResp = webUserRepository.save(user);
 
@@ -233,7 +251,10 @@ public class WebUserServiceImpl implements WebUserService {
         webUserResponse.setFullName(users.getFirstName() + " " + users.getLastName());
         webUserResponse.setLine(users.getLine());
         webUserResponse.setIsBonus(Boolean.valueOf(users.getIsBonus()));
+
         webUserResponse.setBlockBonus(users.getBlockBonus());
+        webUserResponse.setDepositAuto(users.getDepositAuto());
+        webUserResponse.setWithdrawAuto(users.getWithdrawAuto());
 
         webUserResponse.setCreatedDate(users.getCreatedDate());
         webUserResponse.setUpdatedDate(users.getUpdatedDate());
@@ -241,9 +262,6 @@ public class WebUserServiceImpl implements WebUserService {
         webUserResponse.setUpdatedBy(users.getAudit().getUpdatedBy());
         webUserResponse.setDeleteFlag(users.getDeleteFlag());
         webUserResponse.setVersion(users.getVersion());
-
-        Map<String, Object> configMap = new HashMap<>();
-
 
         return webUserResponse;
     };
@@ -412,7 +430,7 @@ public class WebUserServiceImpl implements WebUserService {
             List<SummaryRegisterUser> listRegisterDay = webUserJdbcRepository.summaryRegisterUsersByDay(webUserHistoryRequest, principal);
 
             for (SummaryRegisterUser summaryRegisterUser : listRegisterDay) {
-                resObj.getData().set(summaryRegisterUser.getLabels() , summaryRegisterUser.getData());
+                resObj.getData().set(summaryRegisterUser.getLabels(), summaryRegisterUser.getData());
             }
 
 

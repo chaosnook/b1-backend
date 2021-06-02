@@ -15,6 +15,8 @@ public class WebUserRequest {
     private String isBonus;
 
     private String blockBonus;
+    private String depositAuto;
+    private String withdrawAuto;
 
     private String prefix;
 }
