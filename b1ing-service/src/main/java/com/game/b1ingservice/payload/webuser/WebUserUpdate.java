@@ -13,5 +13,5 @@ public class WebUserUpdate {
     private String line;
     private String isBonus;
     private String affiliate;
-
+    private String blockBonus;
 }

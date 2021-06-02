@@ -77,7 +77,7 @@ public class AMBServiceImpl implements AMBService {
                 });
             }
         } catch (Exception e) {
-            log.error("getCredit", e);
+            log.error("createUser", e);
             ambResponse.setCode(AMB_ERROR);
         }
         return ambResponse;

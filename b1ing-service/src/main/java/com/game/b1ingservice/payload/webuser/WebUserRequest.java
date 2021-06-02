@@ -14,5 +14,7 @@ public class WebUserRequest {
     private String affiliate;
     private String isBonus;
 
+    private String blockBonus;
+
     private String prefix;
 }

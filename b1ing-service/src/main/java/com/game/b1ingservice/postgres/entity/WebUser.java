@@ -43,8 +43,12 @@ public class WebUser extends DateAudit<String> implements Serializable {
     private String lastName;
     @Column(name = "line", columnDefinition = "character varying(50)")
     private String line;
+
     @Column(name = "is_bonus", columnDefinition = "character varying(50)")
     private String isBonus;
+
+    @Column(name = "block_bonus", columnDefinition = "boolean default false")
+    private Boolean blockBonus;
 
     @Column(name = "deposit_ref")
     private String depositRef;
@@ -58,17 +62,17 @@ public class WebUser extends DateAudit<String> implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private Agent agent;
 
-    @OneToOne(mappedBy = "user", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private Wallet wallet;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private List<AffiliateUser> affiliateUsers;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private List<DepositHistory> depositHistory;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE,CascadeType.PERSIST} , fetch = FetchType.LAZY)
-    private List<PromotionHistory> promotionHistory ;
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    private List<PromotionHistory> promotionHistory;
 
 }

@@ -103,6 +103,7 @@ public class WebUserServiceImpl implements WebUserService {
         user.setLastName(req.getLastName());
         user.setLine(req.getLine());
         user.setIsBonus(req.getIsBonus());
+        user.setBlockBonus(req.getBlockBonus().equalsIgnoreCase("true"));
 
         // Call create usr AMB
         AmbResponse<CreateUserRes> ambResponse = ambService.createUser(CreateUserReq.builder()
@@ -156,6 +157,7 @@ public class WebUserServiceImpl implements WebUserService {
             user.setTel(req.getTel());
             user.setLine(req.getLine());
             user.setIsBonus(req.getIsBonus());
+            user.setBlockBonus(req.getBlockBonus().equalsIgnoreCase("true"));
 
             WebUser userResp = webUserRepository.save(user);
 
@@ -218,7 +220,6 @@ public class WebUserServiceImpl implements WebUserService {
         return searchResponse;
     }
 
-
     Function<WebUser, WebUserResponse> converter = users -> {
         WebUserResponse webUserResponse = new WebUserResponse();
         webUserResponse.setId(users.getId());
@@ -232,6 +233,7 @@ public class WebUserServiceImpl implements WebUserService {
         webUserResponse.setFullName(users.getFirstName() + " " + users.getLastName());
         webUserResponse.setLine(users.getLine());
         webUserResponse.setIsBonus(Boolean.valueOf(users.getIsBonus()));
+        webUserResponse.setBlockBonus(users.getBlockBonus());
 
         webUserResponse.setCreatedDate(users.getCreatedDate());
         webUserResponse.setUpdatedDate(users.getUpdatedDate());

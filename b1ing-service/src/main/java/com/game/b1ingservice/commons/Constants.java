@@ -219,6 +219,7 @@ public class Constants {
         public static final String PENDING = "PENDING";
         public static final String SUCCESS = "SUCCESS";
         public static final String ERROR = "ERROR";
+        public static final String NOT_SURE = "NOT_SURE";
     }
 
     public static class DEPOSIT_TYPE {

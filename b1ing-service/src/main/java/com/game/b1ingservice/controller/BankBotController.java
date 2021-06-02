@@ -1,7 +1,6 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
-import com.game.b1ingservice.payload.bank.BankRequest;
 import com.game.b1ingservice.payload.bankbot.BankBotAddCreditRequest;
 import com.game.b1ingservice.payload.bankbot.BankBotAddCreditTrueWalletRequest;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
@@ -33,10 +32,10 @@ public class BankBotController {
     @Autowired
     private BankBotService bankBotService;
     @PostMapping(value = "/addcredit", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> addCredit(@RequestBody BankBotAddCreditRequest bankRequest){
+    public ResponseEntity<?> addCredit(@RequestBody BankBotAddCreditRequest bankRequest, @AuthenticationPrincipal UserPrincipal principal){
         bankBotAddCreditValidator.validate(bankRequest);
         bankRequest.setTransactionId(DigestUtils.sha1Hex(bankRequest.getTransactionDate().toString()+(bankRequest.getRemark())));
-        bankBotService.addCredit(bankRequest);
+        bankBotService.addCredit(bankRequest, principal.getPrefix());
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
