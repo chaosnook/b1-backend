@@ -72,7 +72,7 @@ public class BankBotScbTask {
 
                         request = extractAccount(request);
                         log.info(request.toString());
-                        bankBotService.addCredit(request);
+                        bankBotService.addCredit(request, bank.getPrefix());
                     }
                 }
             }
