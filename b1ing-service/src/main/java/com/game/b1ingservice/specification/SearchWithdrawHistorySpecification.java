@@ -1,5 +1,6 @@
 package com.game.b1ingservice.specification;
 
+import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.withdrawhistory.WithdrawHistorySearchRequest;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.entity.WithdrawHistory;
@@ -30,6 +31,8 @@ public class SearchWithdrawHistorySpecification extends SearchPageSpecification<
             String status = StringUtils.trimToEmpty(searchBody.getStatus());
             predicates.add(criteriaBuilder.equal(root.<String>get("status"), status));
         }
+
+        predicates.add(criteriaBuilder.notEqual(root.<String>get("status"), Constants.WITHDRAW_STATUS.BLOCK_AUTO));
 
         if (StringUtils.isNotEmpty(searchBody.getIsAuto())) {
             Boolean isAuto = searchBody.getIsAuto().equals("1");

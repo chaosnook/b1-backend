@@ -63,6 +63,7 @@ public class WithDrawServiceImpl implements WithDrawService {
         withdrawHistory.setBeforeAmount(wallet.getCredit());
         withdrawHistory.setUser(webUser);
         withdrawHistory.setIsAuto(false);
+        withdrawHistory.setBank(wallet.getBank());
         withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.PENDING);
         withdrawHistory = withdrawHistoryService.saveHistory(withdrawHistory);
 
