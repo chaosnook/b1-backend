@@ -37,6 +37,7 @@ public class Constants {
         ERR_00009("ไม่พบข้อมูล user,admin นี้"),
         ERR_00010("id ห้ามว่าง"),
         ERR_00011("ไม่พบข้อมูล"),
+        ERR_00012("ไม่พบข้อมูล user นี้"),
 
 
         ERR_01000("id ห้ามว่าง"),
@@ -141,7 +142,7 @@ public class Constants {
         ERR_12001("min topup ห้ามมากกว่า max topup "),
         ERR_12002("min topup ห้ามเท่ากับ max topup"),
         ERR_12003("เงี่อนไข min topup ห้ามน้อยกว่า promotion min topup"),
-        ERR_12004("เงื่อนไข max topup ห้ามมากกว่า prmotion max topup"),
+        ERR_12004("เงื่อนไข max topup ห้ามมากกว่า promotion max topup"),
         ;
 
         public String msg;
@@ -219,8 +220,23 @@ public class Constants {
         public static final String PENDING = "PENDING";
         public static final String SUCCESS = "SUCCESS";
         public static final String ERROR = "ERROR";
+
         public static final String NOT_SURE = "NOT_SURE";
+        public static final String BLOCK_AUTO = "BLOCK_AUTO";
+        public static final String REJECT = "REJECT";
+        public static final String REJECT_N_REFUND = "REJECT_N_REFUND";
     }
+
+    public static class WITHDRAW_STATUS {
+        public static final String PENDING = "PENDING";
+        public static final String SUCCESS = "SUCCESS";
+        public static final String ERROR = "ERROR";
+
+        public static final String BLOCK_AUTO = "BLOCK_AUTO";
+        public static final String REJECT = "REJECT";
+        public static final String REJECT_N_REFUND = "REJECT_N_REFUND";
+    }
+
 
     public static class DEPOSIT_TYPE {
         public static final String BANK = "BANK";
@@ -233,13 +249,6 @@ public class Constants {
         public static final String ERROR = "ERROR";
     }
 
-    public static class WITHDRAW_STATUS {
-        public static final String PENDING = "PENDING";
-        public static final String PENDING_APPROVE = "PENDING_APPROVE";
-        public static final String SUCCESS = "SUCCESS";
-        public static final String REJECT = "REJECT";
-        public static final String ERROR = "ERROR";
-    }
 
     public static class POINT_TYPE {
         public static final String EARN_POINT = "EARN_POINT";
@@ -265,7 +274,17 @@ public class Constants {
         public static final String PERCENT = "PERCENT";
     }
 
+    public static String MESSAGE_WITHDRAW_BLOCK = "User %s ขออนุมัติถอน credit จำนวน %s บาท";
+
+    public static String MESSAGE_WITHDRAW_APPROVE = "Admin %s อนุมัติถอน credit ให้ User %s จำนวน %s บาท";
+
+    public static String MESSAGE_WITHDRAW_REJECT = "Admin %s ปฏิเสธการถอนเงิน ของ User %s จำนวน %s บาท";
+
+    public static String MESSAGE_WITHDRAW_REJECT_RF = "Admin %s ปฏิเสธการถอนเงินแล้วคืน credit ให้ User %s จำนวน %s บาท";
+
     public static String MESSAGE_WITHDRAW = "User %s ถอน credit จำนวน %s บาท";
+
+    public static String MESSAGE_WITHDRAW_ERROR = "User %s ถอน credit จำนวน %s บาท ไม่สำเร็จ";
 
     public static String MESSAGE_WITHDRAW_REMAIN = " ยอดเงินคงเหลือ %s บาท";
 

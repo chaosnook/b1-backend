@@ -21,9 +21,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
 
+import static com.game.b1ingservice.commons.Constants.*;
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.MIN_WITHDRAW_CREDIT;
-import static com.game.b1ingservice.commons.Constants.MESSAGE_WITHDRAW;
-import static com.game.b1ingservice.commons.Constants.MESSAGE_WITHDRAW_REMAIN;
 
 
 @Slf4j
@@ -74,7 +73,7 @@ public class WithDrawServiceImpl implements WithDrawService {
             throw new ErrorMessageException(Constants.ERROR.ERR_04005);
         }
 
-        Agent agent =  webUser.getAgent();
+        Agent agent = webUser.getAgent();
         Optional<Config> minWithdrawConf = configRepository.findFirstByParameterAndAgent(MIN_WITHDRAW_CREDIT, agent);
         boolean isAuto = true;
         if (minWithdrawConf.isPresent()) {
@@ -83,6 +82,7 @@ public class WithDrawServiceImpl implements WithDrawService {
             isAuto = creditWithDraw.compareTo(minW) >= 0;
         }
 
+        // อนุญาติถอน auto ?
         AmbResponse<WithdrawRes> ambRes = ambService.withdraw(
                 WithdrawReq.builder().amount(creditWithDraw.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build(),
                 webUser.getUsernameAmb(), webUser.getAgent());
@@ -93,43 +93,41 @@ public class WithDrawServiceImpl implements WithDrawService {
             throw new ErrorMessageException(Constants.ERROR.ERR_04005);
         }
 
+
         WithDrawResponse response = new WithDrawResponse();
         int withdrawResult = this.withDrawCredit(creditWithDraw, webUser.getId());
         response.setStatus(withdrawResult > 0);
         if (withdrawResult > 0) {
             withdrawHistory.setAfterAmount(wallet.getCredit().subtract(creditWithDraw));
 
-            if (isAuto) {
+            if (webUser.getWithdrawAuto() && isAuto) {
                 // bank ที่จะโอนเงินให้ลูกค้า
-//                withdrawHistory.setBank();
-                //TODO call bot ถอนเงิน
                 BankBotScbWithdrawCreditRequest request = new BankBotScbWithdrawCreditRequest();
                 request.setAmount(creditWithDraw);
                 request.setAccountTo(webUser.getAccountNumber());
                 request.setBankCode(webUser.getBankName());
                 BankBotScbWithdrawCreditResponse bankBotResult = bankBotService.withDrawCredit(request);
-                log.info("bankbot withdraw response ", bankBotResult);
+                log.info("bankbot withdraw response {}", bankBotResult);
                 withdrawHistory.setIsAuto(true);
-                if (bankBotResult.getStatus()){
+                if (bankBotResult.getStatus()) {
                     withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.SUCCESS);
                     withdrawHistory.setReason(bankBotResult.getQrString());
                     withdrawHistory.setRemainBalance(bankBotResult.getRemainingBalance());
-                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW+MESSAGE_WITHDRAW_REMAIN,webUser.getUsername(), creditWithDraw, bankBotResult.getRemainingBalance()) ,
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW + MESSAGE_WITHDRAW_REMAIN, webUser.getUsername(), creditWithDraw, bankBotResult.getRemainingBalance()),
                             wallet.getUser().getAgent().getLineTokenWithdraw());
-                }else {
+                } else {
                     withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);
                     withdrawHistory.setReason(bankBotResult.getMessege());
-                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW,webUser.getUsername(), creditWithDraw) ,
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW_ERROR, webUser.getUsername(), creditWithDraw),
                             wallet.getUser().getAgent().getLineTokenWithdraw());
                 }
-
             } else {
-                withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.PENDING_APPROVE);
+                //  block auto
+                withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.BLOCK_AUTO);
+
+                lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW_BLOCK, webUser.getUsername(), creditWithDraw),
+                        wallet.getUser().getAgent().getLineTokenWithdraw());
             }
-
-//            lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW, webUser.getUsername(), creditWithDraw.setScale(2, RoundingMode.HALF_DOWN)) ,
-//                    agent.getLineToken());
-
         } else {
             withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);
         }

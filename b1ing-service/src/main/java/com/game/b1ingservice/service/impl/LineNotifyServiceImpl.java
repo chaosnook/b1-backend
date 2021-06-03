@@ -1,9 +1,6 @@
 package com.game.b1ingservice.service.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.game.b1ingservice.payload.amb.AmbResponse;
-import com.game.b1ingservice.payload.amb.CreateUserRes;
 import com.game.b1ingservice.payload.line.LineRes;
 import com.game.b1ingservice.service.LineNotifyService;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +42,7 @@ public class LineNotifyServiceImpl implements LineNotifyService {
                 log.info("line notify {}" , lineRes);
             }
         } catch (Exception e) {
-            log.error("getCredit", e);
+            log.error("sendLineNotifyMessages", e);
             lineRes.setMessage(e.getMessage());
             lineRes.setStatus(400);
             log.error("line notify {}" , lineRes);

@@ -1,16 +1,29 @@
 package com.game.b1ingservice.service.impl;
 
+import com.game.b1ingservice.commons.Constants;
+import com.game.b1ingservice.exception.ErrorMessageException;
+import com.game.b1ingservice.payload.amb.AmbResponse;
+import com.game.b1ingservice.payload.amb.DepositReq;
+import com.game.b1ingservice.payload.amb.DepositRes;
+import com.game.b1ingservice.payload.bankbot.BankBotScbWithdrawCreditRequest;
+import com.game.b1ingservice.payload.bankbot.BankBotScbWithdrawCreditResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.withdraw.WithDrawResponse;
 import com.game.b1ingservice.payload.withdraw.WithdrawHisUserReq;
 import com.game.b1ingservice.payload.withdraw.WithdrawHisUserRes;
-import com.game.b1ingservice.payload.withdrawhistory.WithdrawHistoryByUserIdResp;
-import com.game.b1ingservice.payload.withdrawhistory.WithdrawHistoryUpdateStatusReq;
-import com.game.b1ingservice.payload.withdrawhistory.WithdrawListHistorySearchResponse;
-import com.game.b1ingservice.payload.withdrawhistory.WithdrawSummaryHistorySearchResponse;
+import com.game.b1ingservice.payload.withdrawhistory.*;
+import com.game.b1ingservice.postgres.entity.Agent;
+import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.entity.WithdrawHistory;
+import com.game.b1ingservice.postgres.repository.WalletRepository;
+import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.postgres.repository.WithdrawHistoryRepository;
+import com.game.b1ingservice.service.AMBService;
+import com.game.b1ingservice.service.BankBotService;
+import com.game.b1ingservice.service.LineNotifyService;
 import com.game.b1ingservice.service.WithdrawHistoryService;
 import com.game.b1ingservice.utils.DateUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -18,19 +31,38 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.game.b1ingservice.commons.Constants.WITHDRAW_STATUS.SUCCESS;
+import static com.game.b1ingservice.commons.Constants.*;
+import static com.game.b1ingservice.commons.Constants.WITHDRAW_STATUS.*;
 
+@Slf4j
 @Service
 public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
 
     @Autowired
     private WithdrawHistoryRepository withdrawHistoryRepository;
+
+    @Autowired
+    private WalletRepository walletRepository;
+
+    @Autowired
+    private WebUserRepository webUserRepository;
+
+    @Autowired
+    private BankBotService bankBotService;
+
+    @Autowired
+    private LineNotifyService lineNotifyService;
+
+    @Autowired
+    private AMBService ambService;
 
     @Override
     public WithdrawHistory saveHistory(WithdrawHistory withdrawHistory) {
@@ -40,16 +72,18 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     @Override
     public List<WithdrawHisUserRes> searchByUser(WithdrawHisUserReq withDrawRequest, String username) {
         List<WithdrawHistory> depositHistories = new ArrayList<>();
+        List<String> statuses =  Arrays.asList(SUCCESS, REJECT_N_REFUND, BLOCK_AUTO, REJECT);
+
         if (withDrawRequest.getStartDate() != null && withDrawRequest.getPrevDate() != null) {
-            depositHistories = withdrawHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenAndStatusOrderByCreatedDateDesc(username,
+            depositHistories = withdrawHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenAndStatusInOrderByCreatedDateDesc(username,
                     DateUtils.atStartOfDay(DateUtils.convertStartDate(withDrawRequest.getPrevDate())).toInstant(),
                     DateUtils.atEndOfDay(DateUtils.convertEndDate(withDrawRequest.getStartDate())).toInstant(),
-                    SUCCESS);
+                   statuses);
         } else if (withDrawRequest.getStartDate() != null) {
-            depositHistories = withdrawHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenAndStatusOrderByCreatedDateDesc(username,
+            depositHistories = withdrawHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenAndStatusInOrderByCreatedDateDesc(username,
                     DateUtils.atStartOfDay(DateUtils.convertStartDate(withDrawRequest.getStartDate())).toInstant(),
                     DateUtils.atEndOfDay(DateUtils.convertEndDate(withDrawRequest.getStartDate())).toInstant(),
-                    SUCCESS);
+                    statuses);
         }
         return depositHistories.stream().map(converterUser).collect(Collectors.toList());
     }
@@ -58,10 +92,10 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     public List<WithdrawHistoryByUserIdResp> findListByUserId(Long userId, UserPrincipal principal) {
         List<WithdrawHistory> list = withdrawHistoryRepository.findByUser_IdAndUser_Agent_PrefixOrderByCreatedDateDesc(userId, principal.getPrefix());
         List<WithdrawHistoryByUserIdResp> result = new ArrayList<>();
-        if(!list.isEmpty()) {
-            for(WithdrawHistory withdrawDto : list) {
+        if (!list.isEmpty()) {
+            for (WithdrawHistory withdrawDto : list) {
                 WithdrawHistoryByUserIdResp withdraw = new WithdrawHistoryByUserIdResp();
-                if(null == withdrawDto.getBank()) {
+                if (null == withdrawDto.getBank()) {
                     withdraw.setBankName(null);
                     withdraw.setBankCode(null);
                 } else {
@@ -111,11 +145,11 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     private Page<WithdrawSummaryHistorySearchResponse> summaryHistory(List<WithdrawSummaryHistorySearchResponse> searchData, Pageable pageable) {
 
         Map<String, WithdrawSummaryHistorySearchResponse> map = new HashMap<>();
-        for(WithdrawSummaryHistorySearchResponse withdraw: searchData) {
+        for (WithdrawSummaryHistorySearchResponse withdraw : searchData) {
 
             WithdrawSummaryHistorySearchResponse summary = new WithdrawSummaryHistorySearchResponse();
 
-            if(!map.containsKey(withdraw.getBankName())) {
+            if (!map.containsKey(withdraw.getBankName())) {
 
                 summary.setBankName(withdraw.getBankName());
                 summary.setCountTask(1);
@@ -150,14 +184,14 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     Function<WithdrawHistory, WithdrawListHistorySearchResponse> converter = withdrawHistory -> {
         WithdrawListHistorySearchResponse searchResponse = new WithdrawListHistorySearchResponse();
         searchResponse.setId(withdrawHistory.getId());
-        if(null == withdrawHistory.getBank()) {
+        if (null == withdrawHistory.getBank()) {
             searchResponse.setBankName(null);
             searchResponse.setBankCode(null);
         } else {
             searchResponse.setBankName(withdrawHistory.getBank().getBankName());
             searchResponse.setBankCode(withdrawHistory.getBank().getBankCode());
         }
-        if(null == withdrawHistory.getUser()) {
+        if (null == withdrawHistory.getUser()) {
             searchResponse.setUsername(null);
         } else {
             searchResponse.setUsername(withdrawHistory.getUser().getUsername());
@@ -169,13 +203,12 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
         searchResponse.setStatus(withdrawHistory.getStatus());
         searchResponse.setIsAuto(withdrawHistory.getIsAuto());
         searchResponse.setReason(withdrawHistory.getReason());
-        if(null == withdrawHistory.getAdmin()) {
+        if (null == withdrawHistory.getAdmin()) {
             searchResponse.setAdmin(null);
         } else {
             searchResponse.setAdmin(withdrawHistory.getAdmin().getUsername());
         }
         searchResponse.setRemainBalance(withdrawHistory.getRemainBalance());
-
 
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a");
@@ -193,7 +226,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
 
     Function<WithdrawHistory, WithdrawSummaryHistorySearchResponse> converter2 = withdrawHistory -> {
         WithdrawSummaryHistorySearchResponse searchResponse = new WithdrawSummaryHistorySearchResponse();
-        if(null == withdrawHistory.getBank()) {
+        if (null == withdrawHistory.getBank()) {
             searchResponse.setBankName(null);
             searchResponse.setBankGroup(null);
             searchResponse.setBankCode(null);
@@ -213,7 +246,96 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
         withdrawHistoryRepository.updateStatus(req.getStatus(), req.getId(), req.getAmount());
     }
 
+    @Override
+    public WithDrawResponse updateBlockStatus(WithdrawBlockStatusReq req, String usernameAdmin) {
+        WithDrawResponse response = new WithDrawResponse();
+        try {
+            WITHDRAW_STATUS status = req.getStatus();
 
+            WithdrawHistory history = withdrawHistoryRepository.findFirstById(req.getWithdrawId());
+            if (history == null) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_00011);
+            }
+            WebUser webUser = history.getUser();
+            if (webUser == null) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_00012);
+            }
+
+            Agent agent = webUser.getAgent();
+
+            if (SUCCESS.equals(status.toString())) {// โอนเงินให้ถูกค้า
+                BankBotScbWithdrawCreditRequest request = new BankBotScbWithdrawCreditRequest();
+                request.setAmount(history.getAmount());
+                request.setAccountTo(webUser.getAccountNumber());
+                request.setBankCode(webUser.getBankName());
+
+                BankBotScbWithdrawCreditResponse bankBotResult = bankBotService.withDrawCredit(request);
+                log.info("bankbot withdraw response {}", bankBotResult);
+                history.setIsAuto(false);
+
+                if (bankBotResult.getStatus()) {
+                    response.setStatus(true);
+                    history.setStatus(SUCCESS);
+                    history.setRemainBalance(bankBotResult.getRemainingBalance());
+
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW_APPROVE + MESSAGE_WITHDRAW_REMAIN,
+                            usernameAdmin, webUser.getUsername(), history.getAmount(), bankBotResult.getRemainingBalance()),
+                            agent.getLineTokenWithdraw());
+                } else {
+                    response.setStatus(false);
+                    response.setMessage(bankBotResult.getMessege());
+
+                    history.setStatus(WITHDRAW_STATUS.ERROR);
+                    history.setReason(bankBotResult.getMessege());
+                }
+            } else if (REJECT.equals(status.toString())) {
+                // is reject
+                // ไม่คืน credit
+                history.setStatus(REJECT);
+                response.setStatus(true);
+
+                lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW_REJECT, usernameAdmin, webUser.getUsername(),
+                        history.getAmount()),
+                        agent.getLineTokenWithdraw());
+
+            } else if (REJECT_N_REFUND.equals(status.toString())) {
+                // is reject
+                // คืน credit
+                BigDecimal credit = history.getAmount().setScale(2, RoundingMode.HALF_DOWN);
+                AmbResponse<DepositRes> ambResponse = ambService.deposit(DepositReq.builder()
+                        .amount(credit.toPlainString())
+                        .build(), webUser.getUsernameAmb(), agent);
+
+                if (ambResponse.getCode() == 0) {
+                    history.setStatus(REJECT_N_REFUND);
+                    walletRepository.depositCredit(credit, webUser.getId());
+                    webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), webUser.getId());
+
+                    response.setStatus(true);
+
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW_REJECT_RF, usernameAdmin, webUser.getUsername(),
+                            history.getAmount()),
+                            agent.getLineTokenWithdraw());
+                } else {
+                    response.setStatus(false);
+                    response.setMessage("Can't add credit at amb api");
+
+                    history.setStatus(WITHDRAW_STATUS.ERROR);
+                    history.setReason("Can't add credit at amb api");
+                }
+            }
+
+            history.setReason(req.getReason());
+            this.saveHistory(history);
+
+        } catch (Exception e) {
+            log.error("updateBlockStatus", e);
+            response.setStatus(false);
+            response.setMessage(e.getMessage());
+        }
+
+        return response;
+    }
 
 
 }

@@ -16,13 +16,15 @@ import java.util.List;
 @Repository
 public interface WithdrawHistoryRepository extends JpaRepository<WithdrawHistory, Long>, JpaSpecificationExecutor<WithdrawHistory> {
 
-    List<WithdrawHistory> findAllByUser_usernameAndCreatedDateBetweenAndStatusOrderByCreatedDateDesc(String username, Instant startDate, Instant endDate, String status);
+    List<WithdrawHistory> findAllByUser_usernameAndCreatedDateBetweenAndStatusInOrderByCreatedDateDesc(String username, Instant startDate, Instant endDate, List<String> status);
 
     List<WithdrawHistory> findByUser_IdAndUser_Agent_PrefixOrderByCreatedDateDesc(Long id, String prefix);
 
     List<WithdrawHistory> findAllByUser_AgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(Agent agent, Instant instantStart, Instant instantEnd, List<String> types);
 
     List<WithdrawHistory> findByIdAndAmount(Long id, BigDecimal amount);
+
+    WithdrawHistory findFirstById(Long id);
 
     @Transactional
     @Modifying

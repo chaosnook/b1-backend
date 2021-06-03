@@ -2,6 +2,7 @@ package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
+import com.game.b1ingservice.payload.withdraw.WithDrawResponse;
 import com.game.b1ingservice.payload.withdrawhistory.*;
 import com.game.b1ingservice.service.WithdrawHistoryService;
 import com.game.b1ingservice.specification.SearchWithdrawHistorySpecification;
@@ -21,6 +22,19 @@ public class WithdrawHistoryController {
 
     @Autowired
     private WithdrawHistoryService withdrawHistoryService;
+
+    @PostMapping(value = "/withdrawHistory/updateBlockStatus", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> updateBlockStatus(@RequestBody WithdrawBlockStatusReq req, @AuthenticationPrincipal UserPrincipal principal) {
+
+        WithDrawResponse response = withdrawHistoryService.updateBlockStatus(req, principal.getUsername());
+
+        if (response.getStatus()) {
+            return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+        }else {
+            return ResponseHelper.bad(response.getMessage());
+        }
+
+    }
 
     @PostMapping(value = "search/list/withdrawHistory", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> searchListWithDrawHistory(@RequestBody WithdrawHistorySearchRequest req) {
