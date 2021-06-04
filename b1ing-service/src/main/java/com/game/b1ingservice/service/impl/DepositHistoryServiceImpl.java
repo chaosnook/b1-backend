@@ -75,10 +75,6 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     @Autowired
     private BankBotService bankBotService;
 
-
-    public static List<String> STATUS_SEARCH = Arrays.asList(SUCCESS, REJECT, REJECT_N_REFUND);
-
-
     @Override
     public Page<DepositListHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type) {
 
@@ -246,7 +242,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     }
 
     @Override
-    public DepositResponse updateBlockStatus(DepositBlockStatusReq req, String usernameAdmin) {
+    public DepositResponse updateBlockAutoTransaction(DepositBlockStatusReq req, String usernameAdmin) {
         DepositResponse response = new DepositResponse();
         try {
             Constants.DEPOSIT_STATUS status = req.getStatus();
@@ -321,7 +317,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
             history.setReason(req.getReason());
             depositHistoryRepository.save(history);
         } catch (Exception e) {
-            log.error("updateBlockStatus", e);
+            log.error("updateBlockAutoTransaction", e);
             response.setStatus(false);
             response.setMessage(e.getMessage());
         }
@@ -330,7 +326,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     }
 
     @Override
-    public DepositResponse updateNoteSureStatus(DepositNotSureStatusReq req, String usernameAdmin, String prefix) {
+    public DepositResponse updateNoteSureTransaction(DepositNotSureStatusReq req, String usernameAdmin, String prefix) {
         DepositResponse response = new DepositResponse();
         try {
             DepositHistory history = depositHistoryRepository.findFirstByIdAndStatus(req.getDepositId(), NOT_SURE);
@@ -378,7 +374,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
             history.setReason(req.getReason());
             depositHistoryRepository.save(history);
         }catch (Exception e) {
-            log.error("updateNoteSureStatus", e);
+            log.error("updateNoteSureTransaction", e);
             response.setStatus(false);
             response.setMessage(e.getMessage());
         }

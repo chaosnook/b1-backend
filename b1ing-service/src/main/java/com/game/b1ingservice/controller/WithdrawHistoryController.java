@@ -23,10 +23,10 @@ public class WithdrawHistoryController {
     @Autowired
     private WithdrawHistoryService withdrawHistoryService;
 
-    @PostMapping(value = "/withdrawHistory/updateBlockStatus", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> updateBlockStatus(@RequestBody WithdrawBlockStatusReq req, @AuthenticationPrincipal UserPrincipal principal) {
+    @PostMapping(value = "/withdrawHistory/updateBlockAutoTransaction", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> updateBlockAutoTransaction(@RequestBody WithdrawBlockStatusReq req, @AuthenticationPrincipal UserPrincipal principal) {
 
-        WithDrawResponse response = withdrawHistoryService.updateBlockStatus(req, principal.getUsername());
+        WithDrawResponse response = withdrawHistoryService.updateBlockAutoTransaction(req, principal.getUsername());
 
         if (response.getStatus()) {
             return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);

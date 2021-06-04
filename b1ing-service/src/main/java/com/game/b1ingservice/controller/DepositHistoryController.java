@@ -22,10 +22,10 @@ public class DepositHistoryController {
     @Autowired
     private DepositHistoryService depositHistoryService;
 
-    @PostMapping(value = "/depositHistory/updateBlockStatus", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> updateBlockStatus(@RequestBody DepositBlockStatusReq req, @AuthenticationPrincipal UserPrincipal principal) {
+    @PostMapping(value = "/depositHistory/updateBlockAutoTransaction", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> updateBlockAutoTransaction(@RequestBody DepositBlockStatusReq req, @AuthenticationPrincipal UserPrincipal principal) {
 
-        DepositResponse response = depositHistoryService.updateBlockStatus(req, principal.getUsername());
+        DepositResponse response = depositHistoryService.updateBlockAutoTransaction(req, principal.getUsername());
 
         if (response.getStatus()) {
             return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
@@ -36,9 +36,9 @@ public class DepositHistoryController {
     }
 
     @PostMapping(value = "/depositHistory/updateNotSureStatus", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> updateBlockStatus(@RequestBody DepositNotSureStatusReq req, @AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<?> updateBlockAutoTransaction(@RequestBody DepositNotSureStatusReq req, @AuthenticationPrincipal UserPrincipal principal) {
 
-        DepositResponse response = depositHistoryService.updateNoteSureStatus(req, principal.getUsername(), principal.getPrefix());
+        DepositResponse response = depositHistoryService.updateNoteSureTransaction(req, principal.getUsername(), principal.getPrefix());
 
         if (response.getStatus()) {
             return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);

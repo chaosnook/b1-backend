@@ -247,7 +247,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     }
 
     @Override
-    public WithDrawResponse updateBlockStatus(WithdrawBlockStatusReq req, String usernameAdmin) {
+    public WithDrawResponse updateBlockAutoTransaction(WithdrawBlockStatusReq req, String usernameAdmin) {
         WithDrawResponse response = new WithDrawResponse();
         try {
             WITHDRAW_STATUS status = req.getStatus();
@@ -329,7 +329,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
             this.saveHistory(history);
 
         } catch (Exception e) {
-            log.error("updateBlockStatus", e);
+            log.error("updateBlockAutoTransaction", e);
             response.setStatus(false);
             response.setMessage(e.getMessage());
         }

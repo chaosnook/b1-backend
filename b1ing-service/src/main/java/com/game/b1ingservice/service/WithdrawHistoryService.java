@@ -26,5 +26,5 @@ public interface WithdrawHistoryService {
 
     void updateStatus(WithdrawHistoryUpdateStatusReq req);
 
-    WithDrawResponse updateBlockStatus(WithdrawBlockStatusReq req, String username);
+    WithDrawResponse updateBlockAutoTransaction(WithdrawBlockStatusReq req, String username);
 }
