@@ -293,5 +293,7 @@ public class Constants {
 
     public static String MESSAGE_ADMIN_DEPOSIT = "Admin %s เติม credit ให้ User %s จำนวน %s บาท";
 
+    public static String MESSAGE_DEPOSIT_BLOCK = "User %s ขออนุมัติฝาก credit จำนวน %s บาท";
+
     public static String MESSAGE_POINT_TRANSFER = "User %s โอน point %s";
 }

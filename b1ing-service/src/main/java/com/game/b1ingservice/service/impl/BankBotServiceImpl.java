@@ -25,8 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.game.b1ingservice.commons.Constants.MESSAGE_ADMIN_DEPOSIT;
-import static com.game.b1ingservice.commons.Constants.MESSAGE_DEPOSIT;
+import static com.game.b1ingservice.commons.Constants.*;
 
 @Service
 @Slf4j
@@ -96,43 +95,62 @@ public class BankBotServiceImpl implements BankBotService {
 
                 WebUser webUser = wallet.getUser();
 
+                if (webUser == null) {
+                    log.error("addCredit : No user in wallet {}", wallet);
+                    return;
+                }
+
                 depositHistory.setUser(webUser);
                 depositHistory.setBank(wallet.getBank());
 
                 BigDecimal turnOver = BigDecimal.ZERO;
                 log.info("Add Credit status isBonus {} : blockBonus {}", webUser.getIsBonus(), webUser.getBlockBonus());
 
+                // block bonus คือไม่แจกโบนัสให้ user นี้
+                // is bonus คือลูกค้าต้องการโบนัส
                 if (!webUser.getBlockBonus() && webUser.getIsBonus().equals("true")){
                     PromotionEffectiveResponse promotionBonus = mapPromotion(depositHistory, request.getTransactionDate());
                     depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()).add(promotionBonus.getBonus()));
                     depositHistory.setBonusAmount(promotionBonus.getBonus());
+
                     turnOver = promotionBonus.getTurnOver();
+                    depositHistory.setTurnOver(turnOver);
                 } else {
                     depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()));
                     depositHistory.setBonusAmount(BigDecimal.ZERO);
+                    depositHistory.setTurnOver(BigDecimal.ZERO);
                 }
 
                 try {
-                    AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory,wallet);
-                    log.info("amb response : {}", result);
-                    if (0 == result.getCode()){
-                        depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
+                    // deposit auto คือ admin อนุญาติให้ลูกค้าคนนี้สามารถถอนเงินแบบ auto ได้
+                    if (webUser.getDepositAuto()) {
+                        AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory, wallet);
+                        log.info("amb response : {}", result);
+                        if (0 == result.getCode()) {
+                            depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
 
-                        webUser = wallet.getUser();
-                        if (webUser != null) {
                             lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_DEPOSIT,
                                     webUser.getUsername(),
                                     depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
                                     webUser.getAgent().getLineToken());
-                        }
-                        walletRepository.depositCreditAndTurnOverNonMultiply(depositHistory.getAmount().add(depositHistory.getBonusAmount()), turnOver, webUser.getId());
-                        webUserRepository.updateDepositRef(result.getResult().getRef(), webUser.getId());
-                        // check affiliate
-                        affiliateService.earnPoint(webUser.getId(), request.getAmount(), webUser.getAgent().getPrefix());
 
+                            walletRepository.depositCreditAndTurnOverNonMultiply(depositHistory.getAmount().add(depositHistory.getBonusAmount()), turnOver, webUser.getId());
+                            webUserRepository.updateDepositRef(result.getResult().getRef(), webUser.getId());
+                            // check affiliate
+                            affiliateService.earnPoint(webUser.getId(), request.getAmount(), webUser.getAgent().getPrefix());
+
+                        } else {
+                            depositHistory.setStatus(Constants.DEPOSIT_STATUS.ERROR);
+                            depositHistory.setReason("Can't add credit at amb api");
+                        }
                     } else {
-                        depositHistory.setStatus(Constants.DEPOSIT_STATUS.ERROR);
-                        depositHistory.setReason("Can't add credit at amb api");
+                        depositHistory.setStatus(Constants.DEPOSIT_STATUS.BLOCK_AUTO);
+                        depositHistory.setIsAuto(false);
+
+                        lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_DEPOSIT_BLOCK, webUser.getUsername(),
+                                depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
+                                webUser.getAgent().getLineTokenWithdraw());
+
                     }
 
                 } catch (Exception e) {
@@ -175,6 +193,11 @@ public class BankBotServiceImpl implements BankBotService {
                 Wallet wallet = wallets.get(0);
                 WebUser webUser = wallet.getUser();
 
+                if (webUser == null) {
+                    log.error("addCredit True : No user in wallet {}", wallet);
+                    return;
+                }
+
                 depositHistory.setBeforeAmount(wallet.getCredit());
                 depositHistory.setUser(webUser);
                 depositHistory.setTrueWallet(wallet.getTrueWallet());
@@ -182,37 +205,53 @@ public class BankBotServiceImpl implements BankBotService {
                 depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
 
                 BigDecimal turnOver = BigDecimal.ZERO;
-                log.info("Add Credit status isBonus {} : blockBonus {}", webUser.getIsBonus(), webUser.getBlockBonus());
+                log.info("Add Credit True status isBonus {} : blockBonus {}", webUser.getIsBonus(), webUser.getBlockBonus());
 
+                // block bonus คือไม่แจกโบนัสให้ user นี้
+                // is bonus คือลูกค้าต้องการโบนัส
                 if (!webUser.getBlockBonus() && webUser.getIsBonus().equals("true")) {
                     PromotionEffectiveResponse promotionBonus = mapPromotion(depositHistory, request.getTransactionDate());
                     depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()).add(promotionBonus.getBonus()));
                     depositHistory.setBonusAmount(promotionBonus.getBonus());
+
                     turnOver = promotionBonus.getTurnOver();
+                    depositHistory.setTurnOver(turnOver);
                 } else {
                     depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()));
                     depositHistory.setBonusAmount(BigDecimal.ZERO);
+                    depositHistory.setTurnOver(turnOver);
                 }
 
                 try {
+                    // deposit auto คือ admin อนุญาติให้ลูกค้าคนนี้สามารถถอนเงินแบบ auto ได้
+                    if (webUser.getDepositAuto()) {
+                        AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory, wallet);
+                        log.info("amb response : {}", result);
+                        if (0 == result.getCode()) {
+                            depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
 
-                    AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory,wallet);
-                    log.info("amb response : {}", result);
-                    if (0 == result.getCode()){
-                        depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
+                            lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_DEPOSIT,
+                                    webUser.getUsername(),
+                                    depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
+                                    webUser.getAgent().getLineToken());
 
-                        lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT,
-                                webUser.getUsername(), depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)) ,
-                                webUser.getAgent().getLineToken());
+                            walletRepository.depositCreditAndTurnOverNonMultiply(depositHistory.getAmount().add(depositHistory.getBonusAmount()), turnOver, wallet.getUser().getId());
+                            webUserRepository.updateDepositRef(result.getResult().getRef(), webUser.getId());
+                            // check affiliate
+                            affiliateService.earnPoint(webUser.getId(), request.getAmount(), webUser.getAgent().getPrefix());
 
-                        walletRepository.depositCreditAndTurnOverNonMultiply(depositHistory.getAmount().add(depositHistory.getBonusAmount()), turnOver, wallet.getUser().getId());
-                        webUserRepository.updateDepositRef(result.getResult().getRef(), webUser.getId());
-                        // check affiliate
-                        affiliateService.earnPoint(webUser.getId(), request.getAmount(), webUser.getAgent().getPrefix());
+                        } else {
+                            depositHistory.setStatus(Constants.DEPOSIT_STATUS.ERROR);
+                            depositHistory.setReason("Can't add credit at amb api");
+                        }
+                    } else {
+                        depositHistory.setStatus(Constants.DEPOSIT_STATUS.BLOCK_AUTO);
+                        depositHistory.setIsAuto(false);
 
-                    }else {
-                        depositHistory.setStatus(Constants.DEPOSIT_STATUS.ERROR);
-                        depositHistory.setReason("Can't add credit at amb api");
+                        lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_DEPOSIT_BLOCK, webUser.getUsername(),
+                                depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
+                                webUser.getAgent().getLineTokenWithdraw());
+
                     }
                 } catch (Exception e) {
                     depositHistory.setStatus(Constants.DEPOSIT_STATUS.ERROR);
