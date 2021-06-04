@@ -21,8 +21,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
 
-import static com.game.b1ingservice.commons.Constants.*;
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.MIN_WITHDRAW_CREDIT;
+import static com.game.b1ingservice.commons.Constants.ERROR.ERR_00013;
+import static com.game.b1ingservice.commons.Constants.*;
+import static com.game.b1ingservice.commons.Constants.MESSAGE.MSG_00001;
 
 
 @Slf4j
@@ -96,6 +98,8 @@ public class WithDrawServiceImpl implements WithDrawService {
 
 
         WithDrawResponse response = new WithDrawResponse();
+        response.setMessage(MSG_00001.msg);
+
         int withdrawResult = this.withDrawCredit(creditWithDraw, webUser.getId());
         response.setStatus(withdrawResult > 0);
         if (withdrawResult > 0) {
@@ -121,11 +125,12 @@ public class WithDrawServiceImpl implements WithDrawService {
                     withdrawHistory.setReason(bankBotResult.getMessege());
                     lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW_ERROR, webUser.getUsername(), creditWithDraw),
                             wallet.getUser().getAgent().getLineTokenWithdraw());
+
                 }
             } else {
                 //  block auto
                 withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.BLOCK_AUTO);
-
+                response.setMessage(ERR_00013.msg);
                 lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW_BLOCK, webUser.getUsername(), creditWithDraw),
                         wallet.getUser().getAgent().getLineTokenWithdraw());
             }

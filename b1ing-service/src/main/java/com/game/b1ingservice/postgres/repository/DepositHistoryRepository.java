@@ -20,4 +20,8 @@ public interface DepositHistoryRepository extends JpaRepository<DepositHistory, 
     List<DepositHistory> findAllByUser_AgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(Agent agent, Instant startDate, Instant endDate, List<String> types);
 
     Boolean existsByUser_Id(Long userId);
+
+    DepositHistory findFirstById(Long withdrawId);
+
+    DepositHistory findFirstByIdAndStatus(Long withdrawId, String status);
 }

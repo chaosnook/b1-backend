@@ -39,6 +39,9 @@ public class Constants {
         ERR_00011("ไม่พบข้อมูล"),
         ERR_00012("ไม่พบข้อมูล user นี้"),
 
+        ERR_00013("กรุณารออนุมัติถอน"),
+        ERR_00014("ถอนไม่สำเร็จ"),
+
 
         ERR_01000("id ห้ามว่าง"),
         ERR_01001("ืชื่อ ห้ามว่าง"),
@@ -153,6 +156,8 @@ public class Constants {
     }
     public enum MESSAGE{
         MSG_00000("ระบบดำเนินการสำเร็จ"),
+
+        MSG_00001("ถอนเงินสำเร็จ"),
 
         MSG_01000("ดึงข้อมูลมิจฉาชีพสำเร็จ"),
         MSG_01001("เพิ่มข้อมูลมิจฉาชีพสำเร็จ"),
@@ -290,6 +295,10 @@ public class Constants {
 
 
     public static String MESSAGE_DEPOSIT = "User %s เติม credit จำนวน %s บาท";
+
+    public static String MESSAGE_DEPOSIT_REJECT = "Admin %s ปฏิเสธการฝากเงิน ของ User %s จำนวน %s บาท";
+
+    public static String MESSAGE_DEPOSIT_REJECT_RF = "Admin %s ปฏิเสธการฝากเงินแล้วคืนเงินให้ User %s จำนวน %s บาท";
 
     public static String MESSAGE_ADMIN_DEPOSIT = "Admin %s เติม credit ให้ User %s จำนวน %s บาท";
 

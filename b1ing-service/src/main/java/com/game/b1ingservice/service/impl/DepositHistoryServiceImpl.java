@@ -1,17 +1,28 @@
 package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.commons.Constants;
+import com.game.b1ingservice.exception.ErrorMessageException;
+import com.game.b1ingservice.payload.amb.AmbResponse;
+import com.game.b1ingservice.payload.amb.DepositReq;
+import com.game.b1ingservice.payload.amb.DepositRes;
+import com.game.b1ingservice.payload.bankbot.BankBotScbWithdrawCreditRequest;
+import com.game.b1ingservice.payload.bankbot.BankBotScbWithdrawCreditResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.deposithistory.*;
+import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
+import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.jdbc.DepositHistoryJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.ProfitLossJdbcRepository;
 import com.game.b1ingservice.postgres.jdbc.dto.DepositHistoryTop20Dto;
 import com.game.b1ingservice.postgres.jdbc.dto.SummaryDeposit;
 import com.game.b1ingservice.postgres.jdbc.dto.SummaryWithdraw;
 import com.game.b1ingservice.postgres.repository.DepositHistoryRepository;
-import com.game.b1ingservice.service.DepositHistoryService;
+import com.game.b1ingservice.postgres.repository.WalletRepository;
+import com.game.b1ingservice.postgres.repository.WebUserRepository;
+import com.game.b1ingservice.service.*;
 import com.game.b1ingservice.utils.DateUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -27,6 +38,13 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.game.b1ingservice.commons.Constants.*;
+import static com.game.b1ingservice.commons.Constants.DEPOSIT_STATUS.NOT_SURE;
+import static com.game.b1ingservice.commons.Constants.DEPOSIT_STATUS.SUCCESS;
+import static com.game.b1ingservice.commons.Constants.WITHDRAW_STATUS.REJECT;
+import static com.game.b1ingservice.commons.Constants.WITHDRAW_STATUS.REJECT_N_REFUND;
+
+@Slf4j
 @Service
 public class DepositHistoryServiceImpl implements DepositHistoryService {
 
@@ -38,6 +56,23 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
     @Autowired
     private ProfitLossJdbcRepository profitLossJdbcRepository;
+
+    @Autowired
+    private AffiliateService affiliateService;
+
+    @Autowired
+    private WebUserRepository webUserRepository;
+    @Autowired
+    private WalletRepository walletRepository;
+
+    @Autowired
+    private LineNotifyService lineNotifyService;
+
+    @Autowired
+    private AMBService ambService;
+
+    @Autowired
+    private BankBotService bankBotService;
 
     @Override
     public Page<DepositListHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type) {
@@ -203,6 +238,146 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
         return resp;
 
+    }
+
+    @Override
+    public DepositResponse updateBlockStatus(DepositBlockStatusReq req, String usernameAdmin) {
+        DepositResponse response = new DepositResponse();
+        try {
+            Constants.DEPOSIT_STATUS status = req.getStatus();
+            DepositHistory history = depositHistoryRepository.findFirstById(req.getDepositId());
+            if (history == null) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_00011);
+            }
+            WebUser webUser = history.getUser();
+            if (webUser == null) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_00012);
+            }
+
+            Agent agent = webUser.getAgent();
+
+            if (SUCCESS.equals(status.toString())) {
+                // เติม credit ให้ลูกค้า
+                DepositReq depositReq = DepositReq.builder().amount(history.getAmount().setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build();
+                AmbResponse<DepositRes> result =  ambService.deposit(depositReq, webUser.getUsernameAmb(), webUser.getAgent());
+                log.info("amb response : {}", result);
+                if (0 == result.getCode()) {
+
+                    walletRepository.depositCreditAndTurnOverNonMultiply(history.getAmount().add(history.getBonusAmount()), history.getTurnOver(), webUser.getId());
+                    webUserRepository.updateDepositRef(result.getResult().getRef(), webUser.getId());
+                    // check affiliate
+                    affiliateService.earnPoint(webUser.getId(), history.getAmount(), webUser.getAgent().getPrefix());
+
+                    history.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
+
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_DEPOSIT,
+                            webUser.getUsername(),
+                            history.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
+                            webUser.getAgent().getLineToken());
+                } else {
+                    history.setStatus(Constants.DEPOSIT_STATUS.ERROR);
+                    history.setReason("Can't add credit at amb api");
+                }
+
+            } else if (REJECT.equals(status.toString())) {
+                // is reject
+                // ไม่คืน เงิน
+                history.setStatus(REJECT);
+                response.setStatus(true);
+                lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_DEPOSIT_REJECT, usernameAdmin, webUser.getUsername(),
+                        history.getAmount()),
+                        agent.getLineTokenWithdraw());
+
+            } else if (REJECT_N_REFUND.equals(status.toString())) {
+                // is reject
+                // โอนเงินคืน
+                BankBotScbWithdrawCreditRequest request = new BankBotScbWithdrawCreditRequest();
+                request.setAmount(history.getAmount());
+                request.setAccountTo(webUser.getAccountNumber());
+                request.setBankCode(webUser.getBankName());
+
+                BankBotScbWithdrawCreditResponse bankBotResult = bankBotService.withDrawCredit(request);
+                if (bankBotResult.getStatus()) {
+                    history.setStatus(REJECT_N_REFUND);
+                    response.setStatus(true);
+
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_DEPOSIT_REJECT_RF, usernameAdmin, webUser.getUsername(),
+                            history.getAmount()),
+                            agent.getLineTokenWithdraw());
+                } else {
+                    response.setStatus(false);
+                    response.setMessage(bankBotResult.getMessege());
+
+                    history.setStatus(Constants.WITHDRAW_STATUS.ERROR);
+                    history.setReason(bankBotResult.getMessege());
+                }
+            }
+
+            history.setReason(req.getReason());
+            depositHistoryRepository.save(history);
+        } catch (Exception e) {
+            log.error("updateBlockStatus", e);
+            response.setStatus(false);
+            response.setMessage(e.getMessage());
+        }
+
+        return response;
+    }
+
+    @Override
+    public DepositResponse updateNoteSureStatus(DepositNotSureStatusReq req, String usernameAdmin, String prefix) {
+        DepositResponse response = new DepositResponse();
+        try {
+            DepositHistory history = depositHistoryRepository.findFirstByIdAndStatus(req.getDepositId(), NOT_SURE);
+            if (history == null) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_00011);
+            }
+
+            Constants.DEPOSIT_STATUS status = req.getStatus();
+
+            // success => เติม credit ให้ user
+            if (SUCCESS.equals(status.toString())) {
+                Optional<WebUser> webUserOpt = webUserRepository.findFirstByUsernameAndAgent_Prefix(req.getUsername().toLowerCase(Locale.ROOT), prefix);
+                if (!webUserOpt.isPresent()) {
+                    throw new ErrorMessageException(Constants.ERROR.ERR_00012);
+                }
+
+                WebUser webUser =  webUserOpt.get();
+                DepositReq depositReq = DepositReq.builder().amount(history.getAmount().setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build();
+                AmbResponse<DepositRes> result =  ambService.deposit(depositReq, webUser.getUsernameAmb(), webUser.getAgent());
+                log.info("amb response : {}", result);
+                if (0 == result.getCode()) {
+
+                    walletRepository.depositCreditAndTurnOverNonMultiply(history.getAmount().add(history.getBonusAmount()), history.getTurnOver(), webUser.getId());
+                    webUserRepository.updateDepositRef(result.getResult().getRef(), webUser.getId());
+                    // check affiliate
+                    affiliateService.earnPoint(webUser.getId(), history.getAmount(), webUser.getAgent().getPrefix());
+
+                    history.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
+
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_DEPOSIT,
+                            webUser.getUsername(),
+                            history.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
+                            webUser.getAgent().getLineToken());
+                } else {
+                    history.setStatus(Constants.DEPOSIT_STATUS.ERROR);
+                    history.setReason("Can't add credit at amb api");
+                }
+
+            } else if (REJECT.equals(status.toString())){
+                // reject => reject transaction นี้
+                history.setStatus(REJECT);
+                response.setStatus(true);
+            }
+
+            history.setReason(req.getReason());
+            depositHistoryRepository.save(history);
+        }catch (Exception e) {
+            log.error("updateNoteSureStatus", e);
+            response.setStatus(false);
+            response.setMessage(e.getMessage());
+        }
+        return response;
     }
 
     private Page<DepositSummaryHistorySearchResponse> summaryHistory(List<DepositListHistorySearchResponse> searchData, Pageable pageable) {

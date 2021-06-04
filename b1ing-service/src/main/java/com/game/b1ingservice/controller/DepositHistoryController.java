@@ -22,6 +22,32 @@ public class DepositHistoryController {
     @Autowired
     private DepositHistoryService depositHistoryService;
 
+    @PostMapping(value = "/depositHistory/updateBlockStatus", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> updateBlockStatus(@RequestBody DepositBlockStatusReq req, @AuthenticationPrincipal UserPrincipal principal) {
+
+        DepositResponse response = depositHistoryService.updateBlockStatus(req, principal.getUsername());
+
+        if (response.getStatus()) {
+            return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+        }else {
+            return ResponseHelper.bad(response.getMessage());
+        }
+
+    }
+
+    @PostMapping(value = "/depositHistory/updateNotSureStatus", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> updateBlockStatus(@RequestBody DepositNotSureStatusReq req, @AuthenticationPrincipal UserPrincipal principal) {
+
+        DepositResponse response = depositHistoryService.updateNoteSureStatus(req, principal.getUsername(), principal.getPrefix());
+
+        if (response.getStatus()) {
+            return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+        }else {
+            return ResponseHelper.bad(response.getMessage());
+        }
+
+    }
+
     @PostMapping(value = "/search/list/depositHistory", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> searchListDepositHistory(@RequestBody DepositHistorySearchRequest req){
         req.setSummary(false);
