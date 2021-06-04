@@ -2,6 +2,8 @@ package com.game.b1ingservice.postgres.repository;
 
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -24,4 +26,6 @@ public interface DepositHistoryRepository extends JpaRepository<DepositHistory, 
     DepositHistory findFirstById(Long withdrawId);
 
     DepositHistory findFirstByIdAndStatus(Long withdrawId, String status);
+
+    Page<DepositHistory> findByUser_Agent_PrefixAndStatusOrderByCreatedDateDesc(String prefix , String status, Pageable pageable);
 }

@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -38,9 +39,9 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.game.b1ingservice.commons.Constants.*;
 import static com.game.b1ingservice.commons.Constants.DEPOSIT_STATUS.NOT_SURE;
 import static com.game.b1ingservice.commons.Constants.DEPOSIT_STATUS.SUCCESS;
+import static com.game.b1ingservice.commons.Constants.*;
 import static com.game.b1ingservice.commons.Constants.WITHDRAW_STATUS.REJECT;
 import static com.game.b1ingservice.commons.Constants.WITHDRAW_STATUS.REJECT_N_REFUND;
 
@@ -73,6 +74,10 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
     @Autowired
     private BankBotService bankBotService;
+
+
+    public static List<String> STATUS_SEARCH = Arrays.asList(SUCCESS, REJECT, REJECT_N_REFUND);
+
 
     @Override
     public Page<DepositListHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type) {
@@ -379,6 +384,44 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         }
         return response;
     }
+
+    @Override
+    public List<DepositHistoryTopAll20Resp> findLast20Transaction(String prefix) {
+
+        Page<DepositHistory> list = depositHistoryRepository.findByUser_Agent_PrefixAndStatusOrderByCreatedDateDesc(prefix, SUCCESS,
+                PageRequest.of(0, 20));
+
+        List<DepositHistoryTopAll20Resp> result = new ArrayList<>();
+        if (!list.isEmpty()) {
+            for (DepositHistory depositDto : list) {
+                DepositHistoryTopAll20Resp deposit = new DepositHistoryTopAll20Resp();
+                if (null == depositDto.getBank()) {
+                    deposit.setBankName(null);
+                    deposit.setBankCode(null);
+                } else {
+                    deposit.setBankName(depositDto.getBank().getBankName());
+                    deposit.setBankCode(depositDto.getBank().getBankCode());
+                }
+                deposit.setAmount(depositDto.getAmount().toString());
+                deposit.setBonus(depositDto.getBonusAmount().toString());
+                deposit.setAddCredit(depositDto.getAmount().add(depositDto.getBonusAmount()).toString());
+                deposit.setBeforeAmount(depositDto.getBeforeAmount().toString());
+                deposit.setAfterAmount(depositDto.getAfterAmount().toString());
+                deposit.setUsername(depositDto.getUser().getUsername());
+
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a");
+                Date date = Date.from(depositDto.getCreatedDate());
+                deposit.setCreatedDate(sdf.format(date));
+
+                deposit.setReason(depositDto.getReason());
+
+                result.add(deposit);
+            }
+        }
+
+        return result;
+    }
+
 
     private Page<DepositSummaryHistorySearchResponse> summaryHistory(List<DepositListHistorySearchResponse> searchData, Pageable pageable) {
 

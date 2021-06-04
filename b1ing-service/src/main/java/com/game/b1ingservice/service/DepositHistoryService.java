@@ -28,4 +28,6 @@ public interface DepositHistoryService {
     DepositResponse updateBlockStatus(DepositBlockStatusReq req, String username);
 
     DepositResponse updateNoteSureStatus(DepositNotSureStatusReq req, String username, String prefix);
+
+    List<DepositHistoryTopAll20Resp> findLast20Transaction(String prefix);
 }

@@ -77,6 +77,12 @@ public class DepositHistoryController {
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, result);
     }
 
+    @PostMapping(value = "/depositHistory/last20", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> depositHistoryLast20(@AuthenticationPrincipal UserPrincipal principal) {
+        List<DepositHistoryTopAll20Resp> result = depositHistoryService.findLast20Transaction(principal.getPrefix());
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, result);
+    }
+
     @PostMapping(value = "/profitAndLoss", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> profitAndLoss(@RequestBody ProfitAndLossRequest req, @AuthenticationPrincipal UserPrincipal principal) {
         ProfitAndLossResp resp = depositHistoryService.findProfitAndLoss(req, principal);
