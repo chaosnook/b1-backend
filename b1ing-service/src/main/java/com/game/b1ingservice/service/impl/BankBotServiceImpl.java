@@ -163,6 +163,7 @@ public class BankBotServiceImpl implements BankBotService {
                 depositHistory.setReason("Not sure which wallet");
                 PromotionEffectiveResponse promotionBonus = mapPromotion(depositHistory, request.getTransactionDate());
                 depositHistory.setBonusAmount(promotionBonus.getBonus());
+                depositHistory.setTurnOver(promotionBonus.getTurnOver());
                 if (opt.isPresent()){
                     depositHistory.setBank(opt.get());
                 }
@@ -263,6 +264,7 @@ public class BankBotServiceImpl implements BankBotService {
                 depositHistory.setReason("Not sure which wallet");
                 PromotionEffectiveResponse promotionBonus = mapPromotion(depositHistory,request.getTransactionDate());
                 depositHistory.setBonusAmount(promotionBonus.getBonus());
+                depositHistory.setTurnOver(promotionBonus.getTurnOver());
                 if (opt.isPresent()){
                     depositHistory.setTrueWallet(opt.get());
                 }

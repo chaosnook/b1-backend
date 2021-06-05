@@ -357,10 +357,10 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
                     history.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
 
-                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_DEPOSIT,
-                            webUser.getUsername(),
-                            history.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT, usernameAdmin, req.getUsername(), history.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
                             webUser.getAgent().getLineToken());
+
+
                 } else {
                     history.setStatus(Constants.DEPOSIT_STATUS.ERROR);
                     history.setReason("Can't add credit at amb api");
