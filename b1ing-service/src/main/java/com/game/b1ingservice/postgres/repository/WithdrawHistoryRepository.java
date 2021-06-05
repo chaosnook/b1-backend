@@ -28,6 +28,8 @@ public interface WithdrawHistoryRepository extends JpaRepository<WithdrawHistory
 
     WithdrawHistory findFirstById(Long id);
 
+    WithdrawHistory findFirstByIdAndStatus(Long id, String status);
+
     @Transactional
     @Modifying
     @Query(value = "UPDATE withdraw_history SET status = ? WHERE id = ? AND amount = ?", nativeQuery = true)

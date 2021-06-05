@@ -37,6 +37,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 	compile 'com.squareup.okhttp3:okhttp:4.9.1'
+
+	implementation 'net.javacrumbs.shedlock:shedlock-spring:2.2.0'
+	implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:2.1.0'
 }
 
 test {

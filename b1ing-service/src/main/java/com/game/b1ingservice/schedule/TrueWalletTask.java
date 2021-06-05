@@ -2,19 +2,18 @@ package com.game.b1ingservice.schedule;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.game.b1ingservice.payload.bankbot.BankBotAddCreditRequest;
 import com.game.b1ingservice.payload.bankbot.BankBotAddCreditTrueWalletRequest;
 import com.game.b1ingservice.payload.bankbot.BankBotTrueTransactionResponse;
 import com.game.b1ingservice.postgres.entity.TrueWallet;
 import com.game.b1ingservice.postgres.repository.TrueWalletRepository;
 import com.game.b1ingservice.service.BankBotService;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.core.SchedulerLock;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -43,6 +42,8 @@ public class TrueWalletTask {
     private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy HH:mm");
 
 //    @Scheduled(cron = "0,30 * * * * *")
+    @SchedulerLock(name = "scheduleFixedRateTask",
+        lockAtLeastForString = "PT30S", lockAtMostForString = "PT5M")
     public void scheduleFixedRateTask() {
         try {
             TimeUnit.SECONDS.sleep(new Random().nextInt(5));

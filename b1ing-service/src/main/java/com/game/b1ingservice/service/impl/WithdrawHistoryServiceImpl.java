@@ -253,7 +253,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
         try {
             String status = req.getStatus();
 
-            WithdrawHistory history = withdrawHistoryRepository.findFirstById(req.getWithdrawId());
+            WithdrawHistory history = withdrawHistoryRepository.findFirstByIdAndStatus(req.getWithdrawId(), BLOCK_AUTO);
             if (history == null) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_00011);
             }
