@@ -8,6 +8,7 @@ import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.repository.BankRepository;
 import com.game.b1ingservice.service.BankBotService;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.core.SchedulerLock;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -44,7 +45,9 @@ public class BankBotScbTask {
 
 
     @Scheduled(cron = "${bank.schedule.cron}")
-    public void scheduleFixedRateTask() {
+     @SchedulerLock(name = "scheduleAutoBankBotTask",
+        lockAtLeastForString = "PT30S", lockAtMostForString = "PT5M")
+    public void scheduleAutoBankBotTask() {
         try{
             TimeUnit.SECONDS.sleep(new Random().nextInt(5));
             List<Bank> lists = bankRepository.findByBankTypeAndActive("DEPOSIT", true);
@@ -72,6 +75,7 @@ public class BankBotScbTask {
 
                         request = extractAccount(request);
                         log.info(request.toString());
+
                         bankBotService.addCredit(request, bank.getPrefix());
                     }
                 }
