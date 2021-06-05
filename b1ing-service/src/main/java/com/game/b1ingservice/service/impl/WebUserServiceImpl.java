@@ -106,12 +106,18 @@ public class WebUserServiceImpl implements WebUserService {
 
         if (req.getBlockBonus() != null) {
             user.setBlockBonus(req.getBlockBonus().equalsIgnoreCase("true"));
+        } else {
+            user.setBlockBonus(false);
         }
         if (req.getDepositAuto() != null) {
             user.setDepositAuto(req.getDepositAuto().equalsIgnoreCase("true"));
+        }else {
+            user.setDepositAuto(true);
         }
         if (req.getWithdrawAuto() != null) {
             user.setWithdrawAuto(req.getWithdrawAuto().equalsIgnoreCase("true"));
+        }else {
+            user.setWithdrawAuto(true);
         }
 
         // Call create usr AMB
