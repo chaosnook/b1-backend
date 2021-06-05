@@ -8,8 +8,8 @@ import com.game.b1ingservice.service.AMBService;
 import com.game.b1ingservice.service.AgentService;
 import com.game.b1ingservice.service.WalletService;
 import com.game.b1ingservice.service.WebUserService;
-
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.core.SchedulerLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -38,6 +38,8 @@ public class TurnOverCheckTask {
     private WinLoseHistoryRepository winLoseHistoryRepository;
 
     @Scheduled(cron = "${b1ing.schedule.turnover}")
+    @SchedulerLock(name = "scheduleTurnOverCheckTask",
+            lockAtLeastForString = "PT10M", lockAtMostForString = "PT15M")
     public void scheduleTurnOverCheckTask() {
         try {
             // Get start end date

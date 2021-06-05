@@ -12,7 +12,7 @@ import java.util.TimeZone;
 
 @SpringBootApplication
 @EnableScheduling
-@EnableSchedulerLock(defaultLockAtMostFor = "PT1M")
+@EnableSchedulerLock(defaultLockAtMostFor = "PT5M")
 @EnableConfigurationProperties({
 		FileStorageProperties.class
 })
