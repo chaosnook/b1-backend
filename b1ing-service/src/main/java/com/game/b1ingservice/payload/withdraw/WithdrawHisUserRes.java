@@ -14,5 +14,5 @@ public class WithdrawHisUserRes {
     private BigDecimal bonus;
     private String username;
     private String reason;
-
+    private String qrCode;
 }

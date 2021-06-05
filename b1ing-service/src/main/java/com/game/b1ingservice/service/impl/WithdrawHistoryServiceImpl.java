@@ -113,6 +113,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
                 withdraw.setCreatedDate(sdf.format(date));
 
                 withdraw.setReason(withdrawDto.getReason());
+                withdraw.setQrCode(withdrawDto.getQrCode());
 
                 result.add(withdraw);
             }
@@ -124,6 +125,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     Function<WithdrawHistory, WithdrawHisUserRes> converterUser = withdrawHistory -> {
         WithdrawHisUserRes witHis = new WithdrawHisUserRes();
         witHis.setReason(withdrawHistory.getReason());
+        witHis.setQrCode(withdrawHistory.getQrCode());
         witHis.setCreatedDate(withdrawHistory.getCreatedDate().atZone(ZoneId.systemDefault()).toLocalDateTime());
         witHis.setStatus(withdrawHistory.getStatus());
         witHis.setValue(withdrawHistory.getAmount());
@@ -205,6 +207,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
         searchResponse.setStatus(withdrawHistory.getStatus());
         searchResponse.setIsAuto(withdrawHistory.getIsAuto());
         searchResponse.setReason(withdrawHistory.getReason());
+        searchResponse.setQrCode(withdrawHistory.getQrCode());
         if (null == withdrawHistory.getAdmin()) {
             searchResponse.setAdmin(null);
         } else {
@@ -278,6 +281,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
                     response.setStatus(true);
                     history.setStatus(SUCCESS);
                     history.setRemainBalance(bankBotResult.getRemainingBalance());
+                    history.setQrCode(bankBotResult.getQrString());
 
                     lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW_APPROVE + MESSAGE_WITHDRAW_REMAIN,
                             usernameAdmin, webUser.getUsername(), history.getAmount(), bankBotResult.getRemainingBalance()),
@@ -364,6 +368,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
                 withdraw.setCreatedDate(sdf.format(date));
 
                 withdraw.setReason(withdrawDto.getReason());
+                withdraw.setQrCode(withdrawDto.getQrCode());
 
                 response.add(withdraw);
             }

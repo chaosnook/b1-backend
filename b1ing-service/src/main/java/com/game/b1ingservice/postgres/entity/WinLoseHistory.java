@@ -6,12 +6,10 @@ import com.game.b1ingservice.postgres.entity.audit.UserAuditEmbeddable;
 import lombok.Data;
 import lombok.ToString;
 import org.hibernate.annotations.Where;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.Date;
 
 @Data

@@ -18,6 +18,7 @@ public class WithdrawListHistorySearchResponse {
     private String status;
     private Boolean isAuto;
     private String reason;
+    private String qrCode;
     private String admin;
 
     private BigDecimal remainBalance;

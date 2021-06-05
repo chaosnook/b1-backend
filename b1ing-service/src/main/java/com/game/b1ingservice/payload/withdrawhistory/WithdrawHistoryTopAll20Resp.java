@@ -17,4 +17,5 @@ public class WithdrawHistoryTopAll20Resp {
     private String status;
     private String createdDate;
     private String reason;
+    private String qrCode;
 }

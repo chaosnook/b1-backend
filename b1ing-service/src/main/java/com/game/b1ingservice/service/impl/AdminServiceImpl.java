@@ -64,15 +64,15 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private AffiliateService affiliateService;
     @Autowired
-    ProfitLossJdbcRepository profitLossJdbcRepository;
+    private ProfitLossJdbcRepository profitLossJdbcRepository;
     @Autowired
-    CountRefillJdbcRepository countRefillJdbcRepository;
+    private CountRefillJdbcRepository countRefillJdbcRepository;
 
     @Autowired
     private LineNotifyService lineNotifyService;
 
     @Autowired
-    RoleRepository rolerepository;
+    private RoleRepository rolerepository;
 
     @Override
     public ResponseEntity<?> loginAdmin(String username, String password, LoginRequest loginRequest) {
@@ -181,14 +181,14 @@ public class AdminServiceImpl implements AdminService {
             Optional<Wallet> opt2 = walletRepository.findByUser_Id(webUser.getId());
             if (opt2.isPresent()) {
                 Wallet wallet = opt2.get();
-                BigDecimal beforAmount = wallet.getCredit();
+                BigDecimal beforeAmount = wallet.getCredit();
                 BigDecimal credit = req.getCredit().setScale(2, RoundingMode.HALF_DOWN);
                 Bank bank = wallet.getBank();
-                BigDecimal afterAmount = beforAmount.add(credit);
+                BigDecimal afterAmount = beforeAmount.add(credit);
 
                 DepositHistory depositHistory = new DepositHistory();
                 depositHistory.setAmount(credit);
-                depositHistory.setBeforeAmount(beforAmount);
+                depositHistory.setBeforeAmount(beforeAmount);
                 depositHistory.setAfterAmount(afterAmount);
                 depositHistory.setUser(webUser);
                 depositHistory.setBank(bank);
@@ -249,13 +249,13 @@ public class AdminServiceImpl implements AdminService {
                 throw new ErrorMessageException(Constants.ERROR.ERR_01133);
             }
 
-            BigDecimal beforAmount = wallet.getCredit();
+            BigDecimal beforeAmount = wallet.getCredit();
             Bank bank = wallet.getBank();
-            BigDecimal afterAmount = beforAmount.subtract(req.getCredit());
+            BigDecimal afterAmount = beforeAmount.subtract(req.getCredit());
 
             WithdrawHistory withdrawHistory = new WithdrawHistory();
             withdrawHistory.setAmount(req.getCredit());
-            withdrawHistory.setBeforeAmount(beforAmount);
+            withdrawHistory.setBeforeAmount(beforeAmount);
             withdrawHistory.setAfterAmount(afterAmount);
             withdrawHistory.setUser(webUser);
             withdrawHistory.setBank(bank);
@@ -282,10 +282,12 @@ public class AdminServiceImpl implements AdminService {
                 request.setBankCode(webUser.getBankName());
 
                 BankBotScbWithdrawCreditResponse withdrawResult = bankBotService.withDrawCredit(request);
-                log.info("bankbot withdraw response ", withdrawResult);
+
+                log.info("bankbot withdraw response {}", withdrawResult);
+
                 if (withdrawResult.getStatus()) {
                     withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.SUCCESS);
-                    withdrawHistory.setReason(withdrawResult.getQrString());
+                    withdrawHistory.setQrCode(withdrawResult.getQrString());
                     withdrawHistory.setRemainBalance(withdrawResult.getRemainingBalance());
                     lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW + MESSAGE_WITHDRAW_REMAIN, req.getUsername(), req.getCredit(), withdrawResult.getRemainingBalance()),
                             wallet.getUser().getAgent().getLineTokenWithdraw());
@@ -316,7 +318,6 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public ProfitReportResponse profitReport(ProfitReportRequest profitReportRequest, UserPrincipal principal) {
         Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
-
 
         if (!agent.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
@@ -404,7 +405,6 @@ public class AdminServiceImpl implements AdminService {
 
         List<CountRefillDTO> listCountDeposit = countRefillJdbcRepository.depositCount(countRefillRequest, principal);
 
-
         List<CountRefillDTO> result = new ArrayList<>();
         for (CountRefillDTO countRefillDTOD : listCountDeposit) {
             CountRefillDTO deposit = new CountRefillDTO();
@@ -431,16 +431,12 @@ public class AdminServiceImpl implements AdminService {
 
         String reason = "Withdraw Manual";
         withdrawHistoryRepository.updateInfoWithdrawManual(Constants.WITHDRAW_STATUS.SUCCESS, reason, req.getId(), false, req.getAmount());
-
     }
 
     @Override
     public void approve(ApproveReq req, UserPrincipal principal) {
-
         withdrawHistoryRepository.updateStatus(Constants.WITHDRAW_STATUS.SUCCESS, req.getId(), req.getAmount());
-
     }
-
 
     private boolean setLastUQToken(String username, String lastUUID) {
         boolean result;

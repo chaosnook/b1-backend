@@ -12,4 +12,5 @@ public class WithdrawHistoryByUserIdResp {
     private String status;
     private String createdDate;
     private String reason;
+    private String qrCode;
 }
