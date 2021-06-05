@@ -304,7 +304,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
                     lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_DEPOSIT_REJECT_RF, usernameAdmin, webUser.getUsername(),
                             history.getAmount()),
-                            agent.getLineTokenWithdraw());
+                            agent.getLineToken());
                 } else {
                     response.setStatus(false);
                     response.setMessage(bankBotResult.getMessege());
