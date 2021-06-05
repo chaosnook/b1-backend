@@ -59,6 +59,16 @@ public class SearchDepositHistorySpecification extends SearchPageSpecification<D
             predicates.add(criteriaBuilder.equal(root.get("status"), Constants.DEPOSIT_STATUS.SUCCESS));
         }
 
+        if (searchBody.getIsMainPage() != null && !searchBody.getIsMainPage()) {
+            predicates.add(criteriaBuilder.notEqual(root.<String>get("status"), Constants.DEPOSIT_STATUS.BLOCK_AUTO));
+            predicates.add(criteriaBuilder.notEqual(root.<String>get("status"), Constants.DEPOSIT_STATUS.NOT_SURE));
+        }
+
+        if (StringUtils.isNotEmpty(searchBody.getStatus())) {
+            String status = StringUtils.trimToEmpty(searchBody.getStatus());
+            predicates.add(criteriaBuilder.equal(root.<String>get("status"), status));
+        }
+
         return super.buildParallelPredicate(root, query, criteriaBuilder);
     }
 }

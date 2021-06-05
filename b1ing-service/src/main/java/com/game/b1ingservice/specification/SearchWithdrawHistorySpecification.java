@@ -32,7 +32,9 @@ public class SearchWithdrawHistorySpecification extends SearchPageSpecification<
             predicates.add(criteriaBuilder.equal(root.<String>get("status"), status));
         }
 
-        predicates.add(criteriaBuilder.notEqual(root.<String>get("status"), Constants.WITHDRAW_STATUS.BLOCK_AUTO));
+        if (searchBody.getIsMainPage() != null && !searchBody.getIsMainPage()) {
+            predicates.add(criteriaBuilder.notEqual(root.<String>get("status"), Constants.WITHDRAW_STATUS.BLOCK_AUTO));
+        }
 
         if (StringUtils.isNotEmpty(searchBody.getIsAuto())) {
             Boolean isAuto = searchBody.getIsAuto().equals("1");

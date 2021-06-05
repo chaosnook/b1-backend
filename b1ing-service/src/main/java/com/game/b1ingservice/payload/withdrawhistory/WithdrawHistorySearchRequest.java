@@ -15,4 +15,6 @@ public class WithdrawHistorySearchRequest extends SearchPageable {
     private String username;
     private String status;
     private String isAuto;
+
+    private Boolean isMainPage;
 }

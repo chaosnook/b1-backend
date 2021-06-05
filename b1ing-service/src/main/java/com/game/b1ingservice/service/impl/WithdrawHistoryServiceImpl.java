@@ -251,7 +251,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     public WithDrawResponse updateBlockAutoTransaction(WithdrawBlockStatusReq req, String usernameAdmin) {
         WithDrawResponse response = new WithDrawResponse();
         try {
-            WITHDRAW_STATUS status = req.getStatus();
+            String status = req.getStatus();
 
             WithdrawHistory history = withdrawHistoryRepository.findFirstById(req.getWithdrawId());
             if (history == null) {
@@ -264,7 +264,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
 
             Agent agent = webUser.getAgent();
 
-            if (SUCCESS.equals(status.toString())) {// โอนเงินให้ถูกค้า
+            if (SUCCESS.equals(status)) {// โอนเงินให้ถูกค้า
                 BankBotScbWithdrawCreditRequest request = new BankBotScbWithdrawCreditRequest();
                 request.setAmount(history.getAmount());
                 request.setAccountTo(webUser.getAccountNumber());
@@ -289,7 +289,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
                     history.setStatus(WITHDRAW_STATUS.ERROR);
                     history.setReason(bankBotResult.getMessege());
                 }
-            } else if (REJECT.equals(status.toString())) {
+            } else if (REJECT.equals(status)) {
                 // is reject
                 // ไม่คืน credit
                 history.setStatus(REJECT);
@@ -299,7 +299,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
                         history.getAmount()),
                         agent.getLineTokenWithdraw());
 
-            } else if (REJECT_N_REFUND.equals(status.toString())) {
+            } else if (REJECT_N_REFUND.equals(status)) {
                 // is reject
                 // คืน credit
                 BigDecimal credit = history.getAmount().setScale(2, RoundingMode.HALF_DOWN);

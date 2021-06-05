@@ -245,7 +245,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     public DepositResponse updateBlockAutoTransaction(DepositBlockStatusReq req, String usernameAdmin) {
         DepositResponse response = new DepositResponse();
         try {
-            Constants.DEPOSIT_STATUS status = req.getStatus();
+            String status = req.getStatus();
             DepositHistory history = depositHistoryRepository.findFirstById(req.getDepositId());
             if (history == null) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_00011);
@@ -257,7 +257,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
             Agent agent = webUser.getAgent();
 
-            if (SUCCESS.equals(status.toString())) {
+            if (SUCCESS.equals(status)) {
                 // เติม credit ให้ลูกค้า
                 DepositReq depositReq = DepositReq.builder().amount(history.getAmount().setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build();
                 AmbResponse<DepositRes> result =  ambService.deposit(depositReq, webUser.getUsernameAmb(), webUser.getAgent());
@@ -334,10 +334,10 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                 throw new ErrorMessageException(Constants.ERROR.ERR_00011);
             }
 
-            Constants.DEPOSIT_STATUS status = req.getStatus();
+            String status = req.getStatus();
 
             // success => เติม credit ให้ user
-            if (SUCCESS.equals(status.toString())) {
+            if (SUCCESS.equals(status)) {
                 Optional<WebUser> webUserOpt = webUserRepository.findFirstByUsernameAndAgent_Prefix(req.getUsername().toLowerCase(Locale.ROOT), prefix);
                 if (!webUserOpt.isPresent()) {
                     throw new ErrorMessageException(Constants.ERROR.ERR_00012);
@@ -365,7 +365,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                     history.setReason("Can't add credit at amb api");
                 }
 
-            } else if (REJECT.equals(status.toString())){
+            } else if (REJECT.equals(status)){
                 // reject => reject transaction นี้
                 history.setStatus(REJECT);
                 response.setStatus(true);
