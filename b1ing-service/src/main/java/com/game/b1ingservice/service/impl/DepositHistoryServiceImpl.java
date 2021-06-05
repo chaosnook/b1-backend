@@ -244,6 +244,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     @Override
     public DepositResponse updateBlockAutoTransaction(DepositBlockStatusReq req, String usernameAdmin) {
         DepositResponse response = new DepositResponse();
+        response.setStatus(true);
         try {
             String status = req.getStatus();
             DepositHistory history = depositHistoryRepository.findFirstById(req.getDepositId());
@@ -280,7 +281,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                     history.setReason("Can't add credit at amb api");
                 }
 
-            } else if (REJECT.equals(status.toString())) {
+            } else if (REJECT.equals(status)) {
                 // is reject
                 // ไม่คืน เงิน
                 history.setStatus(REJECT);
@@ -289,7 +290,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                         history.getAmount()),
                         agent.getLineTokenWithdraw());
 
-            } else if (REJECT_N_REFUND.equals(status.toString())) {
+            } else if (REJECT_N_REFUND.equals(status)) {
                 // is reject
                 // โอนเงินคืน
                 BankBotScbWithdrawCreditRequest request = new BankBotScbWithdrawCreditRequest();
@@ -328,6 +329,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     @Override
     public DepositResponse updateNoteSureTransaction(DepositNotSureStatusReq req, String usernameAdmin, String prefix) {
         DepositResponse response = new DepositResponse();
+        response.setStatus(true);
         try {
             DepositHistory history = depositHistoryRepository.findFirstByIdAndStatus(req.getDepositId(), NOT_SURE);
             if (history == null) {
@@ -389,6 +391,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
         List<DepositHistoryTopAll20Resp> result = new ArrayList<>();
         if (!list.isEmpty()) {
+            // todo check null
             for (DepositHistory depositDto : list) {
                 DepositHistoryTopAll20Resp deposit = new DepositHistoryTopAll20Resp();
                 if (null == depositDto.getBank()) {

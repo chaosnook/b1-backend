@@ -149,7 +149,7 @@ public class BankBotServiceImpl implements BankBotService {
 
                         lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_DEPOSIT_BLOCK, webUser.getUsername(),
                                 depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
-                                webUser.getAgent().getLineTokenWithdraw());
+                                webUser.getAgent().getLineToken());
 
                     }
 
@@ -251,7 +251,7 @@ public class BankBotServiceImpl implements BankBotService {
 
                         lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_DEPOSIT_BLOCK, webUser.getUsername(),
                                 depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
-                                webUser.getAgent().getLineTokenWithdraw());
+                                webUser.getAgent().getLineToken());
 
                     }
                 } catch (Exception e) {
