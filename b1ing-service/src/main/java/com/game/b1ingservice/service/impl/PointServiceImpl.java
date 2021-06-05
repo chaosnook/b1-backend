@@ -74,7 +74,7 @@ public class PointServiceImpl implements PointService {
             throw new ErrorMessageException(Constants.ERROR.ERR_04002);
         }
 
-        int updated = this.transferPointToCredit(point, webUser.getId(), webUser.getUsernameAmb(), webUser.getAgent());
+        int updated = this.transferPointToCredit(point, webUser.getId(), webUser.getUsername(), webUser.getUsernameAmb(), webUser.getAgent());
 
         PointTransResponse response = new PointTransResponse();
         response.setStatus(updated == 1);
@@ -153,7 +153,7 @@ public class PointServiceImpl implements PointService {
         return 0;
     }
 
-    private int transferPointToCredit(BigDecimal point, Long userId, String username, Agent agent) {
+    private int transferPointToCredit(BigDecimal point, Long userId,String usernameB1, String username, Agent agent) {
         try {
             int updated;
             point = point.setScale(2, RoundingMode.HALF_DOWN);
@@ -162,7 +162,7 @@ public class PointServiceImpl implements PointService {
 
             if (deposit.getCode() == 0) {
 
-                lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_POINT_TRANSFER, username, point.setScale(2, RoundingMode.HALF_DOWN)),
+                lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_POINT_TRANSFER, usernameB1, point.setScale(2, RoundingMode.HALF_DOWN)),
                         agent.getLineToken());
 
                 webUserRepository.updateDepositRef(deposit.getResult().getRef(), userId);
