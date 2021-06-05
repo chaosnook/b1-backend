@@ -22,9 +22,10 @@ public class SearchDepositHistorySpecification extends SearchPageSpecification<D
     @Override
     public Predicate toPredicate(Root<DepositHistory> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 
-        Join<DepositHistory, WebUser> member = root.join("user", JoinType.INNER);
+
 
         if (StringUtils.isNotEmpty(searchBody.getUsername())) {
+            Join<DepositHistory, WebUser> member = root.join("user", JoinType.INNER);
             String username = StringUtils.trimToEmpty(searchBody.getUsername());
             predicates.add(criteriaBuilder.like(member.<String>get("username"), "%" + username + "%"));
         }

@@ -19,6 +19,7 @@ public class DepositListHistorySearchResponse {
     private String status;
     private Boolean isAuto;
     private String reason;
+    private String remark;
     private String admin;
     private BigDecimal bonus;
 

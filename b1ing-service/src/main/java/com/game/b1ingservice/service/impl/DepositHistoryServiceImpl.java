@@ -335,6 +335,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
             }
 
             String status = req.getStatus();
+            history.setReason(req.getReason());
 
             // success => เติม credit ให้ user
             if (SUCCESS.equals(status)) {
@@ -371,7 +372,6 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                 response.setStatus(true);
             }
 
-            history.setReason(req.getReason());
             depositHistoryRepository.save(history);
         }catch (Exception e) {
             log.error("updateNoteSureTransaction", e);
@@ -544,6 +544,8 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         searchResponse.setUpdatedBy(depositHistory.getAudit().getUpdatedBy());
         searchResponse.setDeleteFlag(depositHistory.getDeleteFlag());
         searchResponse.setVersion(depositHistory.getVersion());
+
+        searchResponse.setRemark(depositHistory.getRemark());
 
         return searchResponse;
     };
