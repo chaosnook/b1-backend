@@ -2,6 +2,8 @@ package com.game.b1ingservice.postgres.repository;
 
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.WithdrawHistory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -35,4 +37,6 @@ public interface WithdrawHistoryRepository extends JpaRepository<WithdrawHistory
     @Modifying
     @Query(value = "UPDATE withdraw_history SET status = ?, reason = ?, isAuto = ? WHERE id = ? AND amount = ?", nativeQuery = true)
     int updateInfoWithdrawManual(String status, String reason, Long id, boolean isAuto, BigDecimal amount);
+
+    Page<WithdrawHistory> findByUser_Agent_PrefixAndStatusOrderByCreatedDateDesc(String prefix, String status, Pageable pageable);
 }

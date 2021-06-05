@@ -30,11 +30,17 @@ public class WithdrawHistoryController {
 
         if (response.getStatus()) {
             return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
-        }else {
+        } else {
             return ResponseHelper.bad(response.getMessage());
         }
-
     }
+
+    @PostMapping(value = "/withdrawHistory/last20", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> withdrawHistoryLast20(@AuthenticationPrincipal UserPrincipal principal) {
+        List<WithdrawHistoryTopAll20Resp> result = withdrawHistoryService.findLast20Transaction(principal.getPrefix());
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, result);
+    }
+
 
     @PostMapping(value = "search/list/withdrawHistory", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> searchListWithDrawHistory(@RequestBody WithdrawHistorySearchRequest req) {

@@ -27,4 +27,6 @@ public interface WithdrawHistoryService {
     void updateStatus(WithdrawHistoryUpdateStatusReq req);
 
     WithDrawResponse updateBlockAutoTransaction(WithdrawBlockStatusReq req, String username);
+
+    List<WithdrawHistoryTopAll20Resp> findLast20Transaction(String prefix);
 }

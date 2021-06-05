@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.game.b1ingservice.commons.Constants.DEPOSIT_STATUS.SUCCESS;
 import static com.game.b1ingservice.commons.Constants.*;
 import static com.game.b1ingservice.commons.Constants.WITHDRAW_STATUS.*;
 
@@ -220,7 +222,6 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
         searchResponse.setDeleteFlag(withdrawHistory.getDeleteFlag());
         searchResponse.setVersion(withdrawHistory.getVersion());
 
-        Map<String, Object> configMap = new HashMap<>();
         return searchResponse;
     };
 
@@ -334,6 +335,39 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
             response.setMessage(e.getMessage());
         }
 
+        return response;
+    }
+
+    @Override
+    public List<WithdrawHistoryTopAll20Resp> findLast20Transaction(String prefix) {
+       Page<WithdrawHistory> list =  withdrawHistoryRepository.findByUser_Agent_PrefixAndStatusOrderByCreatedDateDesc(
+               prefix, SUCCESS, PageRequest.of(0, 20));
+
+       List<WithdrawHistoryTopAll20Resp> response = new ArrayList<>();
+        if (!list.isEmpty()) {
+            for (WithdrawHistory withdrawDto : list) {
+                WithdrawHistoryTopAll20Resp withdraw = new WithdrawHistoryTopAll20Resp();
+                withdraw.setUsername(withdrawDto.getUser().getUsername());
+                if (null == withdrawDto.getBank()) {
+                    withdraw.setBankName(null);
+                    withdraw.setBankCode(null);
+                } else {
+                    withdraw.setBankName(withdrawDto.getBank().getBankName());
+                    withdraw.setBankCode(withdrawDto.getBank().getBankCode());
+                }
+                withdraw.setType(withdrawDto.getType());
+                withdraw.setAmount(withdrawDto.getAmount().toString());
+                withdraw.setStatus(withdrawDto.getStatus());
+
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a");
+                Date date = Date.from(withdrawDto.getCreatedDate());
+                withdraw.setCreatedDate(sdf.format(date));
+
+                withdraw.setReason(withdrawDto.getReason());
+
+                response.add(withdraw);
+            }
+        }
         return response;
     }
 
