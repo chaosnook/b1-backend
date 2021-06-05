@@ -305,4 +305,6 @@ public class Constants {
     public static String MESSAGE_DEPOSIT_BLOCK = "User %s ขออนุมัติฝาก credit จำนวน %s บาท";
 
     public static String MESSAGE_POINT_TRANSFER = "User %s โอน point %s";
+
+    public static String MESSAGE_NOTSURE_REJECT = "Admin %s ปฏิเสธการฝากเงิน จำนวน %s บาท";
 }

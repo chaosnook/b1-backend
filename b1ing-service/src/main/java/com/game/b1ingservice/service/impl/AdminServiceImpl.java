@@ -209,6 +209,8 @@ public class AdminServiceImpl implements AdminService {
 
                 String errorMessage = "";
                 if (ambResponse.getCode() == 0) {
+                    depositHistory.setBeforeAmount(new BigDecimal(ambResponse.getResult().getBefore()));
+                    depositHistory.setAfterAmount(new BigDecimal(ambResponse.getResult().getAfter()));
 
                     lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT, principal.getUsername(), req.getUsername(), req.getCredit()),
                             agent.getLineToken());
