@@ -1,9 +1,10 @@
 package com.game.b1ingservice.payload.promotion;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.game.b1ingservice.payload.condition.ConditionResponse;
-import com.game.b1ingservice.postgres.entity.Agent;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -23,6 +24,12 @@ public class PromotionResponse {
     private String urlImage;
     private Long agentId;
     private Long adminId;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm", timezone= "Asia/Bangkok")
+    private Date startTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm", timezone= "Asia/Bangkok")
+    private Date endTime;
+
     List<ConditionResponse> conditions ;
 
 }

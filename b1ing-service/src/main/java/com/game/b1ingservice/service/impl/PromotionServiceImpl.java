@@ -6,12 +6,17 @@ import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.condition.ConditionResponse;
 import com.game.b1ingservice.payload.promotion.*;
 import com.game.b1ingservice.postgres.entity.*;
+import com.game.b1ingservice.postgres.jdbc.dto.CheckPromotion7Days;
 import com.game.b1ingservice.postgres.repository.*;
 import com.game.b1ingservice.service.ConditionService;
 import com.game.b1ingservice.service.PromotionService;
+import com.game.b1ingservice.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -47,6 +52,10 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Autowired
     AdminUserRepository adminUserRepository;
+
+    @Autowired
+    @Qualifier("postgresJdbcTemplate")
+    JdbcTemplate jdbcTemplate;
 
     @Override
         public void insertPromotion(PromotionRequest promotionRequest, UserPrincipal principal) {
@@ -115,9 +124,13 @@ public class PromotionServiceImpl implements PromotionService {
             promotion.setMaxWithdraw(promotionUpdate.getMaxWithdraw());
             promotion.setActive(promotionUpdate.isActive());
             promotion.setUrlImage(promotionUpdate.getUrlImage());
+
+            promotion.setMaxReceiveBonus(promotionUpdate.getMaxReceiveBonus());
+            promotion.setStartTime(promotionUpdate.getStartTime());
+            promotion.setEndTime(promotionUpdate.getEndTime());
+
             promotion.setAgent(opt.get());
             promotion.setAdmin(optAdmin.get());
-
 
 
             promotion.setCondition(promotionUpdate.getConditions().stream().map(conditionUpdate -> {
@@ -165,22 +178,68 @@ public class PromotionServiceImpl implements PromotionService {
         List<Promotion> promotionList = promotionRepository.findByMaxTopupAndMinTopup(request.getAmount());
         List<Promotion> effectivePromotion = new ArrayList<>();
         promotionList.parallelStream().forEach(promotion -> {
-            if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.FIRSTTIME)){
-                if (!promotionHistoryRepository.existsByUser_IdAndPromotion_Id(request.getUser().getId(),promotion.getId()))
+            if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.FIRSTTIME)) {
+
+                if (!promotionHistoryRepository.existsByUser_IdAndPromotion_Id(request.getUser().getId(), promotion.getId())) {
                     effectivePromotion.add(promotion);
-            }else if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.NEWUSER)){
-                if (!depositHistoryRepository.existsByUser_Id(request.getUser().getId()))
+                }
+            }
+            else if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.NEWUSER)) {
+
+                if (!depositHistoryRepository.existsByUser_Id(request.getUser().getId())) {
                     effectivePromotion.add(promotion);
-            }else if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.ALLDAY)){
-                effectivePromotion.add(promotion);
-            }else if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.GOLDTIME)){
-                if (promotion.getStartTime().before(Date.from(request.getTransactionDate())) && promotion.getEndTime().after(Date.from(request.getTransactionDate())))
+                }
+
+            }
+            else if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.ALLDAY)) {
+                if (checkMaxReceive(request.getUser().getId(), promotion.getId(), promotion.getMaxReceiveBonus())) {
                     effectivePromotion.add(promotion);
+                }
+            }
+            else if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.GOLDTIME)) {
+                if (promotion.getStartTime().before(Date.from(request.getTransactionDate()))
+                        && promotion.getEndTime().after(Date.from(request.getTransactionDate()))) {
+                    effectivePromotion.add(promotion);
+                }
+            }
+            else if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.SEVENDAYINROW)) {
+                if (check7Days(request.getUser().getId(), promotion.getId())) {
+                    effectivePromotion.add(promotion);
+                }
             }
         });
 
-
         return effectivePromotion;
+    }
+
+    private boolean checkMaxReceive(Long userId, Long promotionId, BigDecimal maxReceiveBonus) {
+        Integer count = promotionHistoryRepository.countByUser_IdAndPromotion_IdAndCreatedDateBetween(userId, promotionId,
+                DateUtils.atStartOfDay(new Date()).toInstant(),
+                DateUtils.atEndOfDay(new Date()).toInstant());
+        return count < maxReceiveBonus.toBigInteger().intValueExact();
+    }
+
+
+    private boolean check7Days(Long userId, Long promotionId) {
+        boolean result = false;
+        try {
+            List<CheckPromotion7Days> list;
+            String sql = "select created_date::date AS date,\n" +
+                    "       count(1)           as count\n" +
+                    "FROM promotion_history\n" +
+                    "where created_date::date > current_date::date - integer '6'\n" +
+                    "  AND user_id = ? AND promotion_id = ?\n" +
+                    "group by created_date::date, user_id\n" +
+                    "having count(1) > 0;";
+
+            list = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(CheckPromotion7Days.class), userId, promotionId);
+
+            result = list.size() == 7;
+
+        } catch (Exception e) {
+            log.error("check7Days", e);
+        }
+        return result;
     }
 
     @Override
@@ -253,6 +312,9 @@ public class PromotionServiceImpl implements PromotionService {
         promotionResponse.setUrlImage(promotion.getUrlImage());
         promotionResponse.setAgentId(promotion.getAgent().getId());
         promotionResponse.setAdminId(promotion.getAdmin().getId());
+
+        promotionResponse.setStartTime(promotion.getStartTime());
+        promotionResponse.setEndTime(promotion.getEndTime());
 
         promotionResponse.setConditions(promotion.getCondition().stream().map(condition -> {
             ConditionResponse conditionResponse = new ConditionResponse();

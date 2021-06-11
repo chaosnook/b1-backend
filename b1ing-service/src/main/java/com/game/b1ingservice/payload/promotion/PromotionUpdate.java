@@ -1,12 +1,13 @@
 package com.game.b1ingservice.payload.promotion;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.game.b1ingservice.payload.condition.ConditionRequest;
 import com.game.b1ingservice.payload.condition.ConditionUpdate;
 import com.game.b1ingservice.serializer.MoneyDeserializer;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -30,5 +31,11 @@ public class PromotionUpdate {
     private BigDecimal maxWithdraw;
     private boolean active;
     private String urlImage;
-    List<ConditionUpdate> conditions ;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm", timezone= "Asia/Bangkok")
+    private Date startTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm", timezone= "Asia/Bangkok")
+    private Date endTime;
+
+    List<ConditionUpdate> conditions;
 }
