@@ -310,7 +310,7 @@ public class BankBotServiceImpl implements BankBotService {
     }
 
     private AmbResponse<DepositRes> sendToAskMeBet(DepositHistory depositHistory, Wallet wallet){
-        DepositReq depositReq = DepositReq.builder().amount(depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build();
+        DepositReq depositReq = DepositReq.builder().amount(depositHistory.getAmount().add(depositHistory.getBonusAmount()).setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build();
         WebUser user = wallet.getUser();
         return ambService.deposit(depositReq, user.getUsernameAmb(), user.getAgent());
     }

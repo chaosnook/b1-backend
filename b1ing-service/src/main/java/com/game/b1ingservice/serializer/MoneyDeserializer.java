@@ -11,6 +11,10 @@ import java.math.BigDecimal;
 public class MoneyDeserializer extends JsonDeserializer<BigDecimal> {
     @Override
     public BigDecimal deserialize(JsonParser p, DeserializationContext context) throws IOException, JsonProcessingException {
-        return new BigDecimal(p.getText());
+        BigDecimal result = BigDecimal.ZERO;
+        if (p.getText() != null && !p.getText().equals("")) {
+            result = new BigDecimal(p.getText());
+        }
+        return result;
     }
 }

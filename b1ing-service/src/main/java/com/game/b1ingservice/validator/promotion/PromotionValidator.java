@@ -2,15 +2,11 @@ package com.game.b1ingservice.validator.promotion;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
-import com.game.b1ingservice.payload.condition.ConditionRequest;
 import com.game.b1ingservice.payload.promotion.PromotionRequest;
-import com.game.b1ingservice.postgres.entity.Condition;
 import com.game.b1ingservice.validator.CommonValidator;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
 
 @Component
 public class PromotionValidator extends CommonValidator {
@@ -35,8 +31,10 @@ public class PromotionValidator extends CommonValidator {
             throw new ErrorMessageException(Constants.ERROR.ERR_06006);
         if(ObjectUtils.isEmpty(req.getMaxReceiveBonus()))
             throw new ErrorMessageException(Constants.ERROR.ERR_09010);
+
         if(ObjectUtils.isEmpty(req.getTurnOver()))
             throw new ErrorMessageException(Constants.ERROR.ERR_06007);
+
         if(ObjectUtils.isEmpty((req.getMaxWithdraw())))
             throw new ErrorMessageException(Constants.ERROR.ERR_06008);
 

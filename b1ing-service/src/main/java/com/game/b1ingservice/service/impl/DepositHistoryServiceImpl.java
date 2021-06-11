@@ -260,7 +260,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
             if (SUCCESS.equals(status)) {
                 // เติม credit ให้ลูกค้า
-                DepositReq depositReq = DepositReq.builder().amount(history.getAmount().setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build();
+                DepositReq depositReq = DepositReq.builder().amount(history.getAmount().add(history.getBonusAmount()).setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build();
                 AmbResponse<DepositRes> result =  ambService.deposit(depositReq, webUser.getUsernameAmb(), webUser.getAgent());
                 log.info("amb response : {}", result);
                 if (0 == result.getCode()) {
@@ -347,7 +347,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                 }
 
                 WebUser webUser =  webUserOpt.get();
-                DepositReq depositReq = DepositReq.builder().amount(history.getAmount().setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build();
+                DepositReq depositReq = DepositReq.builder().amount(history.getAmount().add(history.getBonusAmount()).setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build();
                 AmbResponse<DepositRes> result =  ambService.deposit(depositReq, webUser.getUsernameAmb(), webUser.getAgent());
                 log.info("amb response : {}", result);
                 if (0 == result.getCode()) {
