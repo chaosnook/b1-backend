@@ -224,13 +224,13 @@ public class PromotionServiceImpl implements PromotionService {
         boolean result = false;
         try {
             List<CheckPromotion7Days> list;
-            String sql = "select created_date::date AS date,\n" +
-                    "       count(1)           as count\n" +
-                    "FROM promotion_history\n" +
-                    "where created_date::date > current_date::date - integer '6'\n" +
-                    "  AND user_id = ? AND promotion_id = ?\n" +
-                    "group by created_date::date, user_id\n" +
-                    "having count(1) > 0;";
+            String sql = "select created_date::date AS date, \n" +
+                    "       count(1)           as count \n" +
+                    "FROM deposit_history \n" +
+                    "where created_date::date > current_date::date - integer '6' \n" +
+                    "  AND user_id = ? AND status = 'SUCCESS' \n" +
+                    "group by created_date::date, user_id \n" +
+                    "having count(1) > 0";
 
             list = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(CheckPromotion7Days.class), userId, promotionId);
 
