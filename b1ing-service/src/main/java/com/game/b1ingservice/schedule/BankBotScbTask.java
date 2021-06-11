@@ -101,7 +101,7 @@ public class BankBotScbTask {
             });
 
         } catch (Exception e) {
-            log.error("fetchTrueTransaction error : ", e);
+            log.error("fetchScbTransaction error : ", e);
         }
         return new ArrayList<>();
     }
