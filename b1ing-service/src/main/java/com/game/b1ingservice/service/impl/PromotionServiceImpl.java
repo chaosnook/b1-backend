@@ -196,15 +196,24 @@ public class PromotionServiceImpl implements PromotionService {
         promotionHistory.setBonus(BigDecimal.ZERO);
         promotionHistory.setTurnOver(BigDecimal.ZERO);
 
-        promotion.getCondition().forEach(condition -> {
-           if (request.getAmount().compareTo(condition.getMinTopup())>=0 && request.getAmount().compareTo(condition.getMaxTopup())<=0){
-                if (promotion.getTypeBonus().equals(Constants.AFFILIATE_TYPE.FIX))
-                    promotionHistory.setBonus(condition.getBonus());
-                else if (promotion.getTypeBonus().equals(Constants.AFFILIATE_TYPE.PERCENT))
-                    promotionHistory.setBonus(request.getAmount().multiply(condition.getBonus()).divide(BigDecimal.valueOf(100)));
-           }
-        });
+        // check min max topup promotion
+        if (request.getAmount().compareTo(promotion.getMinTopup()) >= 0 && request.getAmount().compareTo(promotion.getMaxTopup()) <= 0) {
+            promotion.getCondition().forEach(condition -> {
+                // check min max topup condition
+                if (request.getAmount().compareTo(condition.getMinTopup()) >= 0 && request.getAmount().compareTo(condition.getMaxTopup()) <= 0) {
+                    if (promotion.getTypeBonus().equals(Constants.AFFILIATE_TYPE.FIX)) {
+                        promotionHistory.setBonus(condition.getBonus());
+                    } else if (promotion.getTypeBonus().equals(Constants.AFFILIATE_TYPE.PERCENT)) {
+                        promotionHistory.setBonus(request.getAmount().multiply(condition.getBonus()).divide(BigDecimal.valueOf(100)));
+                    }
+                }
+            });
+        }
 
+        //check bonus สูงสุด
+        if (promotionHistory.getBonus().compareTo(promotion.getMaxBonus()) > 0) {
+            promotionHistory.setBonus(promotion.getMaxBonus());
+        }
         // (เงินที่เติม + โบนัส) * turn over
         BigDecimal turnOver = promotionHistory.getTopup().add(promotionHistory.getBonus()).multiply(promotion.getTurnOver());
         promotionHistory.setTurnOver(turnOver);
