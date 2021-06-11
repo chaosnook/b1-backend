@@ -6,7 +6,10 @@ import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.amb.AmbResponse;
 import com.game.b1ingservice.payload.amb.DepositReq;
 import com.game.b1ingservice.payload.amb.DepositRes;
-import com.game.b1ingservice.payload.bankbot.*;
+import com.game.b1ingservice.payload.bankbot.BankBotAddCreditRequest;
+import com.game.b1ingservice.payload.bankbot.BankBotAddCreditTrueWalletRequest;
+import com.game.b1ingservice.payload.bankbot.BankBotScbWithdrawCreditRequest;
+import com.game.b1ingservice.payload.bankbot.BankBotScbWithdrawCreditResponse;
 import com.game.b1ingservice.payload.promotion.PromotionEffectiveRequest;
 import com.game.b1ingservice.payload.promotion.PromotionEffectiveResponse;
 import com.game.b1ingservice.postgres.entity.*;
@@ -22,10 +25,12 @@ import java.math.RoundingMode;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import static com.game.b1ingservice.commons.Constants.*;
+import static com.game.b1ingservice.commons.Constants.MESSAGE_DEPOSIT;
+import static com.game.b1ingservice.commons.Constants.MESSAGE_DEPOSIT_BLOCK;
 
 @Service
 @Slf4j
@@ -326,11 +331,17 @@ public class BankBotServiceImpl implements BankBotService {
 
         for (Promotion promotion : promotionList) {
             PromotionHistory history = promotionService.calculatePromotionBonus(promotion, effectiveRequest);
-            bonus = bonus.add(history.getBonus());
-            turnOver = turnOver.add(history.getTurnOver());
             promotionHistories.add(history);
         }
-        promotionHistoryRepository.saveAll(promotionHistories);
+
+        // check promotion ที่ได้เงินเยอะสุด
+        PromotionHistory maxTurnOver = promotionHistories.stream().max(Comparator.comparing(PromotionHistory::getTurnOver)).orElse(null);
+        if (maxTurnOver != null) {
+            bonus = bonus.add(maxTurnOver.getBonus());
+            turnOver = turnOver.add(maxTurnOver.getTurnOver());
+            promotionHistoryRepository.save(maxTurnOver);
+        }
+
         PromotionEffectiveResponse response = new PromotionEffectiveResponse();
         response.setBonus(bonus);
         response.setTurnOver(turnOver);

@@ -195,6 +195,7 @@ public class PromotionServiceImpl implements PromotionService {
         promotionHistory.setTopup(request.getAmount());
         promotionHistory.setBonus(BigDecimal.ZERO);
         promotionHistory.setTurnOver(BigDecimal.ZERO);
+
         promotion.getCondition().forEach(condition -> {
            if (request.getAmount().compareTo(condition.getMinTopup())>=0 && request.getAmount().compareTo(condition.getMaxTopup())<=0){
                 if (promotion.getTypeBonus().equals(Constants.AFFILIATE_TYPE.FIX))
@@ -204,6 +205,7 @@ public class PromotionServiceImpl implements PromotionService {
            }
         });
 
+        // (เงินที่เติม + โบนัส) * turn over
         BigDecimal turnOver = promotionHistory.getTopup().add(promotionHistory.getBonus()).multiply(promotion.getTurnOver());
         promotionHistory.setTurnOver(turnOver);
         return promotionHistory;
