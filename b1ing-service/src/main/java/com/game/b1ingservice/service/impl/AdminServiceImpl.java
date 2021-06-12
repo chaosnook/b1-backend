@@ -108,21 +108,32 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void registerAdmin(RegisterRequest registerRequest, UserPrincipal principal) {
+
+        Optional<Agent> agent = agentRepository.findByPrefix(registerRequest.getPrefix());
+
+        if (!agent.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
         AdminUser adminUser = new AdminUser();
         adminUser.setUsername(registerRequest.getUsername());
         adminUser.setPassword(bCryptPasswordEncoder.encode(registerRequest.getPassword()));
         adminUser.setTel(registerRequest.getTel());
         adminUser.setFullName(registerRequest.getFullName());
+
         adminUser.setLimit(registerRequest.getLimit());
         adminUser.setLimitFlag(registerRequest.getIsLimit());
+
         adminUser.setActive(registerRequest.getActive());
         adminUser.setPrefix(principal.getPrefix());
+
+        adminUser.setAgent(agent.get());
 
         Optional<Role> opt = rolerepository.findByRoleCode(registerRequest.getRoleCode());
         if (opt.isPresent()) {
             adminUser.setRole(opt.get());
         } else {
-            opt = rolerepository.findByRoleCode("STAFF");
+            opt = rolerepository.findByRoleCode(ROLE.STAFF.toString());
             adminUser.setRole(opt.get());
         }
         adminUserRepository.save(adminUser);

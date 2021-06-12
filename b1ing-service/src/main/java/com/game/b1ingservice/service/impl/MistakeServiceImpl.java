@@ -75,15 +75,16 @@ public class MistakeServiceImpl implements MistakeService {
             throw new ErrorMessageException(Constants.ERROR.ERR_01127);
         }
 
+        // Mistake limit
+        Integer isLimit = adminOpt.get().getLimit();
+        if (isLimit != null && isLimit == 1 && adminOpt.get().getMistakeLimit() >= adminOpt.get().getLimit()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_01134);
+        }
+
         WebUser user = opt.get();
         BigDecimal credit = mistakeReq.getCredit().setScale(2, RoundingMode.HALF_DOWN);
         String username = user.getUsername();
         Agent agent = user.getAgent();
-
-        // Mistake limit
-        if (!checkCanLimit(agent.getConfigs(), adminOpt.get().getMistakeLimit())) {
-            throw new ErrorMessageException(Constants.ERROR.ERR_01134);
-        }
 
         // update mistake
         adminUserRepository.addMistake(adminOpt.get().getId());
