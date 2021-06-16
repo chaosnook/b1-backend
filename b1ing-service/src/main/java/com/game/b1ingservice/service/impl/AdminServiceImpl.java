@@ -40,23 +40,23 @@ import static com.game.b1ingservice.commons.Constants.*;
 public class AdminServiceImpl implements AdminService {
 
     @Autowired
-    AdminUserRepository adminUserRepository;
+    private AdminUserRepository adminUserRepository;
     @Autowired
-    BCryptPasswordEncoder bCryptPasswordEncoder;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Autowired
-    JwtTokenUtil jwtTokenUtil;
+    private JwtTokenUtil jwtTokenUtil;
     @Autowired
-    WebUserRepository webUserRepository;
+    private WebUserRepository webUserRepository;
     @Autowired
-    WalletRepository walletRepository;
+    private WalletRepository walletRepository;
     @Autowired
-    DepositHistoryRepository depositHistoryRepository;
+    private DepositHistoryRepository depositHistoryRepository;
     @Autowired
-    WithdrawHistoryRepository withdrawHistoryRepository;
+    private WithdrawHistoryRepository withdrawHistoryRepository;
     @Autowired
-    AgentRepository agentRepository;
+    private AgentRepository agentRepository;
     @Autowired
-    ProfitReportJdbcRepository profitReportJdbcRepository;
+    private ProfitReportJdbcRepository profitReportJdbcRepository;
     @Autowired
     private AMBService ambService;
     @Autowired
@@ -67,18 +67,24 @@ public class AdminServiceImpl implements AdminService {
     private ProfitLossJdbcRepository profitLossJdbcRepository;
     @Autowired
     private CountRefillJdbcRepository countRefillJdbcRepository;
-
     @Autowired
     private LineNotifyService lineNotifyService;
-
     @Autowired
     private RoleRepository rolerepository;
 
     @Override
     public ResponseEntity<?> loginAdmin(String username, String password, LoginRequest loginRequest) {
-        Optional<AdminUser> opt = adminUserRepository.findByUsernameAndPrefixAndActive(username, loginRequest.getPrefix(), 1);
+
+        Optional<Agent> agent = agentRepository.findByPrefix(loginRequest.getPrefix().toLowerCase(Locale.ROOT));
+
+        if (!agent.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
+        Optional<AdminUser> opt = adminUserRepository.findByUsernameAndAgentAndActive(username, agent.get(), 1);
         if (opt.isPresent()) {
             AdminUser admin = opt.get();
+
             if (bCryptPasswordEncoder.matches(password, admin.getPassword())) {
 
                 String lastUUID = UUID.randomUUID().toString();
@@ -96,9 +102,10 @@ public class AdminServiceImpl implements AdminService {
                 claims.put("uq", lastUUID);
 
                 LoginProfile profile = new LoginProfile(admin.getRole().getRoleCode(), admin.getUsername(), admin.getFullName(), admin.getPrefix());
-                if (!this.setLastUQToken(admin.getUsername(), lastUUID)) {
+                if (!this.setLastUQToken(admin.getUsername(), admin.getAgent().getId(), lastUUID)) {
                     return ResponseHelper.authError(Constants.ERROR.ERR_00007.msg);
                 }
+
                 return ResponseEntity.ok(new LoginResponse(jwtTokenUtil.generateToken(claims, "user"), profile));
             }
         }
@@ -108,8 +115,13 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void registerAdmin(RegisterRequest registerRequest, UserPrincipal principal) {
+        Optional<Agent> agent;
+        if (registerRequest.getPrefix() != null) {
+            agent = agentRepository.findByPrefix(registerRequest.getPrefix());
+        } else {
+            agent = agentRepository.findById(principal.getAgentId());
+        }
 
-        Optional<Agent> agent = agentRepository.findByPrefix(registerRequest.getPrefix());
 
         if (!agent.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
@@ -175,8 +187,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public AdminUserResponse findAdminByUsernamePrefix(String username, String prefix) {
-        Optional<AdminUser> opt = adminUserRepository.findByUsernameAndPrefixAndActive(username, prefix, 1);
+    public AdminUserResponse findAdminByUsernameAndAgentId(String username, Long agentId) {
+        Optional<AdminUser> opt = adminUserRepository.findByUsernameAndAgent_IdAndActive(username, agentId, 1);
         if (opt.isPresent()) {
             return converter.apply(opt.get());
         } else {
@@ -186,62 +198,59 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void addCredit(AddCreditRequest req, UserPrincipal principal) {
-        Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Prefix(req.getUsername(), principal.getPrefix());
+        Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Id(req.getUsername(), principal.getAgentId());
         if (opt.isPresent()) {
             WebUser webUser = opt.get();
-            Optional<Wallet> opt2 = walletRepository.findByUser_Id(webUser.getId());
-            if (opt2.isPresent()) {
-                Wallet wallet = opt2.get();
-                BigDecimal beforeAmount = wallet.getCredit();
-                BigDecimal credit = req.getCredit().setScale(2, RoundingMode.HALF_DOWN);
-                Bank bank = wallet.getBank();
-                BigDecimal afterAmount = beforeAmount.add(credit);
+            Wallet wallet = webUser.getWallet();
+            Agent agent = webUser.getAgent();
 
-                DepositHistory depositHistory = new DepositHistory();
-                depositHistory.setAmount(credit);
-                depositHistory.setBeforeAmount(beforeAmount);
-                depositHistory.setAfterAmount(afterAmount);
-                depositHistory.setUser(webUser);
-                depositHistory.setBank(bank);
-                depositHistory.setStatus(Constants.DEPOSIT_STATUS.PENDING);
+            BigDecimal beforeAmount = wallet.getCredit();
+            BigDecimal credit = req.getCredit().setScale(2, RoundingMode.HALF_DOWN);
+            Bank bank = wallet.getBank();
+            BigDecimal afterAmount = beforeAmount.add(credit);
 
-                Optional<AdminUser> adminOpt = adminUserRepository.findById(principal.getId());
+            DepositHistory depositHistory = new DepositHistory();
+            depositHistory.setAmount(credit);
+            depositHistory.setBeforeAmount(beforeAmount);
+            depositHistory.setAfterAmount(afterAmount);
+            depositHistory.setUser(webUser);
+            depositHistory.setBank(bank);
+            depositHistory.setStatus(Constants.DEPOSIT_STATUS.PENDING);
+            depositHistory.setAgent(agent);
 
-                if (adminOpt.isPresent()) {
-                    depositHistory.setAdmin(adminOpt.get());
-                }
+            Optional<AdminUser> adminOpt = adminUserRepository.findById(principal.getId());
 
-                depositHistoryRepository.save(depositHistory);
-
-                Agent agent = wallet.getUser().getAgent();
-                AmbResponse<DepositRes> ambResponse = ambService.deposit(DepositReq.builder()
-                        .amount(credit.toPlainString())
-                        .build(), webUser.getUsernameAmb(), agent);
-
-                String errorMessage = "";
-                if (ambResponse.getCode() == 0) {
-                    depositHistory.setBeforeAmount(new BigDecimal(ambResponse.getResult().getBefore()));
-                    depositHistory.setAfterAmount(new BigDecimal(ambResponse.getResult().getAfter()));
-
-                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT, principal.getUsername(), req.getUsername(), req.getCredit()),
-                            agent.getLineToken());
-
-                    walletRepository.depositCredit(credit, webUser.getId());
-                    webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), webUser.getId());
-                    // check affiliate
-                    affiliateService.earnPoint(webUser.getId(), credit, principal.getPrefix());
-                    depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
-                } else {
-                    //if error
-                    depositHistory.setReason(errorMessage);
-                    depositHistory.setStatus(Constants.DEPOSIT_STATUS.ERROR);
-                }
-
-                depositHistoryRepository.save(depositHistory);
-
-            } else {
-                throw new ErrorMessageException(Constants.ERROR.ERR_01132);
+            if (adminOpt.isPresent()) {
+                depositHistory.setAdmin(adminOpt.get());
             }
+
+            depositHistoryRepository.save(depositHistory);
+
+            AmbResponse<DepositRes> ambResponse = ambService.deposit(DepositReq.builder()
+                    .amount(credit.toPlainString())
+                    .build(), webUser.getUsernameAmb(), agent);
+
+            String errorMessage = "";
+            if (ambResponse.getCode() == 0) {
+                depositHistory.setBeforeAmount(new BigDecimal(ambResponse.getResult().getBefore()));
+                depositHistory.setAfterAmount(new BigDecimal(ambResponse.getResult().getAfter()));
+
+                lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT, principal.getUsername(), req.getUsername(), req.getCredit()),
+                        agent.getLineToken());
+
+                walletRepository.depositCredit(credit, webUser.getId());
+                webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), webUser.getId());
+                // check affiliate
+                affiliateService.earnPoint(webUser.getId(), credit, principal.getAgentId());
+                depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
+            } else {
+                //if error
+                depositHistory.setReason(errorMessage);
+                depositHistory.setStatus(Constants.DEPOSIT_STATUS.ERROR);
+            }
+
+            depositHistoryRepository.save(depositHistory);
+
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_01127);
         }
@@ -250,11 +259,12 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void withdrawCredit(WithdrawRequest req, UserPrincipal principal) {
-        Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Prefix(req.getUsername(), principal.getPrefix());
+        Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Id(req.getUsername(), principal.getAgentId());
         if (opt.isPresent()) {
             WebUser webUser = opt.get();
 
             Wallet wallet = webUser.getWallet();
+            Agent agent = webUser.getAgent();
 
             if (wallet.getCredit().compareTo(req.getCredit()) < 0) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_01133);
@@ -271,6 +281,7 @@ public class AdminServiceImpl implements AdminService {
             withdrawHistory.setUser(webUser);
             withdrawHistory.setBank(bank);
             withdrawHistory.setStatus(Constants.DEPOSIT_STATUS.PENDING);
+            withdrawHistory.setAgent(agent);
 
             Optional<AdminUser> adminOpt = adminUserRepository.findById(principal.getId());
             if (adminOpt.isPresent()) {
@@ -292,7 +303,7 @@ public class AdminServiceImpl implements AdminService {
                 request.setAccountTo(webUser.getAccountNumber());
                 request.setBankCode(webUser.getBankName());
 
-                BankBotScbWithdrawCreditResponse withdrawResult = bankBotService.withDrawCredit(request);
+                BankBotScbWithdrawCreditResponse withdrawResult = bankBotService.withDrawCredit(request, agent.getId());
 
                 log.info("bankbot withdraw response {}", withdrawResult);
 
@@ -300,24 +311,28 @@ public class AdminServiceImpl implements AdminService {
                     withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.SUCCESS);
                     withdrawHistory.setQrCode(withdrawResult.getQrString());
                     withdrawHistory.setRemainBalance(withdrawResult.getRemainingBalance());
+
                     lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW + MESSAGE_WITHDRAW_REMAIN, req.getUsername(), req.getCredit(), withdrawResult.getRemainingBalance()),
                             wallet.getUser().getAgent().getLineTokenWithdraw());
                 } else {
                     withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);
                     withdrawHistory.setReason(withdrawResult.getMessege());
+
                     lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW, req.getUsername(), req.getCredit()),
                             wallet.getUser().getAgent().getLineTokenWithdraw());
                 }
-                withdrawHistoryRepository.save(withdrawHistory);
 
+                withdrawHistoryRepository.save(withdrawHistory);
 
             } else {
                 //if error
                 withdrawHistory.setReason(errorMessage);
                 withdrawHistory.setStatus(Constants.DEPOSIT_STATUS.ERROR);
                 withdrawHistoryRepository.save(withdrawHistory);
+
                 lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW, req.getUsername(), req.getCredit()),
                         wallet.getUser().getAgent().getLineTokenWithdraw());
+
                 throw new ErrorMessageException(Constants.ERROR.ERR_10001);
             }
 
@@ -328,7 +343,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public ProfitReportResponse profitReport(ProfitReportRequest profitReportRequest, UserPrincipal principal) {
-        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
+        Optional<Agent> agent = agentRepository.findById(principal.getAgentId());
 
         if (!agent.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
@@ -381,7 +396,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public ProfitLossResponse profitLoss(ProfitLossRequest profitLossRequest, UserPrincipal principal) {
-        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
+        Optional<Agent> agent = agentRepository.findById(principal.getAgentId());
 
 
         if (!agent.isPresent()) {
@@ -408,7 +423,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public List<CountRefillDTO> countRefill(CountRefillRequest countRefillRequest, UserPrincipal principal) {
-        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
+        Optional<Agent> agent = agentRepository.findById(principal.getAgentId());
 
         if (!agent.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
@@ -446,13 +461,13 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void approve(ApproveReq req, UserPrincipal principal) {
-        withdrawHistoryRepository.updateStatus(Constants.WITHDRAW_STATUS.SUCCESS, req.getId(), req.getAmount());
+        withdrawHistoryRepository.updateStatus(Constants.WITHDRAW_STATUS.SUCCESS, req.getId(), req.getAmount(), principal.getAgentId());
     }
 
-    private boolean setLastUQToken(String username, String lastUUID) {
+    private boolean setLastUQToken(String username, Long agentId, String lastUUID) {
         boolean result;
         try {
-            int resultSet = adminUserRepository.updateLastToken(lastUUID, username);
+            int resultSet = adminUserRepository.updateLastToken(lastUUID, username, agentId);
             result = resultSet != 0;
         } catch (Exception e) {
             log.error("setLastUQToken", e);

@@ -90,6 +90,12 @@ public class DepositHistory extends DateAudit<String> implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private AdminUser admin;
 
+    @ToString.Exclude
+    @JsonIgnore
+    @JoinColumn(name = "agent_id", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY)
+    private Agent agent;
+
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
 

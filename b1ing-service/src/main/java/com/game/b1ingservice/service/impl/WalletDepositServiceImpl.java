@@ -52,12 +52,12 @@ public class WalletDepositServiceImpl implements WalletDepositService {
     @Override
     public void updateTrueWalletDeposit(WalletDepositRequest request) {
 
-        Optional<TrueWallet> trueWallet = trueWalletRepository.findFirstByIdAndPrefixAndActive(request.getTrueWalletId(), request.getPrefix(), true);
+        Optional<TrueWallet> trueWallet = trueWalletRepository.findFirstByIdAndActiveAndAgent_Id(request.getTrueWalletId(), true, request.getAgentId());
         if (!trueWallet.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_04000);
         }
 
-        Optional<WebUser> webUser = webUserRepository.findFirstByUsernameAndAgent_Prefix(request.getUsername(), request.getPrefix());
+        Optional<WebUser> webUser = webUserRepository.findFirstByUsernameAndAgent_Id(request.getUsername(), request.getAgentId());
         if (!webUser.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01127);
         }
@@ -70,11 +70,11 @@ public class WalletDepositServiceImpl implements WalletDepositService {
 
     @Override
     public void updateAllTrueWalletDeposit(WalletDepositAllRequest request) {
-        Optional<TrueWallet> trueWalletFrom = trueWalletRepository.findFirstByIdAndPrefixAndActive(request.getTrueWalletIdFrom(), request.getPrefix(), true);
+        Optional<TrueWallet> trueWalletFrom = trueWalletRepository.findFirstByIdAndActiveAndAgent_Id(request.getTrueWalletIdFrom(), true, request.getAgentId());
         if (!trueWalletFrom.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_04000);
         }
-        Optional<TrueWallet> trueWalletTo = trueWalletRepository.findFirstByIdAndPrefixAndActive(request.getTrueWalletIdTo(), request.getPrefix(), true);
+        Optional<TrueWallet> trueWalletTo = trueWalletRepository.findFirstByIdAndActiveAndAgent_Id(request.getTrueWalletIdTo(), true, request.getAgentId());
         if (!trueWalletTo.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_04000);
         }
@@ -82,8 +82,8 @@ public class WalletDepositServiceImpl implements WalletDepositService {
     }
 
     @Override
-    public List<WalletDepositList> findActiveWallet(String prefix) {
-        return trueWalletRepository.findAllByPrefixAndActiveOrderByBankGroupAsc(prefix, true).stream().map(converterActive).collect(Collectors.toList());
+    public List<WalletDepositList> findActiveWallet(Long agentId) {
+        return trueWalletRepository.findAllByAgent_IdAndActiveOrderByBankGroupAsc(agentId, true).stream().map(converterActive).collect(Collectors.toList());
     }
 
     private final Function<TrueWallet, WalletDepositList> converterActive = wallet -> {

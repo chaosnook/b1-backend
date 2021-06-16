@@ -28,9 +28,13 @@ public class JwtTokenUtil implements Serializable {
     }
 
     public String getDataToken(String token, String key) {
-        final Claims claims = getAllClaimsFromToken(token);
+        try {
+            final Claims claims = getAllClaimsFromToken(token);
 
-        return ObjectUtils.isEmpty(claims.get(key))?null:String.valueOf(claims.get(key));
+            return ObjectUtils.isEmpty(claims.get(key)) ? null : String.valueOf(claims.get(key));
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {

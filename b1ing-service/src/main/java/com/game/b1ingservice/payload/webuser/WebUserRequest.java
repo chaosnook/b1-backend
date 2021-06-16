@@ -19,4 +19,5 @@ public class WebUserRequest {
     private String withdrawAuto;
 
     private String prefix;
+    private Long agentId;
 }

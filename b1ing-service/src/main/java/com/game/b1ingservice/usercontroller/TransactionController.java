@@ -41,12 +41,13 @@ public class TransactionController {
 
     @PostMapping(value = "/point-transfer")
     public ResponseEntity<?> pointTransfer(@AuthenticationPrincipal UserPrincipal principal, @RequestBody PointTransRequest transRequest) {
-        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, pointService.pointTransfer(transRequest, principal.getUsername(), principal.getPrefix()));
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, pointService.pointTransfer(transRequest, principal.getUsername(), principal.getAgentId()));
     }
 
     @PostMapping(value = "/withdraw")
     public ResponseEntity<?> withdraw(@AuthenticationPrincipal UserPrincipal principal, @RequestBody WithDrawRequest withDrawRequest) {
-        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, withDrawService.withdraw(withDrawRequest, principal.getUsername(), principal.getPrefix()));
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg,
+                withDrawService.withdraw(withDrawRequest, principal.getUsername(), principal.getAgentId()));
     }
 
     @PostMapping(value = "/withdraw-history")

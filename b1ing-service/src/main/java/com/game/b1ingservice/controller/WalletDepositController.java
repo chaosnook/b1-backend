@@ -29,7 +29,7 @@ public class WalletDepositController {
     @PostMapping(value = "/check-true-wallet-deposit")
     public ResponseEntity<?> checkWalletDeposit(@RequestBody WalletDepositRequest request, @AuthenticationPrincipal UserPrincipal principal) {
         request = walletDepositService.checkSortField(request);
-        request.setPrefix(principal.getPrefix());
+        request.setAgentId(principal.getAgentId());
         SearchWalletDepositSpecification specification = new SearchWalletDepositSpecification(request);
         Page<WalletDepositResponse> walletDep = walletDepositService.findByCriteria(specification, specification.getPageable());
         return ResponseHelper.successPage(walletDep, "datas", Constants.MESSAGE.MSG_00000.msg);
@@ -37,7 +37,7 @@ public class WalletDepositController {
 
     @PutMapping(value = "/update-true-wallet-deposit")
     public ResponseEntity<?> updateWalletDeposit(@RequestBody WalletDepositRequest request, @AuthenticationPrincipal UserPrincipal principal) {
-        request.setPrefix(principal.getPrefix());
+        request.setAgentId(principal.getAgentId());
         walletDepositService.updateTrueWalletDeposit(request);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
@@ -45,14 +45,14 @@ public class WalletDepositController {
 
     @PutMapping(value = "/update-all-true-wallet-deposit")
     public ResponseEntity<?> updateAllWalletDeposit(@RequestBody WalletDepositAllRequest request, @AuthenticationPrincipal UserPrincipal principal) {
-        request.setPrefix(principal.getPrefix());
+        request.setAgentId(principal.getAgentId());
         walletDepositService.updateAllTrueWalletDeposit(request);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
     @GetMapping(value = "/list-active-true-wallet")
     public ResponseEntity<?> listActiveTrueWallet(@AuthenticationPrincipal UserPrincipal principal) {
-        List<WalletDepositList> listList = walletDepositService.findActiveWallet(principal.getPrefix());
+        List<WalletDepositList> listList = walletDepositService.findActiveWallet(principal.getAgentId());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, listList);
     }
 }

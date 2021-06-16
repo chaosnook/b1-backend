@@ -1,17 +1,15 @@
 package com.game.b1ingservice.controller;
-
 import com.game.b1ingservice.commons.Constants;
-import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.service.WebUserService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController

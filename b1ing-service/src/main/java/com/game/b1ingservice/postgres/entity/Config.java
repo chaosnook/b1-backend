@@ -12,7 +12,7 @@ import java.io.Serializable;
 
 @Data
 @Entity
-@Table(name = "config", uniqueConstraints = {@UniqueConstraint(columnNames = {"parameter"})})
+@Table(name = "config", uniqueConstraints = {@UniqueConstraint(columnNames = {"parameter", "agent_id"})})
 @Where(clause = "delete_flag = 0")
 public class Config extends DateAudit<String> implements Serializable {
 
@@ -22,8 +22,10 @@ public class Config extends DateAudit<String> implements Serializable {
 
     @Column(name = "parameter", columnDefinition = "character varying(50)")
     private String parameter;
+
     @Column(name = "value", columnDefinition = "character varying(50)")
     private String value;
+
     @Column(name = "type", columnDefinition = "character varying(50)")
     private String type;
 

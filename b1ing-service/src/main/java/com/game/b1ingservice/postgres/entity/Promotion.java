@@ -25,30 +25,43 @@ public class Promotion extends DateAudit<String> implements Serializable {
 
     @Column(name = "name", columnDefinition = "character varying(50) not null")
     private String name;
+
     @Column(name = "type", columnDefinition = "character varying(20)")
     private String type;
+
     @Column(name = "type_bonus", columnDefinition = "character varying(20) not null")
     private String typeBonus;
+
     @Column(name = "type_promotion", columnDefinition = "character varying(20) not null")
     private String typePromotion;
+
     @Column(name = "min_topup", columnDefinition = "numeric(18,2)")
     private BigDecimal minTopup;
+
     @Column(name = "max_topup", columnDefinition = "numeric(18,2)")
     private BigDecimal maxTopup;
+
     @Column(name = "max_bonus", columnDefinition = "numeric(18,2)")
     private BigDecimal maxBonus;
+
     @Column(name = "max_withdraw", columnDefinition = "numeric(18,2)")
     private BigDecimal maxWithdraw;
+
     @Column(name = "max_receive_bonus", columnDefinition = "numeric(18,2)")
     private BigDecimal maxReceiveBonus;
+
     @Column(name = "turn_over", columnDefinition = "numeric(18,2)")
     private BigDecimal turnOver;
+
     @Temporal(TemporalType.TIME)
     private Date startTime;
+
     @Temporal(TemporalType.TIME)
     private Date endTime;
+
     @Column(name = "active", columnDefinition = "boolean")
     private boolean active;
+
     @Column(name = "url_image", columnDefinition = "character varying(255) not null")
     private String urlImage;
 
@@ -69,5 +82,6 @@ public class Promotion extends DateAudit<String> implements Serializable {
     @JoinColumn(name = "agent_id", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Agent agent;
+
 
 }

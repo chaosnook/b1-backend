@@ -25,7 +25,7 @@ public class RoleController {
     @Autowired
     private UpdateRequestValidator updateRequestValidator;
 
-    @PostMapping(value = "/insert", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+    @PostMapping(value = "/insert", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> insertRole(@RequestBody RoleRequest req) {
         requestValidator.validate(req);
         roleService.insertRole(req);

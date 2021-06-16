@@ -8,17 +8,14 @@ import com.game.b1ingservice.payload.thieve.ThieveUpdateRequest;
 import com.game.b1ingservice.service.ThieveService;
 import com.game.b1ingservice.specification.SearchThieveSpecification;
 import com.game.b1ingservice.utils.ResponseHelper;
-import com.game.b1ingservice.validator.thieve.ThieveValidator;
 import com.game.b1ingservice.validator.thieve.ThieveUpdateValidator;
+import com.game.b1ingservice.validator.thieve.ThieveValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 
 @RestController
@@ -35,16 +32,15 @@ public class ThieveController {
 
     //GetThieveById
     @GetMapping(value = "/getthieve",
-        consumes = { MediaType.APPLICATION_JSON_VALUE},
-        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<?> thieve(@RequestParam("id") Long id){
+            consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> thieve(@RequestParam("id") Long id) {
         return ResponseEntity.ok(thieveService.getThieve(id));
-//        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_01000.msg, thieveService.getThieveList());
     }
 
     //CreateThieve
     @PostMapping(value = "/addthieve", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> addthieve(@RequestBody ThieveRequest thieveRequest){
+    public ResponseEntity<?> addthieve(@RequestBody ThieveRequest thieveRequest) {
         thieveValidator.addValidate(thieveRequest);
         thieveService.addThieve(thieveRequest);
         return ResponseHelper.success(Constants.MESSAGE.MSG_01001.msg);
@@ -52,7 +48,7 @@ public class ThieveController {
 
     //UpdateThieve
     @PutMapping(value = "/updatethieve",
-            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> updateThieve(@RequestBody ThieveUpdateRequest thieveUpdateRequest) {
         thieveUpdateValidator.validate(thieveUpdateRequest);
         thieveService.updateThieve(thieveUpdateRequest);
@@ -61,17 +57,17 @@ public class ThieveController {
 
     //DeleteThieve
     @DeleteMapping(value = "/deletethieve",
-            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> deleteThieve(@RequestParam("id") Long id) {
         thieveService.deleteThieve(id);
         return ResponseHelper.success(Constants.MESSAGE.MSG_01003.msg);
     }
 
     @PostMapping(value = "/searchthieve", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> searchThieve(@RequestBody ThieveSearchRequest request){
+    public ResponseEntity<?> searchThieve(@RequestBody ThieveSearchRequest request) {
         SearchThieveSpecification specification = new SearchThieveSpecification(request);
-        Page<ThieveResponse> thieve = thieveService.findByCriteria(specification,specification.getPageable());
-        return  ResponseHelper.successPage(thieve, "datas",Constants.MESSAGE.MSG_00000.msg);
+        Page<ThieveResponse> thieve = thieveService.findByCriteria(specification, specification.getPageable());
+        return ResponseHelper.successPage(thieve, "datas", Constants.MESSAGE.MSG_00000.msg);
     }
 
 }

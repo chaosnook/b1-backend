@@ -10,7 +10,10 @@ import java.util.List;
 @Service
 public interface TrueWalletService {
     void insertTrueWallet(TrueWalletRequest req, UserPrincipal principal);
+
     List<TrueWalletResponse> getTrueWallet(UserPrincipal principal);
+
     void updateTrueWallet(Long id, TrueWalletRequest req, UserPrincipal principal);
+
     void deleteTrueWallet(Long id, UserPrincipal principal);
 }

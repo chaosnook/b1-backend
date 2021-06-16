@@ -2,7 +2,6 @@ package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
-import com.game.b1ingservice.payload.condition.ConditionListRequest;
 import com.game.b1ingservice.payload.condition.ConditionRequest;
 import com.game.b1ingservice.service.ConditionService;
 import com.game.b1ingservice.utils.ResponseHelper;
@@ -17,12 +16,13 @@ import org.springframework.web.bind.annotation.*;
 public class ConditionController {
 
     @Autowired
-    ConditionService conditionService;
+    private ConditionService conditionService;
 
     //insert condition
     @PostMapping(value = "condition",
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> insertCondition(@RequestBody ConditionRequest conditionRequest, @AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<?> insertCondition(@RequestBody ConditionRequest conditionRequest,
+                                             @AuthenticationPrincipal UserPrincipal principal) {
         conditionService.insertCondition(conditionRequest, principal);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
@@ -39,7 +39,8 @@ public class ConditionController {
     //update condition
     @PutMapping(value = "condition/{id}",
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> updateCondition(@PathVariable Long id, @RequestBody ConditionRequest conditionRequest, @AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<?> updateCondition(@PathVariable Long id, @RequestBody ConditionRequest conditionRequest,
+                                             @AuthenticationPrincipal UserPrincipal principal) {
         conditionService.updateCondition(id, conditionRequest, principal);
         return  ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }

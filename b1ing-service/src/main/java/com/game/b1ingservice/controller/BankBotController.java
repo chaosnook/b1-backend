@@ -28,23 +28,26 @@ public class BankBotController {
     @Autowired
     private BankBotAddCreditTrueValidator bankBotAddCreditTrueValidator;
 
-
     @Autowired
     private BankBotService bankBotService;
+
     @PostMapping(value = "/addcredit", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> addCredit(@RequestBody BankBotAddCreditRequest bankRequest, @AuthenticationPrincipal UserPrincipal principal){
+    public ResponseEntity<?> addCredit(@RequestBody BankBotAddCreditRequest bankRequest, @AuthenticationPrincipal UserPrincipal principal) {
+
         bankBotAddCreditValidator.validate(bankRequest);
-        bankRequest.setTransactionId(DigestUtils.sha1Hex(bankRequest.getTransactionDate().toString()+(bankRequest.getRemark())));
-        bankBotService.addCredit(bankRequest, principal.getPrefix());
+
+        bankRequest.setTransactionId(DigestUtils.sha1Hex(bankRequest.getTransactionDate().toString() + (bankRequest.getRemark())));
+        bankBotService.addCredit(bankRequest, principal.getAgentId());
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
 
     @PostMapping(value = "/addcredit-truewallet", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> addCreditTrue(@RequestBody BankBotAddCreditTrueWalletRequest bankRequest){
+    public ResponseEntity<?> addCreditTrue(@RequestBody BankBotAddCreditTrueWalletRequest bankRequest, @AuthenticationPrincipal UserPrincipal principal) {
         bankBotAddCreditTrueValidator.validate(bankRequest);
-        bankRequest.setTransactionId(DigestUtils.sha1Hex(bankRequest.getTrueTranID()+bankRequest.getMobile()));
-        bankBotService.addCreditTrue(bankRequest);
+
+        bankRequest.setTransactionId(DigestUtils.sha1Hex(bankRequest.getTrueTranID() + bankRequest.getMobile()));
+        bankBotService.addCreditTrue(bankRequest, principal.getAgentId());
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 

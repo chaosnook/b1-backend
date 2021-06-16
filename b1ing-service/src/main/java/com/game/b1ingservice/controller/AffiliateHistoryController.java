@@ -2,7 +2,6 @@ package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.affiliate.AffHistoryRequest;
-import com.game.b1ingservice.payload.affiliate.AffHistoryResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.postgres.jdbc.dto.SearchAffiHistoryDTO;
 import com.game.b1ingservice.service.AffiliateHistoryService;

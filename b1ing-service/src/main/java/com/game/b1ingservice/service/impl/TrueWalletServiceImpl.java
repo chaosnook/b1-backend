@@ -34,7 +34,7 @@ public class TrueWalletServiceImpl implements TrueWalletService {
 
     @Override
     public void insertTrueWallet(TrueWalletRequest req, UserPrincipal principal) {
-        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
+        Optional<Agent> agent = agentRepository.findById(principal.getAgentId());
 
         if (!agent.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
@@ -57,7 +57,7 @@ public class TrueWalletServiceImpl implements TrueWalletService {
     @Override
     public List<TrueWalletResponse> getTrueWallet(UserPrincipal principal) {
         List<TrueWalletResponse> resp = new ArrayList<>();
-        List<TrueWallet> listTrueWallet = trueWalletRepository.findAllByPrefixOrderByIdDesc(principal.getPrefix(), Sort.by(Sort.Direction.ASC, "id"));
+        List<TrueWallet> listTrueWallet = trueWalletRepository.findAllByAgent_IdOrderByIdDesc(principal.getAgentId(), Sort.by(Sort.Direction.ASC, "id"));
 
         for (TrueWallet truewallet : listTrueWallet) {
             TrueWalletResponse truewalletResp = new TrueWalletResponse();
@@ -82,7 +82,7 @@ public class TrueWalletServiceImpl implements TrueWalletService {
 
     @Override
     public void updateTrueWallet(Long id, TrueWalletRequest req, UserPrincipal principal) {
-        Optional<TrueWallet> opt = trueWalletRepository.findFirstByIdAndPrefix(id, principal.getPrefix());
+        Optional<TrueWallet> opt = trueWalletRepository.findFirstByIdAndAgent_Id(id, principal.getAgentId());
         if (opt.isPresent()) {
             TrueWallet trueWallet = opt.get();
             trueWallet.setPhoneNumber(req.getPhoneNumber());
@@ -96,8 +96,8 @@ public class TrueWalletServiceImpl implements TrueWalletService {
             trueWallet.setActive(req.isActive());
             trueWalletRepository.save(trueWallet);
 
-            if(!req.isActive()) {
-                updateDepositTruewalletId(trueWallet);
+            if (!req.isActive()) {
+                updateDepositTruewalletId(trueWallet, principal.getAgentId());
             }
 
         } else {
@@ -107,23 +107,23 @@ public class TrueWalletServiceImpl implements TrueWalletService {
 
     @Override
     public void deleteTrueWallet(Long id, UserPrincipal principal) {
-        Optional<TrueWallet> opt = trueWalletRepository.findFirstByIdAndPrefix(id, principal.getPrefix());
+        Optional<TrueWallet> opt = trueWalletRepository.findFirstByIdAndAgent_Id(id, principal.getAgentId());
         if (opt.isPresent()) {
             TrueWallet trueWallet = opt.get();
             trueWallet.setDeleteFlag(1);
             trueWalletRepository.save(trueWallet);
 
-            updateDepositTruewalletId(trueWallet);
+            updateDepositTruewalletId(trueWallet, principal.getAgentId());
 
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_01104);
         }
     }
 
-    public void updateDepositTruewalletId(TrueWallet trueWallet) {
+    public void updateDepositTruewalletId(TrueWallet trueWallet, Long agentId) {
         int bankGroupFrom = trueWallet.getBankGroup();
-        Optional<TrueWallet> opt2 = trueWalletRepository.findFirstByActiveAndBankGroupGreaterThanOrderByBankGroupAsc(true, bankGroupFrom);
-        if(opt2.isPresent()) {
+        Optional<TrueWallet> opt2 = trueWalletRepository.findFirstByActiveAndBankGroupAndAgent_IdGreaterThanOrderByBankGroupAsc(true, bankGroupFrom, agentId);
+        if (opt2.isPresent()) {
             TrueWallet trueWalletCurrent = opt2.get();
             walletRepository.updateAllTrueWalletDeposit(trueWalletCurrent.getId(), trueWallet.getId());
         } else {

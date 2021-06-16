@@ -6,6 +6,7 @@ import lombok.Data;
 public class UserProfile {
     private String username;
     private String tel;
+    private String password;
     private String bankName;
     private String accountNumber;
     private String firstName;

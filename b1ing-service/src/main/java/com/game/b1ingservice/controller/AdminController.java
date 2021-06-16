@@ -29,8 +29,6 @@ public class AdminController {
     @Autowired
     private UpdateValidator updateValidator;
     @Autowired
-    private PrefixValidator prefixValidator;
-    @Autowired
     private AdminService adminService;
     @Autowired
     private AddCreditValidator addCreditValidator;
@@ -70,9 +68,8 @@ public class AdminController {
     @GetMapping(value = "/user-list/{prefix}",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> authenticate(@RequestHeader Map<String, String> headers,
-                                          @PathVariable("prefix") String prefix,
-                                          @AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<?> getListOfAdmin(@PathVariable("prefix") String prefix,
+                                            @AuthenticationPrincipal UserPrincipal principal) {
 
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, adminService.listByPrefix(prefix));
     }
@@ -83,7 +80,8 @@ public class AdminController {
     public ResponseEntity<?> getUser(@PathVariable("username") String username,
                                      @AuthenticationPrincipal UserPrincipal principal) {
 
-        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, adminService.findAdminByUsernamePrefix(username, principal.getPrefix()));
+        AdminUserResponse response =  adminService.findAdminByUsernameAndAgentId(username, principal.getAgentId());
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, response);
     }
 
     @PostMapping(value = "/deposit", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})

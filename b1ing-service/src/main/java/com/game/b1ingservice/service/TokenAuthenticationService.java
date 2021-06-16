@@ -25,9 +25,6 @@ public class TokenAuthenticationService {
     private final JwtTokenUtil jwtTokenUtil;
     static final String HEADER_STRING = "Authorization";
     static final String HEADER_TOKEN = "Bearer ";
-    static final String QUERY_STRING_X = "/api/v1/downloadFile";
-
-    private final AdminService adminService;
 
 
     public Authentication getAuthentication(HttpServletRequest req) {

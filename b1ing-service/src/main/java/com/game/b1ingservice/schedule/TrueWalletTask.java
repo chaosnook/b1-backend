@@ -67,7 +67,7 @@ public class TrueWalletTask {
                     request.setType("Deposit");
                     request.setMobile(transaction.getMobile());
                     request.setTransactionId(DigestUtils.sha1Hex(request.getTrueTranID()+request.getMobile()));
-                    bankBotService.addCreditTrue(request);
+                    bankBotService.addCreditTrue(request, trueWallet.getAgent().getId());
                 }
             }
         }catch (InterruptedException e){

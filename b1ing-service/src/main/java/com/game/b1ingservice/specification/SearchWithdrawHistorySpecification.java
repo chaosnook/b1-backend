@@ -2,6 +2,7 @@ package com.game.b1ingservice.specification;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.withdrawhistory.WithdrawHistorySearchRequest;
+import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.entity.WithdrawHistory;
 import com.game.b1ingservice.specification.commons.SearchPageSpecification;
@@ -21,6 +22,10 @@ public class SearchWithdrawHistorySpecification extends SearchPageSpecification<
     public Predicate toPredicate(Root<WithdrawHistory> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 
         Join<WithdrawHistory, WebUser> member = root.join("user", JoinType.INNER);
+
+        Join<WithdrawHistory, Agent> agent = root.join("agent", JoinType.INNER);
+
+        predicates.add(criteriaBuilder.equal(agent.<Long>get("id"), searchBody.getAgentId()));
 
         if (StringUtils.isNotEmpty(searchBody.getUsername())) {
             String username = StringUtils.trimToEmpty(searchBody.getUsername());

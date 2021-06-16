@@ -1,6 +1,7 @@
 package com.game.b1ingservice.specification;
 
 import com.game.b1ingservice.payload.webuser.WebUserSearchRequest;
+import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.specification.commons.SearchPageSpecification;
 import com.game.b1ingservice.utils.DateUtils;
@@ -18,6 +19,10 @@ public class SearchWebUserSpecification extends SearchPageSpecification<WebUserS
 
     @Override
     public Predicate toPredicate(Root<WebUser> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+
+        Join<WebUser, Agent> agent = root.join("agent", JoinType.INNER);
+
+        predicates.add(criteriaBuilder.equal(agent.<Long>get("id"), searchBody.getAgentId()));
 
         if (StringUtils.isNotEmpty(searchBody.getBankName())){
             String bankName = StringUtils.trimToEmpty(searchBody.getBankName());

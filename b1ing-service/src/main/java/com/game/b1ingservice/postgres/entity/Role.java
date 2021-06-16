@@ -1,6 +1,5 @@
 package com.game.b1ingservice.postgres.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.game.b1ingservice.postgres.entity.audit.DateAudit;
 import com.game.b1ingservice.postgres.entity.audit.UserAuditEmbeddable;
 import lombok.Data;

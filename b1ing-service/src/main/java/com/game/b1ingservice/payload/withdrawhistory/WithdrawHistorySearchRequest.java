@@ -17,4 +17,6 @@ public class WithdrawHistorySearchRequest extends SearchPageable {
     private String isAuto;
 
     private Boolean isMainPage;
+
+    private Long agentId;
 }

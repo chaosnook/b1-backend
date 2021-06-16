@@ -3,7 +3,6 @@ package com.game.b1ingservice.controller;
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.truewallet.TrueWalletRequest;
-import com.game.b1ingservice.payload.truewallet.TrueWalletResponse;
 import com.game.b1ingservice.service.TrueWalletService;
 import com.game.b1ingservice.utils.ResponseHelper;
 import com.game.b1ingservice.validator.truewallet.TrueWalletRequestValidator;
@@ -14,8 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -32,7 +29,8 @@ public class TrueWalletController {
     private TrueWalletUpdateValidator trueWalletUpdateValidator;
 
     @PostMapping(value = "/truewallet", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> insertTrueWallet(@RequestBody TrueWalletRequest req, @AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<?> insertTrueWallet(@RequestBody TrueWalletRequest req,
+                                              @AuthenticationPrincipal UserPrincipal principal) {
         trueWalletRequestValidator.validate(req);
         trueWalletService.insertTrueWallet(req, principal);
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);

@@ -13,7 +13,9 @@ import java.util.List;
 
 @Service
 public interface AgentService {
+
     List<AgentResponse> getAgentList();
+
     AgentResponse getAgentByPrefix(String prefix);
 
     AgentResponse getAgentUserByPrefix(String prefix);

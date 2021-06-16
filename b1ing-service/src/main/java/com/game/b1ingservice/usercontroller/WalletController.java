@@ -27,19 +27,19 @@ public class WalletController {
 
     @GetMapping(value = "/wallet")
     public ResponseEntity<?> walletInfo(@AuthenticationPrincipal UserPrincipal principal) {
-        UserWalletResponse response = walletService.getUserWallet(principal.getUsername(), principal.getPrefix());
+        UserWalletResponse response = walletService.getUserWallet(principal.getUsername(), principal.getAgentId());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, response);
     }
 
     @GetMapping(value = "/bank-deposit")
     public ResponseEntity<?> bankDeposit(@AuthenticationPrincipal UserPrincipal principal) {
-        UserBankDepositResponse response = bankService.getUserBankDeposit(principal.getUsername(), principal.getPrefix());
+        UserBankDepositResponse response = bankService.getUserBankDeposit(principal.getUsername(), principal.getAgentId());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, response);
     }
 
     @GetMapping(value = "/true-wallet")
     public ResponseEntity<?> trueDeposit(@AuthenticationPrincipal UserPrincipal principal) {
-        UserTrueWalletResponse response = bankService.getUserTrueWallet(principal.getUsername(), principal.getPrefix());
+        UserTrueWalletResponse response = bankService.getUserTrueWallet(principal.getUsername(), principal.getAgentId());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, response);
     }
 }

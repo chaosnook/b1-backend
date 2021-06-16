@@ -20,10 +20,13 @@ public class Thieve extends DateAudit<String> implements Serializable {
 
     @Column(name = "name", columnDefinition = "character varying(50) not null")
     private String name;
+
     @Column(name = "bank_name", columnDefinition = "character varying(50) not null")
     private String bankName;
+
     @Column(name = "bank_account", columnDefinition = "character varying(50) not null")
     private String bankAccount;
+
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
 }

@@ -22,4 +22,6 @@ public class DepositHistorySearchRequest extends SearchPageable {
     private Boolean isMainPage;
 
     private boolean isSummary;
+
+    private Long agentId;
 }

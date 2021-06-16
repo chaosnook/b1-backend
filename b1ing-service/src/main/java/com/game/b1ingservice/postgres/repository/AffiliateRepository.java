@@ -12,5 +12,11 @@ public interface AffiliateRepository extends JpaRepository<Affiliate, Long>, Jpa
     Affiliate findFirstByAgent(Agent agent);
 
     Affiliate findFirstByAgent_Prefix(String prefix);
+
+
+    Affiliate findFirstByAgent_Id(Long agentId);
+
     Affiliate findFirstByAgent_PrefixAndActiveTrue(String prefix);
+
+    Affiliate findFirstByAgent_IdAndActiveTrue(Long adminId);
 }

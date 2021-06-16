@@ -19,7 +19,7 @@ public interface AdminService {
 
     List<AdminUserResponse> listByPrefix(String prefix);
 
-    AdminUserResponse findAdminByUsernamePrefix(String username, String prefix);
+    AdminUserResponse findAdminByUsernameAndAgentId(String username, Long agentId);
 
     void addCredit(AddCreditRequest req, UserPrincipal principal);
 

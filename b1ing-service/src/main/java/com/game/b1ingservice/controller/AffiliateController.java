@@ -27,7 +27,7 @@ public class AffiliateController {
     @GetMapping(value = "/affiliate",
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> getAffiliate( @AuthenticationPrincipal UserPrincipal principal) {
-        AffiliateDTO aff = affiliateService.getAffiliateByPrefix(principal.getPrefix());
+        AffiliateDTO aff = affiliateService.getAffiliateByPrefix(principal.getAgentId());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, aff);
     }
 
@@ -35,7 +35,7 @@ public class AffiliateController {
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> createAffiliate(@RequestBody AffiliateDTO request, @AuthenticationPrincipal UserPrincipal principal) {
         affiliateValidator.validate(request, principal);
-        affiliateService.createOrUpdateAffiliate(request, principal.getPrefix());
+        affiliateService.createOrUpdateAffiliate(request, principal.getAgentId());
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
@@ -43,7 +43,7 @@ public class AffiliateController {
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> updateAffiliate(@RequestBody AffiliateDTO request, @AuthenticationPrincipal UserPrincipal principal) {
         affiliateValidator.validate(request, principal);
-        affiliateService.createOrUpdateAffiliate(request, principal.getPrefix());
+        affiliateService.createOrUpdateAffiliate(request, principal.getAgentId());
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 

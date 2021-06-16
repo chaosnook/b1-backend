@@ -13,19 +13,24 @@ import java.util.Optional;
 public interface TrueWalletRepository extends JpaRepository<TrueWallet, Long>, JpaSpecificationExecutor<TrueWallet> {
     boolean existsByPhoneNumber(String phoneNumber);
 
-    boolean existsByBankGroup(int bankGroup);
+    boolean existsByBankGroupAndAgent_Id(int bankGroup, Long agentId);
 
-    Optional<TrueWallet> findFirstByActiveOrderByBankGroupAsc(boolean active);
+    Optional<TrueWallet> findFirstByActiveAndAgent_IdOrderByBankGroupAsc(boolean active, Long agentId);
 
     Optional<TrueWallet> findFirstByIdAndPrefixAndActive(Long id, String prefix, boolean active);
 
-    Optional<TrueWallet> findFirstByIdAndPrefix(Long id, String prefix);
+    Optional<TrueWallet> findFirstByIdAndAgent_Id(Long id, Long agentId);
 
-    List<TrueWallet> findAllByPrefixOrderByIdDesc(String prefix, Sort sort);
+    List<TrueWallet> findAllByAgent_IdOrderByIdDesc(Long agentId, Sort sort);
 
     List<TrueWallet> findAllByPrefixAndActiveOrderByBankGroupAsc(String prefix, boolean active);
 
-    Optional<TrueWallet> findFirstByActiveAndBankGroupGreaterThanOrderByBankGroupAsc(boolean active, int bankGroupFrom);
+    Optional<TrueWallet> findFirstByActiveAndBankGroupAndAgent_IdGreaterThanOrderByBankGroupAsc(boolean active, int bankGroupFrom, Long agentId);
 
-    Optional<TrueWallet> findByBotIp(String botIp);
+    Optional<TrueWallet> findByBotIpAndAgent_Id(String botIp, Long agentId);
+
+
+    Optional<TrueWallet> findFirstByIdAndActiveAndAgent_Id(Long id, boolean active, Long agentId);
+
+    List<TrueWallet> findAllByAgent_IdAndActiveOrderByBankGroupAsc(Long agentId, boolean active);
 }

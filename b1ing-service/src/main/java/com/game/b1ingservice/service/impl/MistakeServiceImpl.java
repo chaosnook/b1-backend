@@ -64,7 +64,7 @@ public class MistakeServiceImpl implements MistakeService {
 
     @Override
     public void createMistake(MistakeReq mistakeReq, UserPrincipal principal) {
-        Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Prefix(mistakeReq.getUsername(), principal.getPrefix());
+        Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Id(mistakeReq.getUsername(), principal.getAgentId());
 
         if (!opt.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01127);
@@ -108,7 +108,7 @@ public class MistakeServiceImpl implements MistakeService {
                     walletRepository.depositCredit(credit, user.getId());
                     webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), user.getId());
                     // check affiliate
-                    affiliateService.earnPoint(wallet.getUser().getId(), credit, wallet.getUser().getAgent().getPrefix());
+                    affiliateService.earnPoint(wallet.getUser().getId(), credit, agent.getId());
 
                     DepositHistory depositHistory = new DepositHistory();
                     depositHistory.setAmount(credit);
@@ -120,6 +120,7 @@ public class MistakeServiceImpl implements MistakeService {
                     depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
                     depositHistory.setBonusAmount(BigDecimal.ZERO);
                     depositHistory.setAdmin(adminOpt.get());
+                    depositHistory.setAgent(agent);
                     depositHistoryRepository.save(depositHistory);
                 } else {
                     throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
@@ -139,7 +140,7 @@ public class MistakeServiceImpl implements MistakeService {
                     walletRepository.depositCreditAndTurnOver(credit, credit, mistakeReq.getTurnOver(), user.getId());
                     webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), user.getId());
                     // check affiliate
-                    affiliateService.earnPoint(wallet.getUser().getId(), credit, wallet.getUser().getAgent().getPrefix());
+                    affiliateService.earnPoint(wallet.getUser().getId(), credit, agent.getId());
 
                     DepositHistory depositHistory = new DepositHistory();
                     depositHistory.setAmount(credit);
@@ -151,6 +152,7 @@ public class MistakeServiceImpl implements MistakeService {
                     depositHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
                     depositHistory.setBonusAmount(BigDecimal.ZERO);
                     depositHistory.setAdmin(adminOpt.get());
+                    depositHistory.setAgent(agent);
                     depositHistoryRepository.save(depositHistory);
                 } else {
                     throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
@@ -174,6 +176,7 @@ public class MistakeServiceImpl implements MistakeService {
                     withdrawHistory.setReason(mistakeReq.getReason());
                     withdrawHistory.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
                     withdrawHistory.setAdmin(adminOpt.get());
+                    withdrawHistory.setAgent(agent);
                     withdrawHistoryRepository.save(withdrawHistory);
                 } else {
                     throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
@@ -198,7 +201,7 @@ public class MistakeServiceImpl implements MistakeService {
             types.add(type.toUpperCase(Locale.ROOT));
         }
 
-        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
+        Optional<Agent> agent = agentRepository.findById(principal.getAgentId());
         if (!agent.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
         }
@@ -208,11 +211,11 @@ public class MistakeServiceImpl implements MistakeService {
         List<WithdrawHistory> listWithdraw = new ArrayList<>();
 
         if (types.contains(Constants.PROBLEM.ADD_CREDIT) || types.contains(Constants.PROBLEM.NO_SLIP)) {
-            list = depositHistoryRepository.findAllByUser_AgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(agent.get(), instantStart, instantEnd, types);
+            list = depositHistoryRepository.findAllByAgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(agent.get(), instantStart, instantEnd, types);
         }
 
         if (types.contains(Constants.PROBLEM.CUT_CREDIT)) {
-            listWithdraw = withdrawHistoryRepository.findAllByUser_AgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(agent.get(), instantStart, instantEnd, Collections.singletonList(Constants.PROBLEM.CUT_CREDIT));
+            listWithdraw = withdrawHistoryRepository.findAllByAgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(agent.get(), instantStart, instantEnd, Collections.singletonList(Constants.PROBLEM.CUT_CREDIT));
         }
 
         List<MistakeSearchListRes> resList = list.stream().map(converter).collect(Collectors.toList());

@@ -45,13 +45,13 @@ public class WalletServiceImpl implements WalletService {
         wallet.setTurnOver(BigDecimal.ZERO);
         wallet.setUser(user);
 
-        Optional<Bank> optionalBank = bankRepository.findFirstByActiveOrderByBankGroupAscBankOrderAsc(true);
+        Optional<Bank> optionalBank = bankRepository.findFirstByBankTypeAndActiveAndAgent_IdOrderByBankGroupAscBankOrderAsc("DEPOSIT", true, user.getAgent().getId());
         if(optionalBank.isPresent()) {
             Bank bank = optionalBank.get();
             wallet.setBank(bank);
         }
 
-        Optional<TrueWallet> optionalTrueWallet = trueWalletRepository.findFirstByActiveOrderByBankGroupAsc(true);
+        Optional<TrueWallet> optionalTrueWallet = trueWalletRepository.findFirstByActiveAndAgent_IdOrderByBankGroupAsc(true, user.getAgent().getId());
         if(optionalTrueWallet.isPresent()) {
             TrueWallet trueWallet = optionalTrueWallet.get();
             wallet.setTrueWallet(trueWallet);
@@ -61,9 +61,9 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public UserWalletResponse getUserWallet(String username, String prefix) {
+    public UserWalletResponse getUserWallet(String username, Long agentId) {
 
-        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
+        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Id(username, agentId);
         if (wallet == null) {
             throw new ErrorMessageException(Constants.ERROR.ERR_00007);
         }

@@ -3,7 +3,6 @@ package com.game.b1ingservice.postgres.entity;
 import com.game.b1ingservice.postgres.entity.audit.DateAudit;
 import com.game.b1ingservice.postgres.entity.audit.UserAuditEmbeddable;
 import lombok.Data;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -34,7 +33,6 @@ public class MasterBank extends DateAudit<String> implements Serializable {
 
   @Column(name = "is_withdraw", columnDefinition = "boolean")
   private boolean isWithdraw;
-
 
 
     @Embedded

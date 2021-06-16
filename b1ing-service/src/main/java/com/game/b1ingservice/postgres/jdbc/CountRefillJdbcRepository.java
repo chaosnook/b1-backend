@@ -36,7 +36,7 @@ public class CountRefillJdbcRepository {
             sql.append("left join deposit_history d on u.id = d.user_id ");
             sql.append("where d.created_date between TO_TIMESTAMP( ? , 'YYYY-MM-DD HH24:MI:SS') ");
             sql.append("and TO_TIMESTAMP( ? , 'YYYY-MM-DD HH24:MI:SS') ");
-            sql.append("and a.prefix = ? ");
+            sql.append("and a.id = ? ");
             sql.append("and d.status = 'SUCCESS' ");
             sql.append("group by u.username) dh on dh.username = us.username ");
             sql.append("left join (select (u.username) as username, count(wh.id) as count, sum(wh.amount) as withdraw  ");
@@ -45,7 +45,7 @@ public class CountRefillJdbcRepository {
             sql.append("left join withdraw_history wh on u.id = wh.user_id ");
             sql.append("where wh.created_date between TO_TIMESTAMP( ? , 'YYYY-MM-DD HH24:MI:SS') ");
             sql.append("and TO_TIMESTAMP( ? , 'YYYY-MM-DD HH24:MI:SS') ");
-            sql.append("and a.prefix = ? ");
+            sql.append("and a.id = ? ");
             sql.append("and wh.status = 'SUCCESS' ");
             sql.append("group by u.username) wh on wh.username = us.username ");
             sql.append("where (dh.count is not null) ");
@@ -54,9 +54,14 @@ public class CountRefillJdbcRepository {
             }
 
             if ((null != countRefillRequest.getUsername()) && ("" != countRefillRequest.getUsername())) {
-                deposit = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(CountRefillDTO.class), countRefillRequest.getListDateFrom(), countRefillRequest.getListDateTo(), principal.getPrefix(), countRefillRequest.getListDateFrom(), countRefillRequest.getListDateTo(), principal.getPrefix(), countRefillRequest.getUsername());
+                deposit = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(CountRefillDTO.class),
+                        countRefillRequest.getListDateFrom(), countRefillRequest.getListDateTo(), principal.getAgentId(),
+                        countRefillRequest.getListDateFrom(), countRefillRequest.getListDateTo(), principal.getAgentId(),
+                        countRefillRequest.getUsername());
             } else {
-                deposit = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(CountRefillDTO.class), countRefillRequest.getListDateFrom(), countRefillRequest.getListDateTo(), principal.getPrefix(), countRefillRequest.getListDateFrom(), countRefillRequest.getListDateTo(), principal.getPrefix());
+                deposit = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(CountRefillDTO.class),
+                        countRefillRequest.getListDateFrom(), countRefillRequest.getListDateTo(), principal.getAgentId(),
+                        countRefillRequest.getListDateFrom(), countRefillRequest.getListDateTo(), principal.getAgentId());
             }
 
         } catch (Exception e) {

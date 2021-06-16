@@ -6,14 +6,10 @@ import com.game.b1ingservice.payload.Url.UrlResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.Config;
-import com.game.b1ingservice.postgres.entity.TrueWallet;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.ConfigRepository;
 import com.game.b1ingservice.service.UrlService;
-import com.game.b1ingservice.utils.ResponseHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,23 +19,26 @@ import java.util.Optional;
 @Service
 public class UrlServiceImpl implements UrlService {
     @Autowired
-    ConfigRepository configRepository;
+    private ConfigRepository configRepository;
 
     @Autowired
-    AgentRepository agentRepository;
+    private AgentRepository agentRepository;
 
     @Override
-    public void createUrl(UrlRequest urlRequest) {
+    public void createUrl(UrlRequest urlRequest, Long agentId) {
+        Optional<Agent> agent = agentRepository.findById(agentId);
+
         Config config = new Config();
         config.setParameter(urlRequest.getParameter());
         config.setType(urlRequest.getType());
         config.setValue(urlRequest.getValue());
+        config.setAgent(agent.get());
         configRepository.save(config);
     }
 
     @Override
     public List<UrlResponse> getUrl(UserPrincipal principal) {
-        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
+        Optional<Agent> agent = agentRepository.findById(principal.getAgentId());
         List<UrlResponse> responseList = new ArrayList<>();
         List<Config> configList = configRepository.findAllByTypeAndAgent(Constants.AGENT_CONFIG.URL_CONFIG, agent.get());
 
@@ -55,9 +54,9 @@ public class UrlServiceImpl implements UrlService {
     }
 
     @Override
-    public void updateUrl(UrlRequest urlRequest) {
+    public void updateUrl(UrlRequest urlRequest, Long agentId) {
         Optional<Config> opt = configRepository.findById(urlRequest.getId());
-        if(opt.isPresent()){
+        if (opt.isPresent()) {
             Config config = opt.get();
             config.setParameter(urlRequest.getParameter());
             config.setValue(urlRequest.getValue());

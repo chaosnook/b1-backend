@@ -21,8 +21,7 @@ public class WebUserRequestValidator extends CommonValidator {
         } else if(!isNumber(req.getTel())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01114);
 
-            //TODO change to check by username
-        } else if(webUserRepository.existsByTel(req.getTel())) {
+        } else if(webUserRepository.existsByTelAndAgent_Id(req.getTel(), req.getAgentId())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01107);
         }
 
@@ -40,6 +39,8 @@ public class WebUserRequestValidator extends CommonValidator {
             throw new ErrorMessageException(Constants.ERROR.ERR_01121);
         } else if(!isNumber(req.getAccountNumber())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01122);
+        } else if (webUserRepository.existsByAccountNumberAndAgent_Id(req.getAccountNumber(), req.getAgentId())) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_01135);
         }
 
         if(StringUtils.isEmpty(req.getFirstName())) {

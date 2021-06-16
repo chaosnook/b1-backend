@@ -1,7 +1,6 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
-import com.game.b1ingservice.payload.admin.AddCreditRequest;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.misktake.*;
 import com.game.b1ingservice.service.AdminService;
@@ -37,6 +36,7 @@ public class MistakeController {
     @PostMapping(value = "/mistake/search", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> mistake(@RequestBody MistakeSearchReq req, @AuthenticationPrincipal UserPrincipal principal) {
         List<MistakeSearchListRes> resList = mistakeService.findByCriteria(req, principal);
+
         MistakeSearchSummaryRes summaryRes = mistakeService.summaryData(resList);
         MistakeSearchRes mistakeSearchRes = new MistakeSearchRes();
         mistakeSearchRes.setList(resList);

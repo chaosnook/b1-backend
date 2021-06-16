@@ -26,6 +26,12 @@ public class AffiliateUser extends DateAudit<String> implements Serializable {
     @Column(name = "affiliate", columnDefinition = "character varying(255)")
     private String affiliate;
 
+    @ToString.Exclude
+    @JsonIgnore
+    @JoinColumn(name = "agent_id", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY)
+    private Agent agent;
+
     @JsonIgnore
     @ToString.Exclude
     @JoinColumn(name = "user_id", referencedColumnName = "id")

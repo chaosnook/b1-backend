@@ -7,7 +7,6 @@ import com.game.b1ingservice.payload.bankdeposit.BankDepositList;
 import com.game.b1ingservice.payload.bankdeposit.BankDepositRequest;
 import com.game.b1ingservice.payload.bankdeposit.BankDepositResponse;
 import com.game.b1ingservice.postgres.entity.Bank;
-import com.game.b1ingservice.postgres.entity.TrueWallet;
 import com.game.b1ingservice.postgres.entity.Wallet;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.repository.BankRepository;
@@ -35,14 +34,16 @@ public class BankDepositServiceImpl implements BankDepositService {
     private WebUserRepository webUserRepository;
 
     @Override
-    public List<BankDepositList> listActiveBank() {
-        List<BankDepositList> list = bankRepository.findAllByActiveOrderByBankGroupAscBankOrderAsc(true).stream().map(converterBank).collect(Collectors.toList());
+    public List<BankDepositList> listActiveBank(Long agentId) {
+        List<BankDepositList> list = bankRepository.findAllByActiveAndAgent_IdOrderByBankGroupAscBankOrderAsc(true, agentId)
+                .stream().map(converterBank).collect(Collectors.toList());
         return list;
     }
 
     @Override
-    public List<BankDepositList> listUsageBank() {
-        List<BankDepositList> list = bankRepository.findUsageBank().stream().map(converterBank).collect(Collectors.toList());
+    public List<BankDepositList> listUsageBank(Long agentId) {
+        List<BankDepositList> list = bankRepository.findUsageBank(agentId)
+                .stream().map(converterBank).collect(Collectors.toList());
         return list;
     }
 
@@ -64,13 +65,13 @@ public class BankDepositServiceImpl implements BankDepositService {
     }
 
     @Override
-    public void updateBankDeposit(BankDepositRequest request) {
+    public void updateBankDeposit(BankDepositRequest request, Long agentId) {
         Optional<Bank> bank = bankRepository.findById(request.getBankId());
         if (!bank.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_04000);
         }
 
-        Optional<WebUser> webUser = webUserRepository.findFirstByUsernameAndAgent_Prefix(request.getUsername(), request.getPrefix());
+        Optional<WebUser> webUser = webUserRepository.findFirstByUsernameAndAgent_Id(request.getUsername(), agentId);
         if (!webUser.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01127);
         }
@@ -82,12 +83,12 @@ public class BankDepositServiceImpl implements BankDepositService {
     }
 
     @Override
-    public void updateAllBankDeposit(BankDepositAllRequest request) {
-        Optional<Bank> trueWalletFrom = bankRepository.findById(request.getBankIdFrom());
+    public void updateAllBankDeposit(BankDepositAllRequest request, Long agentId) {
+        Optional<Bank> trueWalletFrom = bankRepository.findByIdAndAgent_Id(request.getBankIdFrom() , agentId);
         if (!trueWalletFrom.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_04000);
         }
-        Optional<Bank> trueWalletTo = bankRepository.findById(request.getBankIdTo());
+        Optional<Bank> trueWalletTo = bankRepository.findByIdAndAgent_Id(request.getBankIdTo(), agentId);
         if (!trueWalletTo.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_04000);
         }

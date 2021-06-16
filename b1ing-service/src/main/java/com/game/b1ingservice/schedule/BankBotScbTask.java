@@ -45,16 +45,17 @@ public class BankBotScbTask {
 
 
     @Scheduled(cron = "${bank.schedule.cron}")
-     @SchedulerLock(name = "scheduleAutoBankBotTask",
-        lockAtLeastForString = "PT30S", lockAtMostForString = "PT5M")
+    @SchedulerLock(name = "scheduleAutoBankBotTask",
+            lockAtLeastForString = "PT30S", lockAtMostForString = "PT5M")
     public void scheduleAutoBankBotTask() {
-        try{
+        try {
             TimeUnit.SECONDS.sleep(new Random().nextInt(5));
             List<Bank> lists = bankRepository.findByBankTypeAndActive("DEPOSIT", true);
             for (Bank bank : lists) {
+
                 if (!bank.getBotIp().startsWith("100.101.1")) {
                     List<BankBotScbTransactionResponse> transactionList = fetchScbTransaction(bank);
-                    log.info("sbc transaction : {}" , transactionList);
+                    log.info("sbc transaction : {}", transactionList);
                     for (BankBotScbTransactionResponse transaction : transactionList) {
                         BankBotAddCreditRequest request = new BankBotAddCreditRequest();
                         request.setBotType("SCB");
@@ -66,7 +67,7 @@ public class BankBotScbTask {
                             Date d = sdf.parse(transaction.getTxnDateTime());
                             request.setTransactionDate(d.toInstant());
                         } catch (Exception e) {
-                            log.error("scheduleFixedRateTask date " , e);
+                            log.error("scheduleFixedRateTask date ", e);
                         }
                         request.setType("Deposit");
                         request.setRemark(transaction.getTxnRemark().trim());
@@ -76,11 +77,12 @@ public class BankBotScbTask {
                         request = extractAccount(request);
                         log.info(request.toString());
 
-                        bankBotService.addCredit(request, bank.getPrefix());
+                        bankBotService.addCredit(request, bank.getAgent().getId());
                     }
                 }
+
             }
-        }catch (InterruptedException e){
+        } catch (InterruptedException e) {
             log.error(e.getLocalizedMessage());
         }
 

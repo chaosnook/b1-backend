@@ -99,13 +99,13 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Override
     public List<PromotionResponse> getPromotion(UserPrincipal principal) {
-        return promotionRepository.findAllByOrderByIdDesc().stream().map(converter).collect(Collectors.toList());
+        return promotionRepository.findAllByAgent_IdOrderByIdDesc(principal.getAgentId()).stream().map(converter).collect(Collectors.toList());
     }
 
     @Override
     public void updatePromotion(Long id, PromotionUpdate promotionUpdate, UserPrincipal principal){
 
-        Optional<Agent> opt = agentRepository.findByPrefix(principal.getPrefix());
+        Optional<Agent> opt = agentRepository.findById(principal.getAgentId());
         Optional<AdminUser> optAdmin = adminUserRepository.findById(principal.getId());
         if (!opt.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
@@ -169,13 +169,13 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    public List<PromotionUserRes> getUserPromotion(String prefix) {
-        return promotionRepository.findAllByAgent_PrefixAndActive(prefix , true).stream().map(userConverter).collect(Collectors.toList());
+    public List<PromotionUserRes> getUserPromotion(Long agentId) {
+        return promotionRepository.findAllByAgent_IdAndActive(agentId , true).stream().map(userConverter).collect(Collectors.toList());
     }
 
     @Override
-    public List<Promotion> getEffectivePromotion(PromotionEffectiveRequest request) {
-        List<Promotion> promotionList = promotionRepository.findByMaxTopupAndMinTopup(request.getAmount());
+    public List<Promotion> getEffectivePromotion(PromotionEffectiveRequest request, Long agentId) {
+        List<Promotion> promotionList = promotionRepository.findByMaxTopupAndMinTopupAndAgent(request.getAmount(), agentId);
         List<Promotion> effectivePromotion = new ArrayList<>();
         promotionList.parallelStream().forEach(promotion -> {
             if (promotion.getTypePromotion().equals(Constants.PROMOTION_TYPE.FIRSTTIME)) {

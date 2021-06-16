@@ -2,7 +2,6 @@ package com.game.b1ingservice.postgres.jdbc;
 
 import com.game.b1ingservice.payload.admin.ProfitReportRequest;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
-import com.game.b1ingservice.payload.webuser.WebUserHistoryRequest;
 import com.game.b1ingservice.postgres.jdbc.dto.ProfitReport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +28,11 @@ public class ProfitReportJdbcRepository {
                     "    extract(day from created_date) as labels , " +
                     "    sum(amount) as data " +
                     "from deposit_history  " +
-                    "where to_char(created_date, 'YYYY-MM') = ? " +
+                    "where to_char(created_date, 'YYYY-MM') = ? and agent_id = ?" +
                     "group by extract(day from created_date) " +
                     "order by labels asc";
 
-            deposit = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(ProfitReport.class), profitReportRequest.getValue());
+            deposit = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(ProfitReport.class), profitReportRequest.getValue(), principal.getAgentId());
         } catch (Exception e) {
             log.error("profitReport", e);
         }
@@ -47,11 +46,11 @@ public class ProfitReportJdbcRepository {
                     "    extract(day from created_date) as labels , " +
                     "    sum(amount) as data " +
                     "from withdraw_history  " +
-                    "where to_char(created_date, 'YYYY-MM') = ? " +
+                    "where to_char(created_date, 'YYYY-MM') = ? and agent_id = ?" +
                     "group by extract(day from created_date) " +
                     "order by labels asc";
 
-            withdraw = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(ProfitReport.class), profitReportRequest.getValue());
+            withdraw = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(ProfitReport.class), profitReportRequest.getValue(), principal.getAgentId());
         } catch (Exception e) {
             log.error("profitReport", e);
         }

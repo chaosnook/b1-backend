@@ -36,6 +36,7 @@ public class ValidationInterceptor implements HandlerInterceptor {
 
         String prefix = "";
         Long userId = 0L;
+        String type = jwtTokenUtil.getDataToken(token, "type");
         try {
             prefix = jwtTokenUtil.getDataToken(token, "prefix");
             userId = Long.valueOf(jwtTokenUtil.getDataToken(token, "userId"));
@@ -43,10 +44,12 @@ public class ValidationInterceptor implements HandlerInterceptor {
             //ignore
         }
 
-        boolean checkAdmin = adminService.checkAdmin(userId, prefix);
-        if (checkAdmin) {
-            if (!adminService.checkLastUQToken(userId, jwtTokenUtil.getDataToken(token, "uq"))) {
-                throw new DuplicateLoginException();
+        if (type != null) {
+            boolean checkAdmin = adminService.checkAdmin(userId, prefix);
+            if (checkAdmin) {
+                if (!adminService.checkLastUQToken(userId, jwtTokenUtil.getDataToken(token, "uq"))) {
+                    throw new DuplicateLoginException();
+                }
             }
         }
 

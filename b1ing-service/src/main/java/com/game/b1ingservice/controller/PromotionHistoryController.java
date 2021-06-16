@@ -29,7 +29,7 @@ public class PromotionHistoryController {
     private PromotionHistoryService promotionHistoryService;
 
     @PostMapping(value = "/search/summary/promotionHistory",
-             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> searchSummaryPromotionHistory(@RequestBody PromotionHistorySearchRequest req, @AuthenticationPrincipal UserPrincipal principal) {
         req.setAgentId(principal.getAgentId());
         SearchPromotionHistorySpecification specification = new SearchPromotionHistorySpecification(req);
@@ -38,7 +38,7 @@ public class PromotionHistoryController {
 
         BigDecimal summary = promotionHistoryService.totalBonus(searchResponse);
 
-        return ResponseHelper.successListWithSummary(searchResponse,summary, "data", Constants.MESSAGE.MSG_00000.msg);
+        return ResponseHelper.successListWithSummary(searchResponse, summary, "data", Constants.MESSAGE.MSG_00000.msg);
     }
 
 }

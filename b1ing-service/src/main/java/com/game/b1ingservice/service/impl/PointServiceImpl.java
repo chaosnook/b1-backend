@@ -50,8 +50,8 @@ public class PointServiceImpl implements PointService {
     private LineNotifyService lineNotifyService;
 
     @Override
-    public PointTransResponse pointTransfer(PointTransRequest transRequest, String username, String prefix) {
-        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
+    public PointTransResponse pointTransfer(PointTransRequest transRequest, String username, Long agentId) {
+        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Id(username, agentId);
         if (wallet == null) {
             throw new ErrorMessageException(Constants.ERROR.ERR_00011);
         }
@@ -94,8 +94,8 @@ public class PointServiceImpl implements PointService {
     }
 
     @Override
-    public PointTransResponse earnPoint(BigDecimal point, Long depositUser, Long userId, String prefix, BigDecimal maxWallet) {
-        Wallet wallet = walletRepository.findFirstByUser_IdAndUser_Agent_Prefix(userId, prefix);
+    public PointTransResponse earnPoint(BigDecimal point, Long depositUser, Long userId, Long agentId, BigDecimal maxWallet) {
+        Wallet wallet = walletRepository.findFirstByUser_IdAndUser_Agent_Id(userId, agentId);
         if (wallet == null) {
             throw new ErrorMessageException(Constants.ERROR.ERR_00011);
         }
@@ -122,13 +122,6 @@ public class PointServiceImpl implements PointService {
         historyDTO.setWebUserDep(webUserDep);
 
         historyDTO = pointHistoryService.create(historyDTO, webUser);
-
-//        if (wallet.getPoint().compareTo(point) < 0) {
-//            historyDTO.setStatus(Constants.POINT_TRANS_STATUS.ERROR);
-//            historyDTO.setReason(Constants.ERROR.ERR_04002.msg);
-//            pointHistoryService.updateStatus(historyDTO);
-//            throw new ErrorMessageException(Constants.ERROR.ERR_04002);
-//        }
 
         int updated = this.earnPoint(point, webUser.getId());
 

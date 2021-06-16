@@ -11,5 +11,5 @@ import lombok.ToString;
 public class WalletDepositRequest extends SearchPageable {
     String username;
     Long trueWalletId;
-    String prefix;
+    Long agentId;
 }

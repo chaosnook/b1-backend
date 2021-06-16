@@ -23,7 +23,7 @@ public class RegisterValidator extends CommonValidator {
         RegisterRequest req = RegisterRequest.class.cast(o);
         if (StringUtils.isEmpty(req.getUsername()))
             throw new ErrorMessageException(Constants.ERROR.ERR_00003);
-        else if (adminUserRepository.existsByUsername(req.getUsername()))
+        else if (adminUserRepository.existsByUsernameAndAgent_Prefix(req.getUsername() , req.getPrefix()))
             throw new ErrorMessageException(Constants.ERROR.ERR_00004);
         if (StringUtils.isEmpty(req.getPassword()))
             throw new ErrorMessageException(Constants.ERROR.ERR_00005);

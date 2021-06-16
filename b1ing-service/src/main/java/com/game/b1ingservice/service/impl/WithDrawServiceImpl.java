@@ -50,14 +50,14 @@ public class WithDrawServiceImpl implements WithDrawService {
     private LineNotifyService lineNotifyService;
 
     @Override
-    public WithDrawResponse withdraw(WithDrawRequest withDrawRequest, String username, String prefix) {
-        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
+    public WithDrawResponse withdraw(WithDrawRequest withDrawRequest, String username, Long agentId) {
+        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Id(username, agentId);
         if (wallet == null) {
             throw new ErrorMessageException(Constants.ERROR.ERR_00011);
         }
 
         WebUser webUser = wallet.getUser();
-
+        Agent agent = webUser.getAgent();
         BigDecimal creditWithDraw = withDrawRequest.getCreditWithDraw();
 
         WithdrawHistory withdrawHistory = new WithdrawHistory();
@@ -67,6 +67,7 @@ public class WithDrawServiceImpl implements WithDrawService {
         withdrawHistory.setIsAuto(false);
         withdrawHistory.setBank(wallet.getBank());
         withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.PENDING);
+        withdrawHistory.setAgent(agent);
         withdrawHistory = withdrawHistoryService.saveHistory(withdrawHistory);
 
         if (wallet.getCredit().compareTo(creditWithDraw) < 0) {
@@ -76,7 +77,7 @@ public class WithDrawServiceImpl implements WithDrawService {
             throw new ErrorMessageException(Constants.ERROR.ERR_04005);
         }
 
-        Agent agent = webUser.getAgent();
+
         Optional<Config> minWithdrawConf = configRepository.findFirstByParameterAndAgent(MIN_WITHDRAW_CREDIT, agent);
         boolean isAuto = true;
         if (minWithdrawConf.isPresent()) {
@@ -111,7 +112,7 @@ public class WithDrawServiceImpl implements WithDrawService {
                 request.setAmount(creditWithDraw);
                 request.setAccountTo(webUser.getAccountNumber());
                 request.setBankCode(webUser.getBankName());
-                BankBotScbWithdrawCreditResponse bankBotResult = bankBotService.withDrawCredit(request);
+                BankBotScbWithdrawCreditResponse bankBotResult = bankBotService.withDrawCredit(request, agent.getId());
                 log.info("bankbot withdraw response {}", bankBotResult);
                 withdrawHistory.setIsAuto(true);
                 if (bankBotResult.getStatus()) {

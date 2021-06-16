@@ -22,23 +22,21 @@ public interface WithdrawHistoryRepository extends JpaRepository<WithdrawHistory
 
     List<WithdrawHistory> findByUser_IdAndUser_Agent_PrefixOrderByCreatedDateDesc(Long id, String prefix);
 
-    List<WithdrawHistory> findAllByUser_AgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(Agent agent, Instant instantStart, Instant instantEnd, List<String> types);
+    List<WithdrawHistory> findAllByAgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(Agent agent, Instant instantStart, Instant instantEnd, List<String> types);
 
-    List<WithdrawHistory> findByIdAndAmount(Long id, BigDecimal amount);
 
-    WithdrawHistory findFirstById(Long id);
-
-    WithdrawHistory findFirstByIdAndStatus(Long id, String status);
+    WithdrawHistory findFirstByIdAndStatusAndAgent_Id(Long id, String status, Long agentId);
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE withdraw_history SET status = ? WHERE id = ? AND amount = ?", nativeQuery = true)
-    int updateStatus(String status, Long id, BigDecimal amount);
+    @Query(value = "UPDATE withdraw_history SET status = ? WHERE id = ? AND amount = ? AND agent_id = ?", nativeQuery = true)
+    int updateStatus(String status, Long id, BigDecimal amount, Long agentId);
 
     @Transactional
     @Modifying
     @Query(value = "UPDATE withdraw_history SET status = ?, reason = ?, isAuto = ? WHERE id = ? AND amount = ?", nativeQuery = true)
     int updateInfoWithdrawManual(String status, String reason, Long id, boolean isAuto, BigDecimal amount);
 
-    Page<WithdrawHistory> findByUser_Agent_PrefixAndStatusOrderByCreatedDateDesc(String prefix, String status, Pageable pageable);
+
+    Page<WithdrawHistory> findByUser_Agent_IdAndStatusOrderByCreatedDateDesc(Long agentId, String status, Pageable pageable);
 }

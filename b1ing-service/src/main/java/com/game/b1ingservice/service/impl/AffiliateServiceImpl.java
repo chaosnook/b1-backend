@@ -49,17 +49,18 @@ public class AffiliateServiceImpl implements AffiliateService {
     private PointService pointService;
 
     @Override
-    public AffiliateResult registerAffiliate(WebUser userResp, String affiliate) {
+    public AffiliateResult registerAffiliate(WebUser userResp, String affiliate, Agent agent) {
         AffiliateResult result = new AffiliateResult();
         try {
             AffiliateUser affiliateUser = new AffiliateUser();
-            Optional<WebUser> opt = webUserRepository.findByUsernameOrTel(affiliate, affiliate);
+            Optional<WebUser> opt = webUserRepository.findByUsernameOrTelAndAgent_Id(affiliate, affiliate, agent.getId());
             if (opt.isPresent()) {
                 WebUser webUser = opt.get();
                 affiliateUser.setAffiliateUserTd(webUser.getId());
             }
             affiliateUser.setAffiliate(affiliate);
             affiliateUser.setUser(userResp);
+            affiliateUser.setAgent(agent);
             affiliateUserRepository.save(affiliateUser);
 
             result.setStatus(true);
@@ -72,11 +73,11 @@ public class AffiliateServiceImpl implements AffiliateService {
     }
 
     @Override
-    public AffiliateResult earnPoint(Long userDepos, BigDecimal credit, String prefix) {
+    public AffiliateResult earnPoint(Long userDepos, BigDecimal credit, Long agentId) {
         AffiliateResult result = new AffiliateResult();
         List<AffiliateUser> users = affiliateUserRepository.findAllByUser_Id(userDepos);
         if (!users.isEmpty()) {
-            Affiliate affiliate = affiliateRepository.findFirstByAgent_PrefixAndActiveTrue(prefix);
+            Affiliate affiliate = affiliateRepository.findFirstByAgent_IdAndActiveTrue(agentId);
             if (affiliate != null) {
 
                 List<AffiliateCondition> conditionList = affiliate.getCondition();
@@ -127,10 +128,10 @@ public class AffiliateServiceImpl implements AffiliateService {
                     boolean isForever = affiliate.isForever();
                     if (!isForever) {
                         if (pointHistoryService.checkNonForever(userDepos, affUserId) == 0) {
-                            pointService.earnPoint(bonusNo.setScale(2, RoundingMode.HALF_DOWN), userDepos, affUserId, prefix, affiliate.getMaxWallet());
+                            pointService.earnPoint(bonusNo.setScale(2, RoundingMode.HALF_DOWN), userDepos, affUserId, agentId, affiliate.getMaxWallet());
                         }
                     } else {
-                        pointService.earnPoint(bonusNo.setScale(2, RoundingMode.HALF_DOWN), userDepos, affUserId, prefix, affiliate.getMaxWallet());
+                        pointService.earnPoint(bonusNo.setScale(2, RoundingMode.HALF_DOWN), userDepos, affUserId, agentId, affiliate.getMaxWallet());
                     }
 
                 }
@@ -144,9 +145,9 @@ public class AffiliateServiceImpl implements AffiliateService {
 
     @Transactional
     @Override
-    public void createOrUpdateAffiliate(AffiliateDTO request, String prefix) {
+    public void createOrUpdateAffiliate(AffiliateDTO request, Long agentId) {
 
-        Optional<Agent> agent = agentRepository.findByPrefix(prefix);
+        Optional<Agent> agent = agentRepository.findById(agentId);
         if (!agent.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
         }
@@ -191,8 +192,8 @@ public class AffiliateServiceImpl implements AffiliateService {
     }
 
     @Override
-    public AffiliateDTO getAffiliateByPrefix(String prefix) {
-        Affiliate affiliate = affiliateRepository.findFirstByAgent_Prefix(prefix);
+    public AffiliateDTO getAffiliateByPrefix(Long agentId) {
+        Affiliate affiliate = affiliateRepository.findFirstByAgent_Id(agentId);
         AffiliateDTO affRes = new AffiliateDTO();
         if (affiliate != null) {
             affRes.setId(affiliate.getId());
@@ -222,9 +223,9 @@ public class AffiliateServiceImpl implements AffiliateService {
     }
 
     @Override
-    public AffiliateImgResponse getImage(String prefix) {
+    public AffiliateImgResponse getImage(Long agentId) {
         AffiliateImgResponse response = new AffiliateImgResponse();
-        Affiliate affiliate = affiliateRepository.findFirstByAgent_Prefix(prefix);
+        Affiliate affiliate = affiliateRepository.findFirstByAgent_Id(agentId);
         if (affiliate != null) {
             response.setImage(ServletUriComponentsBuilder.fromCurrentContextPath()
                     .path("/api/file/downloadFile/")

@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 public interface WalletService {
     void createWallet(WalletRequest req, WebUser user);
 
-    UserWalletResponse getUserWallet(String username, String prefix);
+    UserWalletResponse getUserWallet(String username, Long agentId);
 
     void minusTurnOver(Long id, BigDecimal afterAmount);
 }

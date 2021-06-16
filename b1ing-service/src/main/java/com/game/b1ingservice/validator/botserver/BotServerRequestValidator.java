@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BotServerRequestValidator extends CommonValidator {
-   // @Autowired
-   // private BotServerRepository botServerRepository;
+    @Autowired
+    private BotServerRepository botServerRepository;
 
     public void validate(BotServerRequest req){
         if(StringUtils.isEmpty(req.getBotIp()))

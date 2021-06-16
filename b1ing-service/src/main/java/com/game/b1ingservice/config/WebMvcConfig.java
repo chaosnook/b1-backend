@@ -12,7 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    private final long MAX_AGE_SECS = 3600;
+    private static final long MAX_AGE_SECS = 3600;
 
     private final ValidationInterceptor validationInterceptor;
 
@@ -56,8 +56,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .order(1);
 
     }
-
-    //    cherry pick test2
-
 
 }

@@ -129,7 +129,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     @Override
     public List<DepositHistoryTop20Resp> findListByUsername(String username, UserPrincipal principal) {
 
-       List<DepositHistoryTop20Dto> depositDtos = depositHistoryJdbcRepository.findTop20DepositHistory(username, principal.getPrefix());
+       List<DepositHistoryTop20Dto> depositDtos = depositHistoryJdbcRepository.findTop20DepositHistory(username, principal.getAgentId());
 
        List<DepositHistoryTop20Resp> result = new ArrayList<>();
        for(DepositHistoryTop20Dto depositDto: depositDtos) {
@@ -190,12 +190,12 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
         ProfitAndLossResp resp = new ProfitAndLossResp();
 
-        List<SummaryDeposit> listDeposit = profitLossJdbcRepository.sumDeposit(req, principal.getPrefix());
+        List<SummaryDeposit> listDeposit = profitLossJdbcRepository.sumDeposit(req, principal.getAgentId());
         if(!listDeposit.isEmpty()) {
             SummaryDeposit deposit = listDeposit.get(0);
 
             if(null == deposit.getDeposit()) {
-                resp.setDeposit(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
+                resp.setDeposit(new BigDecimal(0).setScale(2, RoundingMode.HALF_DOWN));
             } else {
                 resp.setDeposit(deposit.getDeposit());
             }
@@ -203,37 +203,37 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
             if(null == deposit.getBonus()) {
                 resp.setBonus("0.00(0.00%)");
             } else {
-                String sum = (deposit.getBonus().divide(resp.getDeposit(),2 , RoundingMode.HALF_UP)).multiply(new BigDecimal(100)).toString();
-                String result = deposit.getBonus().setScale(2, RoundingMode.HALF_UP) + "(" + sum +  "%)" ;
+                String sum = (deposit.getBonus().divide(resp.getDeposit(),2 , RoundingMode.HALF_DOWN)).multiply(new BigDecimal(100)).toString();
+                String result = deposit.getBonus().setScale(2, RoundingMode.HALF_DOWN) + "(" + sum +  "%)" ;
                 resp.setBonus(result);
             }
 
             if(null == deposit.getDepositBonus()) {
-                resp.setDepositBonus(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
+                resp.setDepositBonus(new BigDecimal(0).setScale(2, RoundingMode.HALF_DOWN));
             } else {
                 resp.setDepositBonus(deposit.getDepositBonus());
             }
         } else {
-            resp.setDeposit(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
+            resp.setDeposit(new BigDecimal(0).setScale(2, RoundingMode.HALF_DOWN));
             resp.setBonus("0.00(0.00%)");
-            resp.setDepositBonus(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
+            resp.setDepositBonus(new BigDecimal(0).setScale(2, RoundingMode.HALF_DOWN));
         }
 
 
-        List<SummaryWithdraw> listWithdraw = profitLossJdbcRepository.sumWithdraw(req, principal.getPrefix());
+        List<SummaryWithdraw> listWithdraw = profitLossJdbcRepository.sumWithdraw(req, principal.getAgentId());
         if(!listWithdraw.isEmpty()) {
             SummaryWithdraw withdraw = listWithdraw.get(0);
             if(null == withdraw.getWithdraw()) {
-                resp.setWithdraw(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
+                resp.setWithdraw(new BigDecimal(0).setScale(2, RoundingMode.HALF_DOWN));
             } else {
                 resp.setWithdraw(withdraw.getWithdraw());
             }
 
-            BigDecimal sum = resp.getDeposit().subtract(resp.getWithdraw()).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal sum = resp.getDeposit().subtract(resp.getWithdraw()).setScale(2, RoundingMode.HALF_DOWN);
             resp.setProfitAndLoss(sum);
         } else {
-            resp.setWithdraw(new BigDecimal(0).setScale(2, RoundingMode.HALF_UP));
-            BigDecimal sum = resp.getDeposit().subtract(resp.getWithdraw()).setScale(2, RoundingMode.HALF_UP);
+            resp.setWithdraw(new BigDecimal(0).setScale(2, RoundingMode.HALF_DOWN));
+            BigDecimal sum = resp.getDeposit().subtract(resp.getWithdraw()).setScale(2, RoundingMode.HALF_DOWN);
             resp.setProfitAndLoss(sum);
         }
 
@@ -242,12 +242,12 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     }
 
     @Override
-    public DepositResponse updateBlockAutoTransaction(DepositBlockStatusReq req, String usernameAdmin) {
+    public DepositResponse updateBlockAutoTransaction(DepositBlockStatusReq req, String usernameAdmin, Long agentId) {
         DepositResponse response = new DepositResponse();
         response.setStatus(true);
         try {
             String status = req.getStatus();
-            DepositHistory history = depositHistoryRepository.findFirstById(req.getDepositId());
+            DepositHistory history = depositHistoryRepository.findFirstByIdAndStatusAndAgent_Id(req.getDepositId(), DEPOSIT_STATUS.BLOCK_AUTO, agentId);
             if (history == null) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_00011);
             }
@@ -261,27 +261,28 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
             if (SUCCESS.equals(status)) {
                 // เติม credit ให้ลูกค้า
                 DepositReq depositReq = DepositReq.builder().amount(history.getAmount().add(history.getBonusAmount()).setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build();
-                AmbResponse<DepositRes> result =  ambService.deposit(depositReq, webUser.getUsernameAmb(), webUser.getAgent());
+                AmbResponse<DepositRes> result =  ambService.deposit(depositReq, webUser.getUsernameAmb(), agent);
                 log.info("amb response : {}", result);
                 if (0 == result.getCode()) {
 
                     walletRepository.depositCreditAndTurnOverNonMultiply(history.getAmount().add(history.getBonusAmount()), history.getTurnOver(), webUser.getId());
                     webUserRepository.updateDepositRef(result.getResult().getRef(), webUser.getId());
                     // check affiliate
-                    affiliateService.earnPoint(webUser.getId(), history.getAmount(), webUser.getAgent().getPrefix());
+                    affiliateService.earnPoint(webUser.getId(), history.getAmount(), agent.getId());
 
                     history.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
 
                     lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_DEPOSIT,
                             webUser.getUsername(),
                             history.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
-                            webUser.getAgent().getLineToken());
+                            agent.getLineToken());
                 } else {
                     history.setStatus(Constants.DEPOSIT_STATUS.ERROR);
                     history.setReason("Can't add credit at amb api");
                 }
 
-            } else if (REJECT.equals(status)) {
+            }
+            else if (REJECT.equals(status)) {
                 // is reject
                 // ไม่คืน เงิน
                 history.setStatus(REJECT);
@@ -290,7 +291,8 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                         history.getAmount()),
                         agent.getLineTokenWithdraw());
 
-            } else if (REJECT_N_REFUND.equals(status)) {
+            }
+            else if (REJECT_N_REFUND.equals(status)) {
                 // is reject
                 // โอนเงินคืน
                 BankBotScbWithdrawCreditRequest request = new BankBotScbWithdrawCreditRequest();
@@ -298,7 +300,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                 request.setAccountTo(webUser.getAccountNumber());
                 request.setBankCode(webUser.getBankName());
 
-                BankBotScbWithdrawCreditResponse bankBotResult = bankBotService.withDrawCredit(request);
+                BankBotScbWithdrawCreditResponse bankBotResult = bankBotService.withDrawCredit(request, agent.getId());
                 if (bankBotResult.getStatus()) {
                     history.setStatus(REJECT_N_REFUND);
                     response.setStatus(true);
@@ -327,11 +329,11 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     }
 
     @Override
-    public DepositResponse updateNoteSureTransaction(DepositNotSureStatusReq req, String usernameAdmin, String prefix) {
+    public DepositResponse updateNoteSureTransaction(DepositNotSureStatusReq req, String usernameAdmin, Long agentId) {
         DepositResponse response = new DepositResponse();
         response.setStatus(true);
         try {
-            DepositHistory history = depositHistoryRepository.findFirstByIdAndStatus(req.getDepositId(), NOT_SURE);
+            DepositHistory history = depositHistoryRepository.findFirstByIdAndStatusAndAgent_Id(req.getDepositId(), NOT_SURE, agentId);
             if (history == null) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_00011);
             }
@@ -341,7 +343,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
             // success => เติม credit ให้ user
             if (SUCCESS.equals(status)) {
-                Optional<WebUser> webUserOpt = webUserRepository.findFirstByUsernameAndAgent_Prefix(req.getUsername().toLowerCase(Locale.ROOT), prefix);
+                Optional<WebUser> webUserOpt = webUserRepository.findFirstByUsernameAndAgent_Id(req.getUsername().toLowerCase(Locale.ROOT), agentId);
                 if (!webUserOpt.isPresent()) {
                     throw new ErrorMessageException(Constants.ERROR.ERR_00012);
                 }
@@ -355,7 +357,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                     walletRepository.depositCreditAndTurnOverNonMultiply(history.getAmount().add(history.getBonusAmount()), history.getTurnOver(), webUser.getId());
                     webUserRepository.updateDepositRef(result.getResult().getRef(), webUser.getId());
                     // check affiliate
-                    affiliateService.earnPoint(webUser.getId(), history.getAmount(), webUser.getAgent().getPrefix());
+                    affiliateService.earnPoint(webUser.getId(), history.getAmount(), webUser.getAgent().getId());
 
                     history.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
 
@@ -384,14 +386,13 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     }
 
     @Override
-    public List<DepositHistoryTopAll20Resp> findLast20Transaction(String prefix) {
+    public List<DepositHistoryTopAll20Resp> findLast20Transaction(Long agentId) {
 
-        Page<DepositHistory> list = depositHistoryRepository.findByUser_Agent_PrefixAndStatusOrderByCreatedDateDesc(prefix, SUCCESS,
+        Page<DepositHistory> list = depositHistoryRepository.findByAgent_IdAndStatusOrderByCreatedDateDesc(agentId, SUCCESS,
                 PageRequest.of(0, 20));
 
         List<DepositHistoryTopAll20Resp> result = new ArrayList<>();
         if (!list.isEmpty()) {
-            // todo check null
             for (DepositHistory depositDto : list) {
                 DepositHistoryTopAll20Resp deposit = new DepositHistoryTopAll20Resp();
                 if (null == depositDto.getBank()) {
