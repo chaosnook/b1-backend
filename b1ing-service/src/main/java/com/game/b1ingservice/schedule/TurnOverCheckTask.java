@@ -97,6 +97,10 @@ public class TurnOverCheckTask {
                             }
 
                             BigDecimal afterAmount = amount.subtract(beforeAmount);
+                            if (afterAmount.compareTo(BigDecimal.ZERO) < 0) {
+                                beforeAmount = BigDecimal.ZERO;
+                                afterAmount = amount;
+                            }
                             // Create new WinLoseHistory
                             WinLoseHistory newHis = new WinLoseHistory();
 

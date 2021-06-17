@@ -39,5 +39,15 @@ public interface WebUserRepository extends JpaRepository<WebUser, Long>, JpaSpec
     void updateDepositRef(String ref, Long userId);
 
     boolean existsByAccountNumberAndAgent_Id(String accountNumber, Long agentId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE users SET withdraw_limit = withdraw_limit + 1 WHERE id = ? ", nativeQuery = true)
+    int addCountWithdraw(Long id);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE users SET withdraw_limit = 0", nativeQuery = true)
+    void clearCountWithdraw();
 }
 

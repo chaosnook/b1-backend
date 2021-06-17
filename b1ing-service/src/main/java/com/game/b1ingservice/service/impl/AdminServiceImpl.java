@@ -71,6 +71,8 @@ public class AdminServiceImpl implements AdminService {
     private LineNotifyService lineNotifyService;
     @Autowired
     private RoleRepository rolerepository;
+    @Autowired
+    private AgentService agentService;
 
     @Override
     public ResponseEntity<?> loginAdmin(String username, String password, LoginRequest loginRequest) {
@@ -269,6 +271,8 @@ public class AdminServiceImpl implements AdminService {
             if (wallet.getCredit().compareTo(req.getCredit()) < 0) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_01133);
             }
+
+            agentService.checkCanWithdraw(agent, webUser);
 
             BigDecimal beforeAmount = wallet.getCredit();
             Bank bank = wallet.getBank();

@@ -49,6 +49,9 @@ public class WithDrawServiceImpl implements WithDrawService {
     @Autowired
     private LineNotifyService lineNotifyService;
 
+    @Autowired
+    private AgentService agentService;
+
     @Override
     public WithDrawResponse withdraw(WithDrawRequest withDrawRequest, String username, Long agentId) {
         Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Id(username, agentId);
@@ -58,6 +61,9 @@ public class WithDrawServiceImpl implements WithDrawService {
 
         WebUser webUser = wallet.getUser();
         Agent agent = webUser.getAgent();
+
+        agentService.checkCanWithdraw(agent, webUser);
+
         BigDecimal creditWithDraw = withDrawRequest.getCreditWithDraw();
 
         WithdrawHistory withdrawHistory = new WithdrawHistory();

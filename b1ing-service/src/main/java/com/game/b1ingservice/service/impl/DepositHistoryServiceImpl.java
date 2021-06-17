@@ -407,7 +407,8 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                 deposit.setAddCredit(depositDto.getAmount().add(depositDto.getBonusAmount()).toString());
                 deposit.setBeforeAmount(depositDto.getBeforeAmount().toString());
                 deposit.setAfterAmount(depositDto.getAfterAmount().toString());
-                deposit.setUsername(depositDto.getUser().getUsername());
+
+                deposit.setUsername(depositDto.getUser() != null ? depositDto.getUser().getUsername() : "");
 
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a");
                 Date date = Date.from(depositDto.getCreatedDate());

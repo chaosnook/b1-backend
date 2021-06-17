@@ -178,6 +178,8 @@ public class MistakeServiceImpl implements MistakeService {
                     withdrawHistory.setAdmin(adminOpt.get());
                     withdrawHistory.setAgent(agent);
                     withdrawHistoryRepository.save(withdrawHistory);
+
+                    webUserRepository.addCountWithdraw(user.getId());
                 } else {
                     throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
                 }
