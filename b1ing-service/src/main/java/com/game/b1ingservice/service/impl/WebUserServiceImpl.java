@@ -359,6 +359,11 @@ public class WebUserServiceImpl implements WebUserService {
     }
 
     @Override
+    public void clearCountWithdraw() {
+        webUserRepository.clearCountWithdraw();
+    }
+
+    @Override
     public boolean verifyTel(String tel, String prefix) {
         String username = prefix.toLowerCase(Locale.ROOT).concat(tel.substring(3));
         Optional<WebUser> webUser = webUserRepository.findFirstByUsernameAndAgent_Prefix(username, prefix);

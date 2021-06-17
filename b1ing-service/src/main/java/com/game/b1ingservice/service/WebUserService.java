@@ -41,6 +41,8 @@ public interface WebUserService {
 
     List<WinLoseReq> getAllUser(Long agentId);
 
+    void clearCountWithdraw();
+
 //    Page<SearchWebUserDTO> searchWebUser(WebUserSearchRequest request, UserPrincipal principal);
 
 
