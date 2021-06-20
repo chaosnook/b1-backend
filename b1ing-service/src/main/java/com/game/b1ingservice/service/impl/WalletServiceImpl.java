@@ -78,11 +78,23 @@ public class WalletServiceImpl implements WalletService {
 
         walletRepository.updateUserCredit(credit, webUser.getId());
 
+        boolean hasTrueWallet = false;
+        TrueWallet trueWallet = wallet.getTrueWallet();
+        if (trueWallet != null) {
+            hasTrueWallet = trueWallet.isActive();
+        }
+
+        boolean hasBank = false;
+        Bank bank = wallet.getBank();
+        if (bank != null) {
+            hasBank = bank.isActive();
+        }
+
         UserWalletResponse response = new UserWalletResponse();
         response.setCredit(credit);
         response.setPoint(wallet.getPoint());
-        response.setHasTrueWallet(wallet.getTrueWallet() != null);
-        response.setHasBank(wallet.getBank() != null);
+        response.setHasTrueWallet(hasTrueWallet);
+        response.setHasBank(hasBank);
 
         return response;
     }
