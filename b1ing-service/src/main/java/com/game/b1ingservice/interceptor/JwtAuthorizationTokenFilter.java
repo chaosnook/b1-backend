@@ -37,7 +37,8 @@ public class JwtAuthorizationTokenFilter extends OncePerRequestFilter {
                     "/api/admin/auth",
                     "/api/user/auth",
                     "/api/user/register",
-                    "/api/file/downloadFile/*"
+                    "/api/file/downloadFile/*",
+                    "/api/master/verifyTel"
             ));
 
     @Override
