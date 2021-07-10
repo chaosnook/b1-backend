@@ -402,11 +402,11 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                     deposit.setBankName(depositDto.getBank().getBankName());
                     deposit.setBankCode(depositDto.getBank().getBankCode());
                 }
-                deposit.setAmount(depositDto.getAmount().toString());
-                deposit.setBonus(depositDto.getBonusAmount().toString());
+                deposit.setAmount(depositDto.getAmount() != null ? depositDto.getAmount().toString() : "0");
+                deposit.setBonus(depositDto.getBonusAmount() != null ? depositDto.getBonusAmount().toString() : "0");
                 deposit.setAddCredit(depositDto.getAmount().add(depositDto.getBonusAmount()).toString());
-                deposit.setBeforeAmount(depositDto.getBeforeAmount().toString());
-                deposit.setAfterAmount(depositDto.getAfterAmount().toString());
+                deposit.setBeforeAmount(depositDto.getBeforeAmount() != null ? depositDto.getBeforeAmount().toString() : "0");
+                deposit.setAfterAmount(depositDto.getAfterAmount() != null ?  depositDto.getAfterAmount().toString() : "0");
 
                 deposit.setUsername(depositDto.getUser() != null ? depositDto.getUser().getUsername() : "");
 
