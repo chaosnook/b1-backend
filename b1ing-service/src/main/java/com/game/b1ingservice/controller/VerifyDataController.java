@@ -21,7 +21,6 @@ public class VerifyDataController {
 
 
     @GetMapping(value = "/verifyTel",
-            consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> authenticate(@RequestParam("tel") String tel, @RequestParam("prefix") String prefix) {
 
