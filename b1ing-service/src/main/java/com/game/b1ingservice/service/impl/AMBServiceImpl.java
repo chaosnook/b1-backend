@@ -73,7 +73,10 @@ public class AMBServiceImpl implements AMBService {
                     ambResponse.setCode(AMB_ERROR);
                     return ambResponse;
                 }
-                return objectMapper.readValue(response.body().string(), new TypeReference<AmbResponse<CreateUserRes>>() {
+
+                String res = response.body().string();
+                log.info("createUser response {} ", res);
+                return objectMapper.readValue(res, new TypeReference<AmbResponse<CreateUserRes>>() {
                 });
             }
         } catch (Exception e) {
