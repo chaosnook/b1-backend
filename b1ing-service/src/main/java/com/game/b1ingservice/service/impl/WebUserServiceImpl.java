@@ -498,6 +498,8 @@ public class WebUserServiceImpl implements WebUserService {
             response.setBankName(webUser.getBankName());
             response.setBankAccount(webUser.getAccountNumber());
 
+            walletService.updateCurrentWallet(webUser);
+
             Optional<Wallet> optWallet = walletRepository.findByUser_Id(webUser.getId());
             if (optWallet.isPresent()) {
                 Wallet wallet = optWallet.get();
