@@ -13,5 +13,7 @@ public interface WalletService {
 
     UserWalletResponse getUserWallet(String username, Long agentId);
 
+    BigDecimal updateCurrentWallet(WebUser webUser);
+
     void minusTurnOver(Long id, BigDecimal afterAmount);
 }

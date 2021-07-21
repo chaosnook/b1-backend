@@ -52,6 +52,9 @@ public class BankBotServiceImpl implements BankBotService {
     private AMBService ambService;
 
     @Autowired
+    private WalletService walletService;
+
+    @Autowired
     private OkHttpClient client;
 
     @Autowired
@@ -103,8 +106,6 @@ public class BankBotServiceImpl implements BankBotService {
 
             if (wallets.size() == 1) {
                 Wallet wallet = wallets.get(0);
-                depositHistory.setBeforeAmount(wallet.getCredit());
-
                 WebUser webUser = wallet.getUser();
 
                 if (webUser == null) {
@@ -112,6 +113,9 @@ public class BankBotServiceImpl implements BankBotService {
                     return;
                 }
 
+                BigDecimal lastCredit = walletService.updateCurrentWallet(webUser);
+
+                depositHistory.setBeforeAmount(lastCredit);
                 depositHistory.setUser(webUser);
                 depositHistory.setBank(wallet.getBank());
 
@@ -122,13 +126,13 @@ public class BankBotServiceImpl implements BankBotService {
                 // is bonus คือลูกค้าต้องการโบนัส
                 if (!webUser.getBlockBonus() && webUser.getIsBonus().equals("true")){
                     PromotionEffectiveResponse promotionBonus = mapPromotion(depositHistory, request.getTransactionDate());
-                    depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()).add(promotionBonus.getBonus()));
+                    depositHistory.setAfterAmount(lastCredit.add(request.getAmount()).add(promotionBonus.getBonus()));
                     depositHistory.setBonusAmount(promotionBonus.getBonus());
 
                     turnOver = promotionBonus.getTurnOver();
                     depositHistory.setTurnOver(turnOver);
                 } else {
-                    depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()));
+                    depositHistory.setAfterAmount(lastCredit.add(request.getAmount()));
                     depositHistory.setBonusAmount(BigDecimal.ZERO);
                     depositHistory.setTurnOver(BigDecimal.ZERO);
                 }
@@ -213,7 +217,9 @@ public class BankBotServiceImpl implements BankBotService {
                     return;
                 }
 
-                depositHistory.setBeforeAmount(wallet.getCredit());
+                BigDecimal lastCredit = walletService.updateCurrentWallet(webUser);
+
+                depositHistory.setBeforeAmount(lastCredit);
                 depositHistory.setUser(webUser);
                 depositHistory.setTrueWallet(wallet.getTrueWallet());
                 depositHistory.setAgent(webUser.getAgent());
@@ -227,13 +233,13 @@ public class BankBotServiceImpl implements BankBotService {
                 // is bonus คือลูกค้าต้องการโบนัส
                 if (!webUser.getBlockBonus() && webUser.getIsBonus().equals("true")) {
                     PromotionEffectiveResponse promotionBonus = mapPromotion(depositHistory, request.getTransactionDate());
-                    depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()).add(promotionBonus.getBonus()));
+                    depositHistory.setAfterAmount(lastCredit.add(request.getAmount()).add(promotionBonus.getBonus()));
                     depositHistory.setBonusAmount(promotionBonus.getBonus());
 
                     turnOver = promotionBonus.getTurnOver();
                     depositHistory.setTurnOver(turnOver);
                 } else {
-                    depositHistory.setAfterAmount(wallet.getCredit().add(request.getAmount()));
+                    depositHistory.setAfterAmount(lastCredit.add(request.getAmount()));
                     depositHistory.setBonusAmount(BigDecimal.ZERO);
                     depositHistory.setTurnOver(turnOver);
                 }

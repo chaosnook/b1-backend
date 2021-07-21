@@ -68,15 +68,8 @@ public class WalletServiceImpl implements WalletService {
             throw new ErrorMessageException(Constants.ERROR.ERR_00007);
         }
         WebUser webUser = wallet.getUser();
-        AmbResponse<GetCreditRes> ambRes = ambService.getCredit(webUser.getUsernameAmb(), webUser.getAgent());
 
-        if (ambRes.getCode() != 0) {
-            throw new ErrorMessageException(Constants.ERROR.ERR_99999);
-        }
-
-        BigDecimal credit = ambRes.getResult().getCredit();
-
-        walletRepository.updateUserCredit(credit, webUser.getId());
+        BigDecimal credit = updateCurrentWallet(webUser);
 
         boolean hasTrueWallet = false;
         TrueWallet trueWallet = wallet.getTrueWallet();
@@ -97,6 +90,20 @@ public class WalletServiceImpl implements WalletService {
         response.setHasBank(hasBank);
 
         return response;
+    }
+
+    @Override
+    public BigDecimal updateCurrentWallet(WebUser webUser) {
+        AmbResponse<GetCreditRes> ambRes = ambService.getCredit(webUser.getUsernameAmb(), webUser.getAgent());
+
+        if (ambRes.getCode() != 0) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_99999);
+        }
+
+        BigDecimal credit = ambRes.getResult().getCredit();
+
+        walletRepository.updateUserCredit(credit, webUser.getId());
+        return credit;
     }
 
     @Override
