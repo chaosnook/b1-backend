@@ -77,7 +77,7 @@ public class WebUserController {
     public ResponseEntity<?> getUserInfo(@RequestBody GetUserInfoRequest req,
                                          @AuthenticationPrincipal UserPrincipal principal) {
         getWebUserInfoRequestValidator.validate(req);
-        GetUserInfoResponse response = webUserService.getUserInfo(req.getUsername(), principal.getAgentId());
+        GetUserInfoResponse response = webUserService.getUserInfo(req.getUsername().toLowerCase(), principal.getAgentId());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, response);
     }
 }

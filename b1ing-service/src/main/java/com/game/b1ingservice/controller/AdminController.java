@@ -6,7 +6,10 @@ import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.postgres.jdbc.dto.CountRefillDTO;
 import com.game.b1ingservice.service.AdminService;
 import com.game.b1ingservice.utils.ResponseHelper;
-import com.game.b1ingservice.validator.admin.*;
+import com.game.b1ingservice.validator.admin.AddCreditValidator;
+import com.game.b1ingservice.validator.admin.RegisterValidator;
+import com.game.b1ingservice.validator.admin.UpdateValidator;
+import com.game.b1ingservice.validator.admin.WithdrawValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,8 +82,7 @@ public class AdminController {
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getUser(@PathVariable("username") String username,
                                      @AuthenticationPrincipal UserPrincipal principal) {
-
-        AdminUserResponse response =  adminService.findAdminByUsernameAndAgentId(username, principal.getAgentId());
+        AdminUserResponse response =  adminService.findAdminByUsernameAndAgentId(username.toLowerCase(), principal.getAgentId());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, response);
     }
 

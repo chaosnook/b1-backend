@@ -32,7 +32,7 @@ public class SearchWebUserSpecification extends SearchPageSpecification<WebUserS
         }
 
         if (StringUtils.isNotEmpty(searchBody.getUsername())) {
-            String username = StringUtils.trimToEmpty(searchBody.getUsername());
+            String username = StringUtils.trimToEmpty(searchBody.getUsername().toLowerCase());
 
                 predicates.add(
                         criteriaBuilder.like(root.get("username"), "%" + username + "%")

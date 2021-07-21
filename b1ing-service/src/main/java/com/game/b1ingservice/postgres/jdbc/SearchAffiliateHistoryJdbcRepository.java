@@ -24,6 +24,9 @@ public class SearchAffiliateHistoryJdbcRepository {
     public List<SearchAffiHistoryDTO> affiHistory(AffHistoryRequest affHistoryRequest, UserPrincipal principal) {
         List<SearchAffiHistoryDTO> search = new ArrayList<>();
         try {
+            String username = affHistoryRequest.getUsername();
+            if (username != null && !"".equals(username)) username = username.toLowerCase();
+
             StringBuilder sql = new StringBuilder();
             sql.append("select  u.username as username ,sum(ph.amount) as amount ");
             sql.append("from point_history ph ");
@@ -31,7 +34,7 @@ public class SearchAffiliateHistoryJdbcRepository {
             sql.append("inner join agent a on u.agent_id = a.id ");
             sql.append("where ph.created_date between TO_TIMESTAMP( ? ,'DD/MM/YYYY HH24:MI:SS') ");
             sql.append("and TO_TIMESTAMP( ? ,'DD/MM/YYYY HH24:MI:SS') ");
-            if ((null != affHistoryRequest.getUsername()) && (!"".equals(affHistoryRequest.getUsername()))) {
+            if (username != null && !"".equals(username)) {
                 sql.append("and u.username = ? ");
             }
 
@@ -40,9 +43,9 @@ public class SearchAffiliateHistoryJdbcRepository {
             sql.append("and a.id = ? ");
             sql.append("group by u.username ");
 
-            if ((null != affHistoryRequest.getUsername()) && (!"".equals(affHistoryRequest.getUsername()))) {
+            if (username != null && !"".equals(username)) {
                 search = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SearchAffiHistoryDTO.class),
-                        affHistoryRequest.getListDateFrom(), affHistoryRequest.getListDateTo(), affHistoryRequest.getUsername(), principal.getAgentId());
+                        affHistoryRequest.getListDateFrom(), affHistoryRequest.getListDateTo(), username, principal.getAgentId());
             } else {
                 search = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SearchAffiHistoryDTO.class),
                         affHistoryRequest.getListDateFrom(), affHistoryRequest.getListDateTo(), principal.getAgentId());

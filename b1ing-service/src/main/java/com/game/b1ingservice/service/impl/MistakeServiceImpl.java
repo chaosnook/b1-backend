@@ -64,7 +64,7 @@ public class MistakeServiceImpl implements MistakeService {
 
     @Override
     public void createMistake(MistakeReq mistakeReq, UserPrincipal principal) {
-        Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Id(mistakeReq.getUsername(), principal.getAgentId());
+        Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Id(mistakeReq.getUsername().toLowerCase(), principal.getAgentId());
 
         if (!opt.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01127);

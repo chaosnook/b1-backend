@@ -27,6 +27,9 @@ public class CountRefillJdbcRepository {
     public List<CountRefillDTO> depositCount(CountRefillRequest countRefillRequest, UserPrincipal principal) {
         List<CountRefillDTO> deposit = new ArrayList<>();
         try {
+            String username = countRefillRequest.getUsername();
+            if (username != null && !"".equals(username)) username = username.toLowerCase();
+
             StringBuilder sql = new StringBuilder();
             sql.append("select us.id, us.username, CASE WHEN dh.count IS NULL THEN 0 ELSE dh.count END as  depositCount, CASE WHEN dh.deposit IS NULL THEN 0 ELSE dh.deposit END as deposit, CASE WHEN wh.count IS NULL THEN 0 ELSE wh.count END as withdrawCount, CASE WHEN wh.withdraw IS NULL THEN 0 ELSE wh.withdraw END as withdraw , (CASE WHEN dh.deposit IS NULL THEN 0 ELSE dh.deposit END - CASE WHEN wh.withdraw IS NULL THEN 0 ELSE wh.withdraw END )as profitloss ");
             sql.append("from users us ");
@@ -49,15 +52,15 @@ public class CountRefillJdbcRepository {
             sql.append("and wh.status = 'SUCCESS' ");
             sql.append("group by u.username) wh on wh.username = us.username ");
             sql.append("where (dh.count is not null) ");
-            if ((null != countRefillRequest.getUsername()) && ("" != countRefillRequest.getUsername())) {
+            if (username != null && !"".equals(username)) {
                 sql.append("and us.username = ? ");
             }
 
-            if ((null != countRefillRequest.getUsername()) && ("" != countRefillRequest.getUsername())) {
+            if (username != null && !"".equals(username)) {
                 deposit = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(CountRefillDTO.class),
                         countRefillRequest.getListDateFrom(), countRefillRequest.getListDateTo(), principal.getAgentId(),
                         countRefillRequest.getListDateFrom(), countRefillRequest.getListDateTo(), principal.getAgentId(),
-                        countRefillRequest.getUsername());
+                        username);
             } else {
                 deposit = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(CountRefillDTO.class),
                         countRefillRequest.getListDateFrom(), countRefillRequest.getListDateTo(), principal.getAgentId(),

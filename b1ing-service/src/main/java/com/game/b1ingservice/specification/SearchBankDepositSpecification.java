@@ -23,7 +23,7 @@ public class SearchBankDepositSpecification extends SearchPageSpecification<Bank
         Join<Wallet, Bank> bank = root.join("bank", JoinType.INNER);
 
         if (StringUtils.isNotEmpty(searchBody.getUsername())) {
-            String username = StringUtils.trimToEmpty(searchBody.getUsername());
+            String username = StringUtils.trimToEmpty(searchBody.getUsername().toLowerCase());
             predicates.add(
                     criteriaBuilder.like(member.<String>get("username"), "%" + username + "%")
             );

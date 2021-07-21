@@ -28,7 +28,7 @@ public class SearchWithdrawHistorySpecification extends SearchPageSpecification<
         predicates.add(criteriaBuilder.equal(agent.<Long>get("id"), searchBody.getAgentId()));
 
         if (StringUtils.isNotEmpty(searchBody.getUsername())) {
-            String username = StringUtils.trimToEmpty(searchBody.getUsername());
+            String username = StringUtils.trimToEmpty(searchBody.getUsername().toLowerCase());
             predicates.add(criteriaBuilder.like(member.<String>get("username"), "%" + username + "%"));
         }
 

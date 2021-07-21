@@ -29,7 +29,7 @@ public class SearchDepositHistorySpecification extends SearchPageSpecification<D
 
         if (StringUtils.isNotEmpty(searchBody.getUsername())) {
             Join<DepositHistory, WebUser> member = root.join("user", JoinType.INNER);
-            String username = StringUtils.trimToEmpty(searchBody.getUsername());
+            String username = StringUtils.trimToEmpty(searchBody.getUsername().toLowerCase());
             predicates.add(criteriaBuilder.like(member.<String>get("username"), "%" + username + "%"));
         }
 

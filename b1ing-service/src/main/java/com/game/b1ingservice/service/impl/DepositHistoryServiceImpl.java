@@ -129,7 +129,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     @Override
     public List<DepositHistoryTop20Resp> findListByUsername(String username, UserPrincipal principal) {
 
-       List<DepositHistoryTop20Dto> depositDtos = depositHistoryJdbcRepository.findTop20DepositHistory(username, principal.getAgentId());
+       List<DepositHistoryTop20Dto> depositDtos = depositHistoryJdbcRepository.findTop20DepositHistory(username.toLowerCase(), principal.getAgentId());
 
        List<DepositHistoryTop20Resp> result = new ArrayList<>();
        for(DepositHistoryTop20Dto depositDto: depositDtos) {
