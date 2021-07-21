@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
 
+import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.MAX_AUTO_WITHDRAW;
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.MIN_WITHDRAW_CREDIT;
 import static com.game.b1ingservice.commons.Constants.ERROR.ERR_00013;
 import static com.game.b1ingservice.commons.Constants.*;
@@ -92,6 +93,16 @@ public class WithDrawServiceImpl implements WithDrawService {
             isAuto = creditWithDraw.compareTo(minW) >= 0;
         }
 
+        // check max
+        Optional<Config> maxWithdrawConf = configRepository.findFirstByParameterAndAgent(MAX_AUTO_WITHDRAW, agent);
+        if (maxWithdrawConf.isPresent()) {
+            Config configMx = maxWithdrawConf.get();
+            BigDecimal maxW = new BigDecimal(configMx.getValue());
+            isAuto = creditWithDraw.compareTo(maxW) <= 0;
+        }
+
+
+
         // อนุญาติถอน auto ?
         AmbResponse<WithdrawRes> ambRes = ambService.withdraw(
                 WithdrawReq.builder().amount(creditWithDraw.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build(),
@@ -99,6 +110,7 @@ public class WithDrawServiceImpl implements WithDrawService {
 
         if (ambRes.getCode() != 0) {
             withdrawHistory.setReason("API AMB Error");
+            withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);
             withdrawHistoryService.saveHistory(withdrawHistory);
             throw new ErrorMessageException(Constants.ERROR.ERR_04005);
         }
