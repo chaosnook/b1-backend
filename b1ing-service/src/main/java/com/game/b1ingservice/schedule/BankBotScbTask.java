@@ -113,7 +113,11 @@ public class BankBotScbTask {
         if (request.getRemark().contains(" SCB ")) {
             request.setAccountNo(splited[2].replace("x", ""));
             request.setFirstName(splited[4]);
-            request.setLastName(splited[5]);
+
+            if (splited.length > 5) {
+                request.setLastName(splited[5]);
+            }
+
         } else {
             request.setAccountNo(splited[2].replace("/X", ""));
         }
