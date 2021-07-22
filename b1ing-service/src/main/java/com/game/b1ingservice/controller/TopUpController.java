@@ -1,7 +1,6 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
-import com.game.b1ingservice.payload.admin.ProfitReportResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.payload.topup.TopUpResponse;
 import com.game.b1ingservice.payload.topup.TopupRequest;

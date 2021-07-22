@@ -140,7 +140,7 @@ public class WebUserServiceImpl implements WebUserService {
         WebUser userResp = webUserRepository.save(user);
 
         if (!StringUtils.isEmpty(req.getAffiliate())) {
-            affiliateService.registerAffiliate(userResp, req.getAffiliate());
+            affiliateService.registerAffiliate(userResp, req.getAffiliate(), opt.get());
         }
 
         WalletRequest walletRequest = new WalletRequest();
@@ -148,16 +148,12 @@ public class WebUserServiceImpl implements WebUserService {
         walletRequest.setPoint(BigDecimal.valueOf(0));
         walletService.createWallet(walletRequest, userResp);
 
-        WebUserResponse resp = new WebUserResponse();
-        resp.setUsername(username);
-        resp.setPassword(req.getPassword());
-
-        return convert(userResp, opt.get());
+        return convert(userResp, opt.get(), req.getPassword());
     }
 
     @Override
-    public void updateUser(Long id, WebUserUpdate req) {
-        Optional<WebUser> optUsername = webUserRepository.findByIdNotAndUsername(id, req.getUsername());
+    public void updateUser(Long id, WebUserUpdate req, Long agentId) {
+        Optional<WebUser> optUsername = webUserRepository.findByIdNotAndUsernameAndAgent_Id(id, req.getUsername(), agentId);
         if (optUsername.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01119);
         }
@@ -189,7 +185,7 @@ public class WebUserServiceImpl implements WebUserService {
                 Optional<AffiliateUser> affiliateUser = affiliateUserRepository.findFirstByAffiliateAndUser_Id(req.getAffiliate(), id);
                 if (!affiliateUser.isPresent()) {
                     affiliateUserRepository.removeOleAffiliate(id);
-                    affiliateService.registerAffiliate(userResp, req.getAffiliate());
+                    affiliateService.registerAffiliate(userResp, req.getAffiliate(), userResp.getAgent());
                 }
             }
 
@@ -277,7 +273,7 @@ public class WebUserServiceImpl implements WebUserService {
 
         String password = passwordGenerator.generateStrongPassword();
 
-        Optional<WebUser> opt = webUserRepository.findById(id);
+        Optional<WebUser> opt = webUserRepository.findByIdAndAgent_Id(id, principal.getAgentId());
         if (opt.isPresent()) {
 
             WebUser user = opt.get();
@@ -314,7 +310,7 @@ public class WebUserServiceImpl implements WebUserService {
 
             Optional<WebUser> opt = webUserRepository.findByUsernameAndAgent(username.toLowerCase(Locale.ROOT), agent.get());
             if (opt.isPresent() && AESUtils.decrypt(opt.get().getPassword()).equals(password)) {
-                return convert(opt.get(), agent.get());
+                return convert(opt.get(), agent.get(), null);
             }
             throw new ErrorMessageException(Constants.ERROR.ERR_00007);
 
@@ -355,11 +351,16 @@ public class WebUserServiceImpl implements WebUserService {
     @Override
     public List<WinLoseReq> getAllUser(Long agentId) {
         List<Map> objects = webUserRepository.getAllUser(agentId);
-        if (objects.size() == 0) {
+        if (objects.isEmpty()) {
             return new ArrayList<>();
         }
         return mapper.convertValue(objects, new TypeReference<List<WinLoseReq>>() {
         });
+    }
+
+    @Override
+    public void clearCountWithdraw() {
+        webUserRepository.clearCountWithdraw();
     }
 
     @Override
@@ -369,9 +370,10 @@ public class WebUserServiceImpl implements WebUserService {
         return webUser.isPresent();
     }
 
-    UserInfoResponse convert(WebUser webUser, Agent agent) {
+    UserInfoResponse convert(WebUser webUser, Agent agent, String password) {
         UserInfoResponse userInfo = new UserInfoResponse();
         UserProfile profile = convertProfile(webUser, agent, false);
+        profile.setPassword(password);
         userInfo.setProfile(profile);
         userInfo.setToken(jwtTokenUtil.generateToken(mapper.convertValue(profile, Map.class), "user"));
         return userInfo;
@@ -415,7 +417,7 @@ public class WebUserServiceImpl implements WebUserService {
 
     @Override
     public WebUserHistoryResponse registerHistory(WebUserHistoryRequest webUserHistoryRequest, UserPrincipal principal) {
-        Optional<Agent> agent = agentRepository.findByPrefix(principal.getPrefix());
+        Optional<Agent> agent = agentRepository.findById(principal.getAgentId());
 
         if (!agent.isPresent()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
@@ -486,15 +488,17 @@ public class WebUserServiceImpl implements WebUserService {
     }
 
     @Override
-    public GetUserInfoResponse getUserInfo(String username, String prefix) {
+    public GetUserInfoResponse getUserInfo(String username, Long agentId) {
         GetUserInfoResponse response = new GetUserInfoResponse();
-        Optional<WebUser> optWebUser = webUserRepository.findFirstByUsernameAndAgent_Prefix(username, prefix);
+        Optional<WebUser> optWebUser = webUserRepository.findFirstByUsernameAndAgent_Id(username, agentId);
         if (optWebUser.isPresent()) {
             WebUser webUser = optWebUser.get();
             response.setName(webUser.getFirstName() + " " + webUser.getLastName());
             response.setTel(webUser.getTel());
             response.setBankName(webUser.getBankName());
             response.setBankAccount(webUser.getAccountNumber());
+
+            walletService.updateCurrentWallet(webUser);
 
             Optional<Wallet> optWallet = walletRepository.findByUser_Id(webUser.getId());
             if (optWallet.isPresent()) {

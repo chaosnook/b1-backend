@@ -1,9 +1,7 @@
 package com.game.b1ingservice.specification;
 
 import com.game.b1ingservice.payload.bankdeposit.BankDepositRequest;
-import com.game.b1ingservice.payload.walletdeposit.WalletDepositRequest;
 import com.game.b1ingservice.postgres.entity.Bank;
-import com.game.b1ingservice.postgres.entity.TrueWallet;
 import com.game.b1ingservice.postgres.entity.Wallet;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.specification.commons.SearchPageSpecification;
@@ -25,13 +23,13 @@ public class SearchBankDepositSpecification extends SearchPageSpecification<Bank
         Join<Wallet, Bank> bank = root.join("bank", JoinType.INNER);
 
         if (StringUtils.isNotEmpty(searchBody.getUsername())) {
-            String username = StringUtils.trimToEmpty(searchBody.getUsername());
+            String username = StringUtils.trimToEmpty(searchBody.getUsername().toLowerCase());
             predicates.add(
                     criteriaBuilder.like(member.<String>get("username"), "%" + username + "%")
             );
         }
 
-        if (StringUtils.isNotEmpty(searchBody.getBankCode())){
+        if (StringUtils.isNotEmpty(searchBody.getBankCode())) {
             predicates.add(
                     criteriaBuilder.equal(bank.<Integer>get("bankCode"), searchBody.getBankCode())
             );

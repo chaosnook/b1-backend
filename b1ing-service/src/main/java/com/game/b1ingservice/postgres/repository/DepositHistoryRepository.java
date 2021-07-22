@@ -13,19 +13,22 @@ import java.util.List;
 
 @Repository
 public interface DepositHistoryRepository extends JpaRepository<DepositHistory, Long>, JpaSpecificationExecutor<DepositHistory> {
-    boolean existsByTransactionId(String transactionId);
+
+    boolean existsByTransactionIdAndAgent_Id(String transactionId, Long agentId);
 
     List<DepositHistory> findAllByUser_usernameAndCreatedDateBetweenAndStatusInOrderByCreatedDateDesc(String username, Instant startDate, Instant endDate, List<String> status);
 
     List<DepositHistory> findTop10ByUser_IdOrderByCreatedDateDesc(Long id);
 
-    List<DepositHistory> findAllByUser_AgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(Agent agent, Instant startDate, Instant endDate, List<String> types);
+    List<DepositHistory> findAllByAgentAndCreatedDateBetweenAndMistakeTypeInOrderByCreatedDateDesc(Agent agent, Instant startDate, Instant endDate, List<String> types);
 
     Boolean existsByUser_Id(Long userId);
 
     DepositHistory findFirstById(Long withdrawId);
 
-    DepositHistory findFirstByIdAndStatus(Long withdrawId, String status);
+    DepositHistory findFirstByIdAndStatusAndAgent_Id(Long withdrawId, String status, Long agentId);
 
     Page<DepositHistory> findByUser_Agent_PrefixAndStatusOrderByCreatedDateDesc(String prefix , String status, Pageable pageable);
+
+    Page<DepositHistory> findByAgent_IdAndStatusOrderByCreatedDateDesc(Long agentId , String status, Pageable pageable);
 }

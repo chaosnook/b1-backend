@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface BankBotService {
-    void addCredit(BankBotAddCreditRequest request, String prefix);
-    void addCreditTrue(BankBotAddCreditTrueWalletRequest request);
-    BankBotScbWithdrawCreditResponse withDrawCredit(BankBotScbWithdrawCreditRequest request);
+    void addCredit(BankBotAddCreditRequest request, Long agentId);
+
+    void addCreditTrue(BankBotAddCreditTrueWalletRequest reques, Long agentId);
+
+    BankBotScbWithdrawCreditResponse withDrawCredit(BankBotScbWithdrawCreditRequest request, Long agentId);
 }

@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
 
+import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.MAX_AUTO_WITHDRAW;
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.MIN_WITHDRAW_CREDIT;
 import static com.game.b1ingservice.commons.Constants.ERROR.ERR_00013;
 import static com.game.b1ingservice.commons.Constants.*;
@@ -49,14 +50,20 @@ public class WithDrawServiceImpl implements WithDrawService {
     @Autowired
     private LineNotifyService lineNotifyService;
 
+    @Autowired
+    private AgentService agentService;
+
     @Override
-    public WithDrawResponse withdraw(WithDrawRequest withDrawRequest, String username, String prefix) {
-        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
+    public WithDrawResponse withdraw(WithDrawRequest withDrawRequest, String username, Long agentId) {
+        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Id(username, agentId);
         if (wallet == null) {
             throw new ErrorMessageException(Constants.ERROR.ERR_00011);
         }
 
         WebUser webUser = wallet.getUser();
+        Agent agent = webUser.getAgent();
+
+        agentService.checkCanWithdraw(agent, webUser);
 
         BigDecimal creditWithDraw = withDrawRequest.getCreditWithDraw();
 
@@ -67,6 +74,7 @@ public class WithDrawServiceImpl implements WithDrawService {
         withdrawHistory.setIsAuto(false);
         withdrawHistory.setBank(wallet.getBank());
         withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.PENDING);
+        withdrawHistory.setAgent(agent);
         withdrawHistory = withdrawHistoryService.saveHistory(withdrawHistory);
 
         if (wallet.getCredit().compareTo(creditWithDraw) < 0) {
@@ -76,7 +84,7 @@ public class WithDrawServiceImpl implements WithDrawService {
             throw new ErrorMessageException(Constants.ERROR.ERR_04005);
         }
 
-        Agent agent = webUser.getAgent();
+
         Optional<Config> minWithdrawConf = configRepository.findFirstByParameterAndAgent(MIN_WITHDRAW_CREDIT, agent);
         boolean isAuto = true;
         if (minWithdrawConf.isPresent()) {
@@ -85,6 +93,16 @@ public class WithDrawServiceImpl implements WithDrawService {
             isAuto = creditWithDraw.compareTo(minW) >= 0;
         }
 
+        // check max
+        Optional<Config> maxWithdrawConf = configRepository.findFirstByParameterAndAgent(MAX_AUTO_WITHDRAW, agent);
+        if (maxWithdrawConf.isPresent()) {
+            Config configMx = maxWithdrawConf.get();
+            BigDecimal maxW = new BigDecimal(configMx.getValue());
+            isAuto = creditWithDraw.compareTo(maxW) <= 0;
+        }
+
+
+
         // อนุญาติถอน auto ?
         AmbResponse<WithdrawRes> ambRes = ambService.withdraw(
                 WithdrawReq.builder().amount(creditWithDraw.setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build(),
@@ -92,6 +110,7 @@ public class WithDrawServiceImpl implements WithDrawService {
 
         if (ambRes.getCode() != 0) {
             withdrawHistory.setReason("API AMB Error");
+            withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);
             withdrawHistoryService.saveHistory(withdrawHistory);
             throw new ErrorMessageException(Constants.ERROR.ERR_04005);
         }
@@ -111,7 +130,7 @@ public class WithDrawServiceImpl implements WithDrawService {
                 request.setAmount(creditWithDraw);
                 request.setAccountTo(webUser.getAccountNumber());
                 request.setBankCode(webUser.getBankName());
-                BankBotScbWithdrawCreditResponse bankBotResult = bankBotService.withDrawCredit(request);
+                BankBotScbWithdrawCreditResponse bankBotResult = bankBotService.withDrawCredit(request, agent.getId());
                 log.info("bankbot withdraw response {}", bankBotResult);
                 withdrawHistory.setIsAuto(true);
                 if (bankBotResult.getStatus()) {

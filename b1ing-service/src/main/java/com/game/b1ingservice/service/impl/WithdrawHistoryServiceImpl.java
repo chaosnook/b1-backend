@@ -246,17 +246,17 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     };
 
     @Override
-    public void updateStatus(WithdrawHistoryUpdateStatusReq req) {
-        withdrawHistoryRepository.updateStatus(req.getStatus(), req.getId(), req.getAmount());
+    public void updateStatus(WithdrawHistoryUpdateStatusReq req, Long agentId) {
+        withdrawHistoryRepository.updateStatus(req.getStatus(), req.getId(), req.getAmount(), agentId);
     }
 
     @Override
-    public WithDrawResponse updateBlockAutoTransaction(WithdrawBlockStatusReq req, String usernameAdmin) {
+    public WithDrawResponse updateBlockAutoTransaction(WithdrawBlockStatusReq req, String usernameAdmin, Long agentId) {
         WithDrawResponse response = new WithDrawResponse();
         try {
             String status = req.getStatus();
 
-            WithdrawHistory history = withdrawHistoryRepository.findFirstByIdAndStatus(req.getWithdrawId(), BLOCK_AUTO);
+            WithdrawHistory history = withdrawHistoryRepository.findFirstByIdAndStatusAndAgent_Id(req.getWithdrawId(), BLOCK_AUTO, agentId);
             if (history == null) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_00011);
             }
@@ -273,7 +273,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
                 request.setAccountTo(webUser.getAccountNumber());
                 request.setBankCode(webUser.getBankName());
 
-                BankBotScbWithdrawCreditResponse bankBotResult = bankBotService.withDrawCredit(request);
+                BankBotScbWithdrawCreditResponse bankBotResult = bankBotService.withDrawCredit(request, agent.getId());
                 log.info("bankbot withdraw response {}", bankBotResult);
                 history.setIsAuto(false);
 
@@ -343,9 +343,9 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     }
 
     @Override
-    public List<WithdrawHistoryTopAll20Resp> findLast20Transaction(String prefix) {
-       Page<WithdrawHistory> list =  withdrawHistoryRepository.findByUser_Agent_PrefixAndStatusOrderByCreatedDateDesc(
-               prefix, SUCCESS, PageRequest.of(0, 20));
+    public List<WithdrawHistoryTopAll20Resp> findLast20Transaction(Long agentId) {
+       Page<WithdrawHistory> list =  withdrawHistoryRepository.findByUser_Agent_IdAndStatusOrderByCreatedDateDesc(
+               agentId, SUCCESS, PageRequest.of(0, 20));
 
        List<WithdrawHistoryTopAll20Resp> response = new ArrayList<>();
         if (!list.isEmpty()) {

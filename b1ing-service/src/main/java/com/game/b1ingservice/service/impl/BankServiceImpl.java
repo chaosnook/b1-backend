@@ -7,17 +7,16 @@ import com.game.b1ingservice.payload.bank.BankResponse;
 import com.game.b1ingservice.payload.bankdeposit.UserBankDepositResponse;
 import com.game.b1ingservice.payload.bankdeposit.UserTrueWalletResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
-import com.game.b1ingservice.postgres.entity.*;
+import com.game.b1ingservice.postgres.entity.Agent;
+import com.game.b1ingservice.postgres.entity.Bank;
+import com.game.b1ingservice.postgres.entity.Wallet;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
 import com.game.b1ingservice.postgres.repository.BankRepository;
 import com.game.b1ingservice.postgres.repository.WalletRepository;
-import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.BankService;
-import com.game.b1ingservice.utils.ResponseHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,19 +27,23 @@ import java.util.Optional;
 @Service
 public class BankServiceImpl implements BankService {
     @Autowired
-    BankRepository bankRepository;
+    private BankRepository bankRepository;
 
     @Autowired
-    WalletRepository walletRepository;
+    private WalletRepository walletRepository;
 
     @Autowired
     private AgentRepository agentRepository;
 
-    @Autowired
-    private WebUserRepository webUserRepository;
-
     @Override
-    public void insertBank(BankRequest bankRequest, UserPrincipal principal){
+    public void insertBank(BankRequest bankRequest, UserPrincipal principal) {
+
+        Optional<Agent> agent = agentRepository.findById(principal.getAgentId());
+
+        if (!agent.isPresent()) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_PREFIX);
+        }
+
         Bank bank = new Bank();
         bank.setBankCode(bankRequest.getBankCode());
         bank.setBankType(bankRequest.getBankType());
@@ -54,16 +57,18 @@ public class BankServiceImpl implements BankService {
         bank.setBotIp(bankRequest.getBotIp());
         bank.setNewUserFlag(bankRequest.isNewUserFlag());
         bank.setActive(bankRequest.isActive());
-        bank.setPrefix(principal.getPrefix());
+
+        bank.setPrefix(agent.get().getPrefix());
+        bank.setAgent(agent.get());
         bankRepository.save(bank);
     }
 
     @Override
-    public ResponseEntity<?> getBank(){
+    public List<BankResponse> getBank(Long agentId) {
         List<BankResponse> res = new ArrayList<>();
-        List<Bank> listBank = bankRepository.findAll();
+        List<Bank> listBank = bankRepository.findAllByAgent_Id(agentId);
 
-           for(Bank bank: listBank){
+        for (Bank bank : listBank) {
             BankResponse bankResponse = new BankResponse();
 
             bankResponse.setId(bank.getId());
@@ -86,13 +91,13 @@ public class BankServiceImpl implements BankService {
 
             res.add(bankResponse);
         }
-        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, res);
+        return res;
     }
 
     @Override
-    public void updateBank(Long id, BankRequest bankRequest){
-        Optional<Bank> opt = bankRepository.findById(id);
-        if(opt.isPresent()){
+    public void updateBank(Long id, BankRequest bankRequest, Long agentId) {
+        Optional<Bank> opt = bankRepository.findByIdAndAgent_Id(id, agentId);
+        if (opt.isPresent()) {
             Bank bank = opt.get();
             bank.setBankCode(bankRequest.getBankCode());
             bank.setBankType(bankRequest.getBankType());
@@ -115,24 +120,27 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
-    public void deleteBank(Long id){
-        Optional<Bank> opt = bankRepository.findById(id);
-        if(opt.isPresent()){
+    public void deleteBank(Long id, Long agentId) {
+        Optional<Bank> opt = bankRepository.findByIdAndAgent_Id(id, agentId);
+        if (opt.isPresent()) {
             Bank bank = opt.get();
             int bankGroupFrom = bank.getBankGroup();
             int bankOrderFrom = bank.getBankOrder();
-            Optional<Bank> opt2 = bankRepository.findFirstByActiveAndBankGroupAndBankOrderGreaterThanOrderByBankOrderAsc(true, bankGroupFrom, bankOrderFrom);
-            Optional<Bank> opt3 = bankRepository.findFirstByActiveAndBankGroupGreaterThanOrderByBankGroupAsc(true, bankGroupFrom);
-            if(opt2.isPresent()) {
+            Optional<Bank> opt2 = bankRepository.findFirstByActiveAndBankGroupAndBankOrderAndAgent_IdGreaterThanOrderByBankOrderAsc(true, bankGroupFrom, bankOrderFrom, agentId);
+
+            if (opt2.isPresent()) {
                 Bank bankCurrent = opt2.get();
                 walletRepository.updateAllBankDeposit(bankCurrent.getId(), bank.getId());
                 bank.setDeleteFlag(1);
                 bankRepository.save(bank);
-            } else if(!opt2.isPresent() && opt3.isPresent()) {
-                Bank bankCurrent = opt3.get();
-                walletRepository.updateAllBankDeposit(bankCurrent.getId(), bank.getId());
-                bank.setDeleteFlag(1);
-                bankRepository.save(bank);
+            } else {
+                Optional<Bank> opt3 = bankRepository.findFirstByActiveAndBankGroupAndAgent_IdGreaterThanOrderByBankGroupAsc(true, bankGroupFrom, agentId);
+                if (opt3.isPresent()) {
+                    Bank bankCurrent = opt3.get();
+                    walletRepository.updateAllBankDeposit(bankCurrent.getId(), bank.getId());
+                    bank.setDeleteFlag(1);
+                    bankRepository.save(bank);
+                }
             }
         } else {
             throw new ErrorMessageException(Constants.ERROR.ERR_02011);
@@ -140,9 +148,9 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
-    public UserBankDepositResponse getUserBankDeposit(String username, String prefix) {
-        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
-        if (wallet == null || wallet.getBank() == null|| !wallet.getBank().isActive()) {
+    public UserBankDepositResponse getUserBankDeposit(String username, Long agentId) {
+        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Id(username, agentId);
+        if (wallet == null || wallet.getBank() == null || !wallet.getBank().isActive()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_00007);
         }
         UserBankDepositResponse response = new UserBankDepositResponse();
@@ -155,9 +163,9 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
-    public UserTrueWalletResponse getUserTrueWallet(String username, String prefix) {
-        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
-        if (wallet == null || wallet.getTrueWallet() == null|| !wallet.getTrueWallet().isActive()) {
+    public UserTrueWalletResponse getUserTrueWallet(String username, Long agentId) {
+        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Id(username, agentId);
+        if (wallet == null || wallet.getTrueWallet() == null || !wallet.getTrueWallet().isActive()) {
             throw new ErrorMessageException(Constants.ERROR.ERR_00007);
         }
         UserTrueWalletResponse response = new UserTrueWalletResponse();

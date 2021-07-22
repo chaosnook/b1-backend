@@ -21,5 +21,5 @@ public interface WalletDepositService {
 
     void updateAllTrueWalletDeposit(WalletDepositAllRequest request);
 
-    List<WalletDepositList> findActiveWallet(String prefix);
+    List<WalletDepositList> findActiveWallet(Long agentId);
 }

@@ -5,10 +5,7 @@ import com.game.b1ingservice.payload.promotion.*;
 import com.game.b1ingservice.postgres.entity.Promotion;
 import com.game.b1ingservice.postgres.entity.PromotionHistory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
-import java.nio.file.Path;
 import java.util.List;
 
 @Service
@@ -16,12 +13,14 @@ public interface PromotionService {
     void insertPromotion(PromotionRequest promotionRequest, UserPrincipal principal);
 
     List<PromotionResponse> getPromotion(UserPrincipal principal);
+
     void updatePromotion(Long id, PromotionUpdate promotionUpdate, UserPrincipal principal);
+
     void deletePromotion(Long id);
 
-    List<PromotionUserRes> getUserPromotion(String prefix);
+    List<PromotionUserRes> getUserPromotion(Long agentId);
 
-    List<Promotion> getEffectivePromotion(PromotionEffectiveRequest request);
+    List<Promotion> getEffectivePromotion(PromotionEffectiveRequest request, Long agentId);
 
-    PromotionHistory calculatePromotionBonus(Promotion promotion,PromotionEffectiveRequest request);
+    PromotionHistory calculatePromotionBonus(Promotion promotion, PromotionEffectiveRequest request);
 }

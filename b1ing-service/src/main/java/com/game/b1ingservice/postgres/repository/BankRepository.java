@@ -1,8 +1,6 @@
 package com.game.b1ingservice.postgres.repository;
 
 import com.game.b1ingservice.postgres.entity.Bank;
-import com.game.b1ingservice.postgres.entity.TrueWallet;
-import org.checkerframework.checker.nullness.Opt;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -14,24 +12,31 @@ import java.util.Optional;
 @Repository
 public interface BankRepository extends JpaRepository<Bank, Long>, JpaSpecificationExecutor<Bank> {
     Optional<Bank> findById(Long id);
-    boolean existsByBankOrder(int bankGroup);
-    boolean existsByBankGroup(int bankOrder);
-    Optional<Bank> findFirstByActiveOrderByBankGroupAscBankOrderAsc(boolean active);
 
-    List<Bank> findAllByActiveOrderByBankGroupAscBankOrderAsc(boolean active);
+    Optional<Bank> findByIdAndAgent_Id(Long id, Long agentId);
 
-    @Query(value = "select o from Bank o where o.wallet.size>0")
-    List<Bank> findUsageBank();
+    List<Bank> findAllByAgent_Id(Long agentId);
 
-    Optional<Bank> findFirstByActiveAndBankGroupAndBankOrderGreaterThanOrderByBankOrderAsc(boolean active, int bankGroupFrom, int bankOrderFrom);
+    boolean existsByBankOrderAndAgent_Id(int bankGroup, Long agentId);
 
-    Optional<Bank> findFirstByActiveAndBankGroupGreaterThanOrderByBankGroupAsc(boolean active, int bankGroupFrom);
+    boolean existsByBankGroupAndAgent_Id(int bankOrder, Long agentId);
+
+    Optional<Bank> findFirstByBankTypeAndActiveAndAgent_IdOrderByBankGroupAscBankOrderAsc(String bankType, boolean isActive, Long agentId);
+
+    List<Bank> findAllByActiveAndAgent_IdOrderByBankGroupAscBankOrderAsc(boolean active, Long agentId);
+
+    @Query(value = "select o from Bank o where o.wallet.size>0 and o.agent.id = :agentId")
+    List<Bank> findUsageBank(Long agentId);
+
+    Optional<Bank> findFirstByActiveAndBankGroupAndBankOrderAndAgent_IdGreaterThanOrderByBankOrderAsc(boolean active, int bankGroupFrom, int bankOrderFrom, Long agentId);
 
 
-    Optional<Bank> findByBankTypeAndBotIp(String bankType, String botIp);
+    Optional<Bank> findFirstByActiveAndBankGroupAndAgent_IdGreaterThanOrderByBankGroupAsc(boolean active, int bankGroupFrom, Long agentId);
 
-    List<Bank> findByBankTypeAndActiveOrderByBankGroupAscBankOrderAsc(String bankType, Boolean isActive);
 
+    Optional<Bank> findByBankTypeAndBotIpAndAgent_Id(String bankType, String botIp, Long agentId);
+
+    List<Bank> findByBankTypeAndActiveAndAgent_IdOrderByBankGroupAscBankOrderAsc(String bankType, Boolean isActive, Long agentId);
 
     List<Bank> findByBankTypeAndActive(String bankType, Boolean active);
 }

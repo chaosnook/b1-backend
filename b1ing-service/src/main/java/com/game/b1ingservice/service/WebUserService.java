@@ -19,7 +19,7 @@ public interface WebUserService {
 
     UserInfoResponse createUser(WebUserRequest req, String prefix);
 
-    void updateUser(Long id, WebUserUpdate req);
+    void updateUser(Long id, WebUserUpdate req, Long agentId);
 
     Page<WebUserResponse> findByCriteria(Specification<WebUser> specification, Pageable pageable, WebUserSearchRequest request);
 
@@ -33,13 +33,15 @@ public interface WebUserService {
 
     UserProfile getProfile(String username, String prefix);
 
-    GetUserInfoResponse getUserInfo(String username, String prefix);
+    GetUserInfoResponse getUserInfo(String username, Long agentId);
 
     void updateUserWebProfile(String username, String prefix, WebUserProfileUpdate webUserUpdate);
 
     WebUser getById(Long depositUser);
 
     List<WinLoseReq> getAllUser(Long agentId);
+
+    void clearCountWithdraw();
 
 //    Page<SearchWebUserDTO> searchWebUser(WebUserSearchRequest request, UserPrincipal principal);
 

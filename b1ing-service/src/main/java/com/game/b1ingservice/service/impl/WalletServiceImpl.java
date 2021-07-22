@@ -45,13 +45,13 @@ public class WalletServiceImpl implements WalletService {
         wallet.setTurnOver(BigDecimal.ZERO);
         wallet.setUser(user);
 
-        Optional<Bank> optionalBank = bankRepository.findFirstByActiveOrderByBankGroupAscBankOrderAsc(true);
+        Optional<Bank> optionalBank = bankRepository.findFirstByBankTypeAndActiveAndAgent_IdOrderByBankGroupAscBankOrderAsc("DEPOSIT", true, user.getAgent().getId());
         if(optionalBank.isPresent()) {
             Bank bank = optionalBank.get();
             wallet.setBank(bank);
         }
 
-        Optional<TrueWallet> optionalTrueWallet = trueWalletRepository.findFirstByActiveOrderByBankGroupAsc(true);
+        Optional<TrueWallet> optionalTrueWallet = trueWalletRepository.findFirstByActiveAndAgent_IdOrderByBankGroupAsc(true, user.getAgent().getId());
         if(optionalTrueWallet.isPresent()) {
             TrueWallet trueWallet = optionalTrueWallet.get();
             wallet.setTrueWallet(trueWallet);
@@ -61,13 +61,39 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public UserWalletResponse getUserWallet(String username, String prefix) {
+    public UserWalletResponse getUserWallet(String username, Long agentId) {
 
-        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Prefix(username, prefix);
+        Wallet wallet = walletRepository.findFirstByUser_UsernameAndUser_Agent_Id(username, agentId);
         if (wallet == null) {
             throw new ErrorMessageException(Constants.ERROR.ERR_00007);
         }
         WebUser webUser = wallet.getUser();
+
+        BigDecimal credit = updateCurrentWallet(webUser);
+
+        boolean hasTrueWallet = false;
+        TrueWallet trueWallet = wallet.getTrueWallet();
+        if (trueWallet != null) {
+            hasTrueWallet = trueWallet.isActive();
+        }
+
+        boolean hasBank = false;
+        Bank bank = wallet.getBank();
+        if (bank != null) {
+            hasBank = bank.isActive();
+        }
+
+        UserWalletResponse response = new UserWalletResponse();
+        response.setCredit(credit);
+        response.setPoint(wallet.getPoint());
+        response.setHasTrueWallet(hasTrueWallet);
+        response.setHasBank(hasBank);
+
+        return response;
+    }
+
+    @Override
+    public BigDecimal updateCurrentWallet(WebUser webUser) {
         AmbResponse<GetCreditRes> ambRes = ambService.getCredit(webUser.getUsernameAmb(), webUser.getAgent());
 
         if (ambRes.getCode() != 0) {
@@ -77,14 +103,7 @@ public class WalletServiceImpl implements WalletService {
         BigDecimal credit = ambRes.getResult().getCredit();
 
         walletRepository.updateUserCredit(credit, webUser.getId());
-
-        UserWalletResponse response = new UserWalletResponse();
-        response.setCredit(credit);
-        response.setPoint(wallet.getPoint());
-        response.setHasTrueWallet(wallet.getTrueWallet() != null);
-        response.setHasBank(wallet.getBank() != null);
-
-        return response;
+        return credit;
     }
 
     @Override

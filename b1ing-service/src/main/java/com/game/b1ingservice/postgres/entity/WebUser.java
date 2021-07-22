@@ -13,7 +13,9 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"username", "username_amb"})})
+@Table(name = "users", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"username", "username_amb"}) ,
+        @UniqueConstraint(columnNames = {"account_number", "agent_id"})})
 @Where(clause = "delete_flag = 0")
 public class WebUser extends DateAudit<String> implements Serializable {
 
@@ -31,16 +33,22 @@ public class WebUser extends DateAudit<String> implements Serializable {
 
     @Column(name = "password", columnDefinition = "character varying(500)")
     private String password;
+
     @Column(name = "tel", columnDefinition = "character varying(50)")
     private String tel;
+
     @Column(name = "bank_name", columnDefinition = "character varying(50)")
     private String bankName;
+
     @Column(name = "account_number", columnDefinition = "character varying(50)")
     private String accountNumber;
+
     @Column(name = "first_name", columnDefinition = "character varying(50)")
     private String firstName;
+
     @Column(name = "last_name", columnDefinition = "character varying(50)")
     private String lastName;
+
     @Column(name = "line", columnDefinition = "character varying(50)")
     private String line;
 
@@ -58,6 +66,9 @@ public class WebUser extends DateAudit<String> implements Serializable {
 
     @Column(name = "deposit_ref")
     private String depositRef;
+
+    @Column(name = "withdraw_limit", columnDefinition = "default 0")
+    private Integer withdrawLimit = 0;
 
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();

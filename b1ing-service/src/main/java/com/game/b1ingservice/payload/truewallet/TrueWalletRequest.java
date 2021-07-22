@@ -2,7 +2,6 @@ package com.game.b1ingservice.payload.truewallet;
 
 import lombok.Data;
 
-import java.util.Map;
 
 @Data
 public class TrueWalletRequest {
@@ -13,5 +12,7 @@ public class TrueWalletRequest {
     private String botIp;
     private boolean newUserFlag;
     private boolean active;
+
+    private Long agentId;
 
 }

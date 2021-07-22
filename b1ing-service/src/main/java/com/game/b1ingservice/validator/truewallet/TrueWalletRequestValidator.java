@@ -43,7 +43,7 @@ public class TrueWalletRequestValidator extends CommonValidator {
             throw new ErrorMessageException(Constants.ERROR.ERR_01111);
         } else if(req.getBankGroup() <= 0) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01116);
-        } else if(trueWalletRepository.existsByBankGroup(req.getBankGroup())) {
+        } else if(trueWalletRepository.existsByBankGroupAndAgent_Id(req.getBankGroup(), req.getAgentId())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01117);
         }
 

@@ -17,57 +17,60 @@ import java.util.Optional;
 public class BankUpdateValidator extends CommonValidator {
 
     @Autowired
-    BankRepository bankRepository;
+    private BankRepository bankRepository;
 
     @Override
-    public boolean supports(Class clazz) {return BankRequest.class.isAssignableFrom(clazz); }
+    public boolean supports(Class clazz) {
+        return BankRequest.class.isAssignableFrom(clazz);
+    }
 
-    public void validate(Object o, Long id){
+    public void validate(Object o, Long id, Long agentId) {
 
-            Bank bank = new Bank();
-            Optional<Bank> opt = bankRepository.findById(id);
-            if(opt.isPresent()) {
-                bank = opt.get();
-            }
+        Bank bank = new Bank();
+        Optional<Bank> opt = bankRepository.findById(id);
+        if (opt.isPresent()) {
+            bank = opt.get();
+        }
 
         BankRequest req = BankRequest.class.cast(o);
-        if(StringUtils.isEmpty(req.getBankCode()))
+        if (StringUtils.isEmpty(req.getBankCode()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02000);
-        if(StringUtils.isEmpty(req.getBankType()))
+        if (StringUtils.isEmpty(req.getBankType()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02001);
-        if(StringUtils.isEmpty(req.getBankName()))
+        if (StringUtils.isEmpty(req.getBankName()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02002);
-        if(StringUtils.isEmpty(req.getBankAccountName()))
+        if (StringUtils.isEmpty(req.getBankAccountName()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02003);
-        if(StringUtils.isEmpty(req.getBankAccountNo()))
+        if (StringUtils.isEmpty(req.getBankAccountNo()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02004);
         else if (!isNumber(req.getBankAccountNo()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02012);
-        if(StringUtils.isEmpty(req.getUsername()))
+        if (StringUtils.isEmpty(req.getUsername()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02005);
 //        if(StringUtils.isEmpty((req.getPassword())))
 //            throw new ErrorMessageException(Constants.ERROR.ERR_02006);
 
 
-        if(ObjectUtils.isEmpty(req.getBankOrder())){
+        if (ObjectUtils.isEmpty(req.getBankOrder())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_02007);
-        }else if (req.getBankOrder() <= 0){
+        } else if (req.getBankOrder() <= 0) {
             throw new ErrorMessageException(Constants.ERROR.ERR_02014);
         }
 
-        if(ObjectUtils.isEmpty(req.getBankGroup())) {
+        if (ObjectUtils.isEmpty(req.getBankGroup())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_02008);
         } else if (req.getBankGroup() <= 0) {
-        throw new ErrorMessageException(Constants.ERROR.ERR_02016);
+            throw new ErrorMessageException(Constants.ERROR.ERR_02016);
         }
 
-        if(bank.getBankGroup() != req.getBankGroup() && bank.getBankOrder() != req.getBankOrder()) {
-            if (bankRepository.existsByBankOrder(req.getBankOrder()) && bankRepository.existsByBankGroup(req.getBankGroup())) {
+        if (bank.getBankGroup() != req.getBankGroup() && bank.getBankOrder() != req.getBankOrder()) {
+            if (bankRepository.existsByBankOrderAndAgent_Id(req.getBankOrder(), agentId)
+                    && bankRepository.existsByBankGroupAndAgent_Id(req.getBankGroup(), agentId)) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_02018);
             }
         }
 
-        if(StringUtils.isEmpty(req.getBotIp()))
+        if (StringUtils.isEmpty(req.getBotIp()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02009);
         else if (!isIpAddress(req.getBotIp()))
             throw new ErrorMessageException(Constants.ERROR.ERR_02013);

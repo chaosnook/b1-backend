@@ -1,6 +1,5 @@
 package com.game.b1ingservice.postgres.jdbc;
 
-import com.game.b1ingservice.postgres.entity.DepositHistory;
 import com.game.b1ingservice.postgres.jdbc.dto.DepositHistoryTop20Dto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,7 @@ public class DepositHistoryJdbcRepository {
     @Qualifier("postgresJdbcTemplate")
     JdbcTemplate jdbcTemplate;
 
-    public List<DepositHistoryTop20Dto> findTop20DepositHistory(String username, String prefix) {
+    public List<DepositHistoryTop20Dto> findTop20DepositHistory(String username, Long agentId) {
 
         List<DepositHistoryTop20Dto> result = new ArrayList<>();
         try {
@@ -30,10 +29,10 @@ public class DepositHistoryJdbcRepository {
                     .append("from deposit_history d ")
                     .append("inner join users u on d.user_id = u.id ")
                     .append("inner join agent a on u.agent_id = a.id ")
-                    .append("where u.username = ? and a.prefix = ? ")
+                    .append("where u.username = ? and a.id = ? ")
                     .append("order by d.created_date desc limit 20");
 
-            result = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(DepositHistoryTop20Dto.class), username, prefix);
+            result = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(DepositHistoryTop20Dto.class), username, agentId);
 
         } catch (Exception ex) {
             log.error("DepositHistoryTop20", ex);

@@ -26,13 +26,13 @@ public class PromotionUserController {
 
     @GetMapping(value = "/promotion")
     public ResponseEntity<?> promotion(@AuthenticationPrincipal UserPrincipal principal) {
-        List<PromotionUserRes> resList = promotionService.getUserPromotion(principal.getPrefix());
+        List<PromotionUserRes> resList = promotionService.getUserPromotion(principal.getAgentId());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resList);
     }
 
     @GetMapping(value = "/affiliate-image")
     public ResponseEntity<?> affiliateImg(@AuthenticationPrincipal UserPrincipal principal) {
-        AffiliateImgResponse response = affiliateService.getImage(principal.getPrefix());
+        AffiliateImgResponse response = affiliateService.getImage(principal.getAgentId());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, response);
     }
 }

@@ -6,5 +6,5 @@ import lombok.Data;
 public class WalletDepositAllRequest {
     Long trueWalletIdFrom;
     Long trueWalletIdTo;
-    String prefix;
+    Long agentId;
 }

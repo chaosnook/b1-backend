@@ -21,18 +21,6 @@ public class WithdrawHistory  extends DateAudit<String> implements Serializable 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ToString.Exclude
-    @JsonIgnore
-    @JoinColumn(name = "bank_code", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Bank bank;
-
-    @ToString.Exclude
-    @JsonIgnore
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private WebUser user;
-
     @Column(name = "amount", columnDefinition = "numeric(18,2)")
     private BigDecimal amount;
 
@@ -68,6 +56,24 @@ public class WithdrawHistory  extends DateAudit<String> implements Serializable 
     @JoinColumn(name = "admin_id", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private AdminUser admin;
+
+    @JsonIgnore
+    @ToString.Exclude
+    @JoinColumn(name = "agent_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Agent agent;
+
+    @ToString.Exclude
+    @JsonIgnore
+    @JoinColumn(name = "bank_code", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Bank bank;
+
+    @ToString.Exclude
+    @JsonIgnore
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private WebUser user;
 
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();

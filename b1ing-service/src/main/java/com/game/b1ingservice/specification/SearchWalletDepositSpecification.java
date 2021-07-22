@@ -1,9 +1,7 @@
 package com.game.b1ingservice.specification;
 
 import com.game.b1ingservice.payload.walletdeposit.WalletDepositRequest;
-import com.game.b1ingservice.postgres.entity.TrueWallet;
-import com.game.b1ingservice.postgres.entity.Wallet;
-import com.game.b1ingservice.postgres.entity.WebUser;
+import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.specification.commons.SearchPageSpecification;
 import org.apache.commons.lang3.StringUtils;
 
@@ -19,26 +17,25 @@ public class SearchWalletDepositSpecification extends SearchPageSpecification<Wa
     @Override
     public Predicate toPredicate(Root<Wallet> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 
+
         Join<Wallet, WebUser> member = root.join("user", JoinType.INNER);
+        Join<WebUser, Agent> agent = member.join("agent", JoinType.INNER);
         Join<Wallet, TrueWallet> trueWallet = root.join("trueWallet", JoinType.INNER);
 
+        predicates.add(criteriaBuilder.equal(agent.<Long>get("id"), searchBody.getAgentId()));
+
         if (StringUtils.isNotEmpty(searchBody.getUsername())) {
-            String username = StringUtils.trimToEmpty(searchBody.getUsername());
+            String username = StringUtils.trimToEmpty(searchBody.getUsername().toLowerCase());
             predicates.add(
                     criteriaBuilder.like(member.<String>get("username"), "%" + username + "%")
             );
         }
-
 
         if (searchBody.getTrueWalletId() != null) {
             predicates.add(
                     criteriaBuilder.equal(trueWallet.<Integer>get("id"), searchBody.getTrueWalletId())
             );
         }
-
-        predicates.add(
-                criteriaBuilder.equal(trueWallet.<String>get("prefix"), searchBody.getPrefix())
-        );
 
         return super.buildParallelPredicate(root, query, criteriaBuilder);
     }

@@ -23,4 +23,6 @@ public class WebUserSearchRequest extends SearchPageable {
     
     private String createdDateFrom;
     private String createdDateTo;
+
+    private Long agentId;
 }

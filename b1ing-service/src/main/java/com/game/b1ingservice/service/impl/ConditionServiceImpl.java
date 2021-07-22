@@ -2,12 +2,9 @@ package com.game.b1ingservice.service.impl;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.exception.ErrorMessageException;
-import com.game.b1ingservice.payload.bank.BankResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
-import com.game.b1ingservice.payload.condition.ConditionListRequest;
 import com.game.b1ingservice.payload.condition.ConditionRequest;
 import com.game.b1ingservice.payload.condition.ConditionResponse;
-import com.game.b1ingservice.postgres.entity.Bank;
 import com.game.b1ingservice.postgres.entity.Condition;
 import com.game.b1ingservice.postgres.entity.Promotion;
 import com.game.b1ingservice.postgres.repository.ConditionRepository;
@@ -27,10 +24,10 @@ import java.util.stream.Collectors;
 public class ConditionServiceImpl implements ConditionService {
 
     @Autowired
-    ConditionRepository conditionRepository;
+    private ConditionRepository conditionRepository;
 
     @Autowired
-    PromotionRepository promotionRepository;
+    private PromotionRepository promotionRepository;
 
     @Override
     public void insertCondition(ConditionRequest conditionRequest, UserPrincipal principal) {

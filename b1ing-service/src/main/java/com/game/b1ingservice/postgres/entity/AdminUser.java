@@ -12,7 +12,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "admins", uniqueConstraints = {@UniqueConstraint(columnNames = {"username"})})
+@Table(name = "admins", uniqueConstraints = {@UniqueConstraint(columnNames = {"username", "agent_id"})})
 @Where(clause = "delete_flag = 0")
 public class AdminUser extends DateAudit<String> implements Serializable {
 
@@ -22,18 +22,25 @@ public class AdminUser extends DateAudit<String> implements Serializable {
 
     @Column(name = "username", columnDefinition = "character varying(50) not null")
     private String username;
+
     @Column(name = "password", columnDefinition = "character varying(500) not null")
     private String password;
+
     @Column(name = "tel", columnDefinition = "character varying(50)")
     private String tel;
+
     @Column(name = "full_name", columnDefinition = "character varying(50) not null")
     private String fullName;
+
     @Column(name = "limit_flag", columnDefinition = "smallint default 0")
     private int limitFlag = 0;
+
     @Column(name = "limit_value", columnDefinition = "decimal")
     private Integer limit = 0;
+
     @Column(name = "active", columnDefinition = "smallint default 0")
     private int active;
+
     @Column(name = "prefix", columnDefinition = "character varying(50)")
     private String prefix;
 
@@ -42,7 +49,6 @@ public class AdminUser extends DateAudit<String> implements Serializable {
 
     @Column(name = "mistake_limit")
     private Integer mistakeLimit = 0;
-
 
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();

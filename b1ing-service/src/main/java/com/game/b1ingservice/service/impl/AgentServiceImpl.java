@@ -7,7 +7,10 @@ import com.game.b1ingservice.payload.agent.AgentResponse;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.Config;
+import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.postgres.repository.AgentRepository;
+import com.game.b1ingservice.postgres.repository.ConfigRepository;
+import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.service.AgentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,13 +22,19 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.ON_OFF_WEBSITE;
+import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG.*;
 import static com.game.b1ingservice.commons.Constants.AGENT_CONFIG_STATUS;
 
 @Service
 public class AgentServiceImpl implements AgentService {
     @Autowired
-    AgentRepository agentRepository;
+    private AgentRepository agentRepository;
+
+    @Autowired
+    private ConfigRepository configRepository;
+
+    @Autowired
+    private WebUserRepository webUserRepository;
 
     @Override
     public List<AgentResponse> getAgentList() {
@@ -90,6 +99,26 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public Page<AgentResponse> findByCriteria(Specification<Agent> specification, Pageable pageable) {
         return agentRepository.findAll(specification, pageable).map(converter);
+    }
+
+
+    @Override
+    public void checkCanWithdraw(Agent agent, WebUser webUser) {
+        Optional<Config> isLimit = configRepository.findFirstByParameterAndAgent(LIMIT_WITHDRAW, agent);
+        if (isLimit.isPresent()) {
+            boolean isCheck = Boolean.parseBoolean(isLimit.get().getValue());
+            if (isCheck) {
+                Optional<Config> countWithdraw = configRepository.findFirstByParameterAndAgent(COUNT_WITHDRAW, agent);
+                if (countWithdraw.isPresent()) {
+                    Integer max = Integer.valueOf(countWithdraw.get().getValue());
+                    if (webUser.getWithdrawLimit() >= max) {
+                        throw new ErrorMessageException(Constants.ERROR.ERR_01136);
+                    } else {
+                        webUserRepository.addCountWithdraw(webUser.getId());
+                    }
+                }
+            }
+        }
     }
 
     Function<Agent, AgentResponse> converter = agent -> {

@@ -6,7 +6,10 @@ import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.postgres.jdbc.dto.CountRefillDTO;
 import com.game.b1ingservice.service.AdminService;
 import com.game.b1ingservice.utils.ResponseHelper;
-import com.game.b1ingservice.validator.admin.*;
+import com.game.b1ingservice.validator.admin.AddCreditValidator;
+import com.game.b1ingservice.validator.admin.RegisterValidator;
+import com.game.b1ingservice.validator.admin.UpdateValidator;
+import com.game.b1ingservice.validator.admin.WithdrawValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +31,6 @@ public class AdminController {
     private RegisterValidator registerValidator;
     @Autowired
     private UpdateValidator updateValidator;
-    @Autowired
-    private PrefixValidator prefixValidator;
     @Autowired
     private AdminService adminService;
     @Autowired
@@ -70,9 +71,8 @@ public class AdminController {
     @GetMapping(value = "/user-list/{prefix}",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> authenticate(@RequestHeader Map<String, String> headers,
-                                          @PathVariable("prefix") String prefix,
-                                          @AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<?> getListOfAdmin(@PathVariable("prefix") String prefix,
+                                            @AuthenticationPrincipal UserPrincipal principal) {
 
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, adminService.listByPrefix(prefix));
     }
@@ -82,8 +82,8 @@ public class AdminController {
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getUser(@PathVariable("username") String username,
                                      @AuthenticationPrincipal UserPrincipal principal) {
-
-        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, adminService.findAdminByUsernamePrefix(username, principal.getPrefix()));
+        AdminUserResponse response =  adminService.findAdminByUsernameAndAgentId(username.toLowerCase(), principal.getAgentId());
+        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, response);
     }
 
     @PostMapping(value = "/deposit", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})

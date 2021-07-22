@@ -25,7 +25,7 @@ public class DepositHistoryController {
     @PostMapping(value = "/depositHistory/updateBlockAutoTransaction", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> updateBlockAutoTransaction(@RequestBody DepositBlockStatusReq req, @AuthenticationPrincipal UserPrincipal principal) {
 
-        DepositResponse response = depositHistoryService.updateBlockAutoTransaction(req, principal.getUsername());
+        DepositResponse response = depositHistoryService.updateBlockAutoTransaction(req, principal.getUsername(), principal.getAgentId());
 
         if (response.getStatus()) {
             return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
@@ -38,7 +38,7 @@ public class DepositHistoryController {
     @PostMapping(value = "/depositHistory/updateNotSureStatus", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> updateBlockAutoTransaction(@RequestBody DepositNotSureStatusReq req, @AuthenticationPrincipal UserPrincipal principal) {
 
-        DepositResponse response = depositHistoryService.updateNoteSureTransaction(req, principal.getUsername(), principal.getPrefix());
+        DepositResponse response = depositHistoryService.updateNoteSureTransaction(req, principal.getUsername(), principal.getAgentId());
 
         if (response.getStatus()) {
             return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
@@ -49,16 +49,18 @@ public class DepositHistoryController {
     }
 
     @PostMapping(value = "/search/list/depositHistory", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> searchListDepositHistory(@RequestBody DepositHistorySearchRequest req){
+    public ResponseEntity<?> searchListDepositHistory(@RequestBody DepositHistorySearchRequest req, @AuthenticationPrincipal UserPrincipal principal){
         req.setSummary(false);
+        req.setAgentId(principal.getAgentId());
         SearchDepositHistorySpecification specification = new SearchDepositHistorySpecification(req);
         Page<DepositListHistorySearchResponse> searchResponse = depositHistoryService.findByCriteria(specification, specification.getPageable(), req.getType());
         return ResponseHelper.successPage(searchResponse, "data", Constants.MESSAGE.MSG_00000.msg);
     }
 
     @PostMapping(value = "/search/summary/depositHistory", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> searchSummaryDepositHistory(@RequestBody DepositHistorySearchRequest req){
+    public ResponseEntity<?> searchSummaryDepositHistory(@RequestBody DepositHistorySearchRequest req, @AuthenticationPrincipal UserPrincipal principal){
         req.setSummary(true);
+        req.setAgentId(principal.getAgentId());
         SearchDepositHistorySpecification specification = new SearchDepositHistorySpecification(req);
 
         Page<DepositSummaryHistorySearchResponse> searchResponse = depositHistoryService.findSummaryByCriteria(specification, specification.getPageable(), req.getType());
@@ -79,7 +81,7 @@ public class DepositHistoryController {
 
     @PostMapping(value = "/depositHistory/last20", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> depositHistoryLast20(@AuthenticationPrincipal UserPrincipal principal) {
-        List<DepositHistoryTopAll20Resp> result = depositHistoryService.findLast20Transaction(principal.getPrefix());
+        List<DepositHistoryTopAll20Resp> result = depositHistoryService.findLast20Transaction(principal.getAgentId());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, result);
     }
 

@@ -16,26 +16,38 @@ import java.util.Optional;
 @Repository
 public interface WebUserRepository extends JpaRepository<WebUser, Long>, JpaSpecificationExecutor<WebUser> {
 
-    boolean existsByTel(String tel);
+    boolean existsByTelAndAgent_Id(String tel, Long agentId);
+
+    Optional<WebUser> findFirstByUsernameAndAgent_Id(String username, Long agentId);
 
     Optional<WebUser> findFirstByUsernameAndAgent_Prefix(String username, String prefix);
 
-    Optional<WebUser> findByUsernameOrTel(String affiliateUsername, String affiliateTel);
-
-    Optional<WebUser> findByTelAndAgent_Prefix(String tel, String prefix);
+    Optional<WebUser> findByUsernameOrTelAndAgent_Id(String affiliateUsername, String affiliateTel, Long agentId);
 
     Optional<WebUser> findByUsernameAndAgent(String username, Agent agent);
 
-    Optional<WebUser> findByIdNotAndUsername(Long id, String username);
+    Optional<WebUser> findByIdAndAgent_Id(Long id, Long agentId);
 
+    Optional<WebUser> findByIdNotAndUsernameAndAgent_Id(Long id, String username, Long agentId);
 
-
-    @Query(value = "select id, username,username_amb as usernameAmb, deposit_ref as depositRef FROM users where agent_id = ? and delete_flag = 0 and deposit_ref is not null", nativeQuery = true)
+    @Query(value = "select id, username, username_amb as usernameAmb, deposit_ref as depositRef FROM users where agent_id = ? and delete_flag = 0 and deposit_ref is not null", nativeQuery = true)
     List<Map> getAllUser(Long agentId);
 
     @Transactional
     @Modifying
     @Query(value = "UPDATE users SET deposit_ref = ? WHERE id = ? ", nativeQuery = true)
     void updateDepositRef(String ref, Long userId);
+
+    boolean existsByAccountNumberAndAgent_Id(String accountNumber, Long agentId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE users SET withdraw_limit = withdraw_limit + 1 WHERE id = ? ", nativeQuery = true)
+    int addCountWithdraw(Long id);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE users SET withdraw_limit = 0", nativeQuery = true)
+    void clearCountWithdraw();
 }
 

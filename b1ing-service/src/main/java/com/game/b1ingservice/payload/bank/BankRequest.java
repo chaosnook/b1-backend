@@ -1,10 +1,7 @@
 package com.game.b1ingservice.payload.bank;
 
-import com.game.b1ingservice.postgres.entity.Bank;
-import com.game.b1ingservice.postgres.entity.TrueWallet;
 import lombok.Data;
 
-import java.util.Map;
 
 @Data
 public class BankRequest {
@@ -21,4 +18,5 @@ public class BankRequest {
     private boolean newUserFlag;
     private boolean active;
 
+    private Long agentId;
 }

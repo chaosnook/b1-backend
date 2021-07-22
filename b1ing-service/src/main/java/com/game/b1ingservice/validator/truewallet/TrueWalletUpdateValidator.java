@@ -23,48 +23,48 @@ public class TrueWalletUpdateValidator extends CommonValidator {
 
         TrueWallet trueWallet = new TrueWallet();
         Optional<TrueWallet> opt = trueWalletRepository.findById(id);
-        if(opt.isPresent()) {
+        if (opt.isPresent()) {
             trueWallet = opt.get();
         }
 
-        if(StringUtils.isEmpty(req.getPhoneNumber())) {
+        if (StringUtils.isEmpty(req.getPhoneNumber())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01106);
         } else if (!isNumber(req.getPhoneNumber())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01114);
         } else {
-            if(!trueWallet.getId().equals(id)) {
+            if (!trueWallet.getId().equals(id)) {
                 if (trueWalletRepository.existsByPhoneNumber(req.getPhoneNumber())) {
                     throw new ErrorMessageException(Constants.ERROR.ERR_01107);
                 }
             }
         }
 
-        if(StringUtils.isEmpty(req.getName())) {
+        if (StringUtils.isEmpty(req.getName())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01109);
         }
 
-        if(StringUtils.isEmpty(req.getBotIp())) {
+        if (StringUtils.isEmpty(req.getBotIp())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01110);
-        } else if(!isIpAddress(req.getBotIp())) {
+        } else if (!isIpAddress(req.getBotIp())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_O1115);
         }
 
-        if(ObjectUtils.isEmpty(req.getBankGroup())) {
+        if (ObjectUtils.isEmpty(req.getBankGroup())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01111);
-        } else if(req.getBankGroup() <= 0) {
+        } else if (req.getBankGroup() <= 0) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01116);
         } else {
-            if(trueWallet.getBankGroup() != req.getBankGroup()) {
-                if (trueWalletRepository.existsByBankGroup(req.getBankGroup())) {
+            if (trueWallet.getBankGroup() != req.getBankGroup()) {
+                if (trueWalletRepository.existsByBankGroupAndAgent_Id(req.getBankGroup(), req.getAgentId())) {
                     throw new ErrorMessageException(Constants.ERROR.ERR_01117);
                 }
             }
         }
 
-        if(ObjectUtils.isEmpty(req.isNewUserFlag())) {
+        if (ObjectUtils.isEmpty(req.isNewUserFlag())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01112);
         }
-        if(ObjectUtils.isEmpty(req.isActive())) {
+        if (ObjectUtils.isEmpty(req.isActive())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01113);
         }
     }

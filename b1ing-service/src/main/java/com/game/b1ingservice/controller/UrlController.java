@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/admin")
 public class UrlController {
     @Autowired
-    UrlService urlService;
+    private UrlService urlService;
 
     @PostMapping(value = "/url", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> createUrl(@RequestBody UrlRequest urlRequest) {
-        urlService.createUrl(urlRequest);
+    public ResponseEntity<?> createUrl(@RequestBody UrlRequest urlRequest, @AuthenticationPrincipal UserPrincipal principal) {
+        urlService.createUrl(urlRequest, principal.getAgentId());
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
@@ -30,8 +30,9 @@ public class UrlController {
     }
 
     @PutMapping(value = "/url/{id}")
-    public ResponseEntity<?> updateUrl(@PathVariable Long id, @RequestBody UrlRequest req) {
-        urlService.updateUrl(req);
+    public ResponseEntity<?> updateUrl(@PathVariable Long id, @RequestBody UrlRequest req,
+                                       @AuthenticationPrincipal UserPrincipal principal) {
+        urlService.updateUrl(req, principal.getAgentId());
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 }

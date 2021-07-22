@@ -1,19 +1,20 @@
 package com.game.b1ingservice.specification;
 
 import com.game.b1ingservice.payload.agent.AgentSearchRequest;
-import com.game.b1ingservice.postgres.entity.AdminUser;
 import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.specification.commons.SearchPageSpecification;
 import com.game.b1ingservice.utils.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.time.Instant;
-import java.util.Date;
 
 public class SearchAgentSpecification extends SearchPageSpecification<AgentSearchRequest, Agent> {
 
-    public SearchAgentSpecification(AgentSearchRequest searchBody ) {
+    public SearchAgentSpecification(AgentSearchRequest searchBody) {
         super(searchBody);
     }
 
@@ -38,13 +39,13 @@ public class SearchAgentSpecification extends SearchPageSpecification<AgentSearc
         } else if (parseCreateDateFrom) {
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.<Instant>get("createdDate"), DateUtils.convertStartDate(searchBody.getCreatedDateFrom()).toInstant()));
         } else if (parseCreateDateTo) {
-            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Instant>get("createdDate"),DateUtils.convertEndDate(searchBody.getCreatedDateTo()).toInstant()));
+            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Instant>get("createdDate"), DateUtils.convertEndDate(searchBody.getCreatedDateTo()).toInstant()));
         }
 
         // add search prefix
-        if (StringUtils.isNotEmpty(searchBody.getPrefix())){
+        if (StringUtils.isNotEmpty(searchBody.getPrefix())) {
             String prefix = StringUtils.trimToEmpty(searchBody.getPrefix());
-            predicates.add(criteriaBuilder.like(root.get("prefix"),"%"+prefix+"%"));
+            predicates.add(criteriaBuilder.like(root.get("prefix"), "%" + prefix + "%"));
         }
 
 

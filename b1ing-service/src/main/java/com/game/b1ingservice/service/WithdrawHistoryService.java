@@ -24,9 +24,9 @@ public interface WithdrawHistoryService {
 
     List<WithdrawHistoryByUserIdResp> findListByUserId(Long userId, UserPrincipal principal);
 
-    void updateStatus(WithdrawHistoryUpdateStatusReq req);
+    void updateStatus(WithdrawHistoryUpdateStatusReq req, Long agentId);
 
-    WithDrawResponse updateBlockAutoTransaction(WithdrawBlockStatusReq req, String username);
+    WithDrawResponse updateBlockAutoTransaction(WithdrawBlockStatusReq req, String username, Long agentId);
 
-    List<WithdrawHistoryTopAll20Resp> findLast20Transaction(String prefix);
+    List<WithdrawHistoryTopAll20Resp> findLast20Transaction(Long agentId);
 }

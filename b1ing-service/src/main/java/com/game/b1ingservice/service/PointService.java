@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 public interface PointService {
 
-    PointTransResponse pointTransfer(PointTransRequest transRequest, String username, String prefix);
+    PointTransResponse pointTransfer(PointTransRequest transRequest, String username, Long agentId);
 
-    PointTransResponse earnPoint(BigDecimal point, Long depositUser, Long userId, String prefix, BigDecimal maxWallet);
+    PointTransResponse earnPoint(BigDecimal point, Long depositUser, Long userId, Long agentID, BigDecimal maxWallet);
 }

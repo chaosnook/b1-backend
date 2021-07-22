@@ -2,6 +2,7 @@ package com.game.b1ingservice.specification;
 
 import com.game.b1ingservice.commons.Constants;
 import com.game.b1ingservice.payload.deposithistory.DepositHistorySearchRequest;
+import com.game.b1ingservice.postgres.entity.Agent;
 import com.game.b1ingservice.postgres.entity.DepositHistory;
 import com.game.b1ingservice.postgres.entity.WebUser;
 import com.game.b1ingservice.specification.commons.SearchPageSpecification;
@@ -22,11 +23,13 @@ public class SearchDepositHistorySpecification extends SearchPageSpecification<D
     @Override
     public Predicate toPredicate(Root<DepositHistory> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 
+        Join<DepositHistory, Agent> agent = root.join("agent", JoinType.INNER);
 
+        predicates.add(criteriaBuilder.equal(agent.<Long>get("id"), searchBody.getAgentId()));
 
         if (StringUtils.isNotEmpty(searchBody.getUsername())) {
             Join<DepositHistory, WebUser> member = root.join("user", JoinType.INNER);
-            String username = StringUtils.trimToEmpty(searchBody.getUsername());
+            String username = StringUtils.trimToEmpty(searchBody.getUsername().toLowerCase());
             predicates.add(criteriaBuilder.like(member.<String>get("username"), "%" + username + "%"));
         }
 

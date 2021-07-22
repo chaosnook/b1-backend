@@ -23,8 +23,10 @@ public class Condition extends DateAudit<String> implements Serializable {
 
     @Column(name = "min_topup", columnDefinition = "numeric(18,2)")
     private BigDecimal minTopup;
+
     @Column(name = "max_topup", columnDefinition = "numeric(18,2)")
     private BigDecimal maxTopup;
+
     @Column(name = "bonus", columnDefinition = "numeric(18,2)")
     private BigDecimal bonus;
 

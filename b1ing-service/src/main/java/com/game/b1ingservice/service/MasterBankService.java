@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface MasterBankService {
     ResponseEntity<?> getMasterBankDeposit();
+
     ResponseEntity<?> getMasterBankWithdraw();
 
     List<MasterBankResponse> getMasterBankUser();

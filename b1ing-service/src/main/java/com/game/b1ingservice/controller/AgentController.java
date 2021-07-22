@@ -1,10 +1,10 @@
 package com.game.b1ingservice.controller;
 
 import com.game.b1ingservice.commons.Constants;
+import com.game.b1ingservice.exception.ErrorMessageException;
 import com.game.b1ingservice.payload.agent.AgentRequest;
 import com.game.b1ingservice.payload.agent.AgentResponse;
 import com.game.b1ingservice.payload.agent.AgentSearchRequest;
-import com.game.b1ingservice.payload.bot_server.BotServerRequest;
 import com.game.b1ingservice.payload.commons.UserPrincipal;
 import com.game.b1ingservice.service.AgentService;
 import com.game.b1ingservice.specification.SearchAgentSpecification;
@@ -17,8 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -33,16 +31,18 @@ public class AgentController {
 
     @GetMapping(value = "/agents-list",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
-            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<?> authenticate(@RequestHeader Map<String, String> headers) {
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> authenticate(@AuthenticationPrincipal UserPrincipal principal) {
+        if (!Constants.ROLE.XSUPERADMIN.name().equalsIgnoreCase(principal.getRole())) {
+            throw new ErrorMessageException(Constants.ERROR.ERR_88888);
+        }
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, agentService.getAgentList());
     }
 
     @GetMapping(value = "/agent/{prefix}",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
-            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<?> authenticate(@RequestHeader Map<String, String> headers,
-                                          @PathVariable("prefix") String prefix) {
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> authenticate(@PathVariable("prefix") String prefix) {
 
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, agentService.getAgentByPrefix(prefix));
     }
@@ -56,10 +56,11 @@ public class AgentController {
         return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
     }
 
-    @PostMapping(value = "/agent/search", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<?> search(@RequestBody AgentSearchRequest request){
-        SearchAgentSpecification specification=new SearchAgentSpecification(request);
-        Page<AgentResponse> agents = agentService.findByCriteria(specification,specification.getPageable());
+    @PostMapping(value = "/agent/search", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> search(@RequestBody AgentSearchRequest request) {
+        SearchAgentSpecification specification = new SearchAgentSpecification(request);
+        Page<AgentResponse> agents = agentService.findByCriteria(specification, specification.getPageable());
+
         return ResponseHelper.successPage(agents, "datas", Constants.MESSAGE.MSG_00000.msg);
 
     }

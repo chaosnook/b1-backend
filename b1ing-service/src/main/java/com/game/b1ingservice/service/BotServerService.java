@@ -6,8 +6,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface BotServerService {
-    void addBot(BotServerRequest botServerRequest);
-     ResponseEntity<?> getBot();
-     void updateBot(Long id,BotServerRequest botServerRequest);
-     void  deleteBot(Long id);
+    void addBot(BotServerRequest botServerRequest, Long agentId);
+
+    ResponseEntity<?> getBot(Long agentId);
+
+    void updateBot(Long id, BotServerRequest botServerRequest, Long agentId);
+
+    void deleteBot(Long id, Long agentId);
 }

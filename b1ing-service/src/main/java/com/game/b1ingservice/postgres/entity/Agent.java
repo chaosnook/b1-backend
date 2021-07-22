@@ -35,12 +35,16 @@ public class Agent extends DateAudit<String> implements Serializable {
 
     @Column(name = "website", columnDefinition = "character varying(50)")
     private String website;
+
     @Column(name = "line_id", columnDefinition = "character varying(50)")
     private String lineId;
+
     @Column(name = "logo", columnDefinition = "character varying(500)")
     private String logo;
+
     @Column(name = "background", columnDefinition = "character varying(500)")
     private String background;
+
     @Column(name = "line_token", columnDefinition = "character varying(500)")
     private String lineToken;
 
@@ -49,6 +53,7 @@ public class Agent extends DateAudit<String> implements Serializable {
 
     @Column(name = "key", columnDefinition = "character varying(50)")
     private String key;
+
     @Column(name = "clientname", columnDefinition = "character varying(50)")
     private String clientName;
 

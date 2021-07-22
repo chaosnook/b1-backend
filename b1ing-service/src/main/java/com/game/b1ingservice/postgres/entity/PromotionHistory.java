@@ -23,6 +23,21 @@ public class PromotionHistory extends DateAudit<String> implements Serializable 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "topUp", columnDefinition = "numeric(18,2)")
+    private BigDecimal topup;
+
+    @Column(name = "bonus", columnDefinition = "numeric(18,2)")
+    private BigDecimal bonus;
+
+    @Column(name = "turn_over", columnDefinition = "numeric(18,2)")
+    private BigDecimal turnOver;
+
+    @Column(name = "transaction_id", columnDefinition = "character varying(50) not null")
+    private String transactionId;
+
+    @Embedded
+    private UserAuditEmbeddable audit = new UserAuditEmbeddable();
+
     @ToString.Exclude
     @JsonIgnore
     @JoinColumn(name = "promotion_id", referencedColumnName = "id")
@@ -40,20 +55,5 @@ public class PromotionHistory extends DateAudit<String> implements Serializable 
     @JoinColumn(name = "agent_id", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Agent agent;
-
-    @Column(name = "topUp", columnDefinition = "numeric(18,2)")
-    private BigDecimal topup;
-
-    @Column(name = "bonus", columnDefinition = "numeric(18,2)")
-    private BigDecimal bonus;
-
-    @Column(name = "turn_over", columnDefinition = "numeric(18,2)")
-    private BigDecimal turnOver;
-
-    @Column(name = "transaction_id", columnDefinition = "character varying(50) not null")
-    private String transactionId;
-
-    @Embedded
-    private UserAuditEmbeddable audit = new UserAuditEmbeddable();
 
 }

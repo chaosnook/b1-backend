@@ -50,16 +50,16 @@ public class Constants {
         ERR_01004("ไม่มีชื่อนี้ในระบบ"),
         ERR_01005("ไม่พบข้อมลมิจฉาชีพนี้"),
 
-        ERR_02000("bank_code ห้ามว่าง"),
-        ERR_02001("bank_type ห้ามว่าง"),
-        ERR_02002("bank_name ห้ามว่าง"),
-        ERR_02003("bank_account_name ห้ามว่าง"),
-        ERR_02004("bank_account_no ห้ามว่าง"),
+        ERR_02000("bank code ห้ามว่าง"),
+        ERR_02001("bank type ห้ามว่าง"),
+        ERR_02002("bank name ห้ามว่าง"),
+        ERR_02003("bank account name ห้ามว่าง"),
+        ERR_02004("bank account no ห้ามว่าง"),
         ERR_02005("username ห้ามว่าง"),
         ERR_02006("password ห้ามว่าง"),
-        ERR_02007("bank_order ห้ามว่าง"),
-        ERR_02008("bank_group ห้ามว่าง"),
-        ERR_02009("bot_ip ห้ามว่าง"),
+        ERR_02007("bank order ห้ามว่าง"),
+        ERR_02008("bank group ห้ามว่าง"),
+        ERR_02009("bot ip ห้ามว่าง"),
         ERR_02010("ไม่มีข้อมูลธนาคาร"),
         ERR_02011("ไม่พบข้อมูลธนาคารนี้"),
         ERR_02012("หมายเลขบัญชีธนาคารต้องเป็นตัวเลขเท่านั้น"),
@@ -68,7 +68,7 @@ public class Constants {
         ERR_02016("bank group ไม่ถูกต้อง"),
         ERR_02018("bank group และ bank order มีอยู่ในระบบแล้ว"),
 
-        ERR_01101("role_code ห้ามว่าง"),
+        ERR_01101("role code ห้ามว่าง"),
         ERR_01102("description ห้ามว่าง"),
         ERR_01103("role_code มีอยู่แล้ว"),
         ERR_01104("Id not found"),
@@ -102,7 +102,8 @@ public class Constants {
         ERR_01132("ไม่พบ wallet ของ username นี้"),
         ERR_01133("มี credit ไม่พอ"),
         ERR_01134("แก้ไขข้อผิดพลาดเกินกำหนดของวันนี้"),
-
+        ERR_01135("หมายเลขบัญชีธนาคารนี้ มีอยู่ในระบบแล้ว"),
+        ERR_01136("ถอนเงินเกินกำหนด กรุณาทำรายการใหม่วันพรุ้งนี้"),
         ERR_03000("IP ห้ามว่าง"),
         ERR_03001("ไม่พบข้อมูล"),
 
@@ -279,32 +280,32 @@ public class Constants {
         public static final String PERCENT = "PERCENT";
     }
 
-    public static String MESSAGE_WITHDRAW_BLOCK = "User %s ขออนุมัติถอน credit จำนวน %s บาท";
+    public static final String MESSAGE_WITHDRAW_BLOCK = "User %s ขออนุมัติถอน credit จำนวน %s บาท";
 
-    public static String MESSAGE_WITHDRAW_APPROVE = "Admin %s อนุมัติถอน credit ให้ User %s จำนวน %s บาท";
+    public static final String MESSAGE_WITHDRAW_APPROVE = "Admin %s อนุมัติถอน credit ให้ User %s จำนวน %s บาท";
 
-    public static String MESSAGE_WITHDRAW_REJECT = "Admin %s ปฏิเสธการถอนเงิน ของ User %s จำนวน %s บาท";
+    public static final String MESSAGE_WITHDRAW_REJECT = "Admin %s ปฏิเสธการถอนเงิน ของ User %s จำนวน %s บาท";
 
-    public static String MESSAGE_WITHDRAW_REJECT_RF = "Admin %s ปฏิเสธการถอนเงินแล้วคืน credit ให้ User %s จำนวน %s บาท";
+    public static final String MESSAGE_WITHDRAW_REJECT_RF = "Admin %s ปฏิเสธการถอนเงินแล้วคืน credit ให้ User %s จำนวน %s บาท";
 
-    public static String MESSAGE_WITHDRAW = "User %s ถอน credit จำนวน %s บาท";
+    public static final String MESSAGE_WITHDRAW = "User %s ถอน credit จำนวน %s บาท";
 
-    public static String MESSAGE_WITHDRAW_ERROR = "User %s ถอน credit จำนวน %s บาท ไม่สำเร็จ";
+    public static final String MESSAGE_WITHDRAW_ERROR = "User %s ถอน credit จำนวน %s บาท ไม่สำเร็จ";
 
-    public static String MESSAGE_WITHDRAW_REMAIN = " ยอดเงินคงเหลือ %s บาท";
+    public static final String MESSAGE_WITHDRAW_REMAIN = " ยอดเงินคงเหลือ %s บาท";
 
 
-    public static String MESSAGE_DEPOSIT = "User %s เติม credit จำนวน %s บาท";
+    public static final String MESSAGE_DEPOSIT = "User %s เติม credit จำนวน %s บาท";
 
-    public static String MESSAGE_DEPOSIT_REJECT = "Admin %s ปฏิเสธการฝากเงิน ของ User %s จำนวน %s บาท";
+    public static final String MESSAGE_DEPOSIT_REJECT = "Admin %s ปฏิเสธการฝากเงิน ของ User %s จำนวน %s บาท";
 
-    public static String MESSAGE_DEPOSIT_REJECT_RF = "Admin %s ปฏิเสธการฝากเงินแล้วคืนเงินให้ User %s จำนวน %s บาท";
+    public static final String MESSAGE_DEPOSIT_REJECT_RF = "Admin %s ปฏิเสธการฝากเงินแล้วคืนเงินให้ User %s จำนวน %s บาท";
 
-    public static String MESSAGE_ADMIN_DEPOSIT = "Admin %s เติม credit ให้ User %s จำนวน %s บาท";
+    public static final String MESSAGE_ADMIN_DEPOSIT = "Admin %s เติม credit ให้ User %s จำนวน %s บาท";
 
-    public static String MESSAGE_DEPOSIT_BLOCK = "User %s ขออนุมัติฝาก credit จำนวน %s บาท";
+    public static final String MESSAGE_DEPOSIT_BLOCK = "User %s ขออนุมัติฝาก credit จำนวน %s บาท";
 
-    public static String MESSAGE_POINT_TRANSFER = "User %s โอน point %s";
+    public static final String MESSAGE_POINT_TRANSFER = "User %s โอน point %s";
 
-    public static String MESSAGE_NOTSURE_REJECT = "Admin %s ปฏิเสธการฝากเงิน จำนวน %s บาท";
+    public static final String MESSAGE_NOTSURE_REJECT = "Admin %s ปฏิเสธการฝากเงิน จำนวน %s บาท";
 }

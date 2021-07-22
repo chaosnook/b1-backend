@@ -1,7 +1,6 @@
 package com.game.b1ingservice.payload.deposithistory;
 
 import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.math.BigDecimal;
 

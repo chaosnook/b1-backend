@@ -37,12 +37,13 @@ public class WinLoseHistory  extends DateAudit<String> implements Serializable {
     @Column(name = "user_id")
     private Long userId;
 
+    @Embedded
+    private UserAuditEmbeddable audit = new UserAuditEmbeddable();
+
     @JsonIgnore
     @ToString.Exclude
     @JoinColumn(name = "agent_id", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Agent agent;
 
-    @Embedded
-    private UserAuditEmbeddable audit = new UserAuditEmbeddable();
 }

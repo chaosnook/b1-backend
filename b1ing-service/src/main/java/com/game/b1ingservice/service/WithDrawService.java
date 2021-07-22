@@ -4,6 +4,6 @@ import com.game.b1ingservice.payload.withdraw.WithDrawRequest;
 import com.game.b1ingservice.payload.withdraw.WithDrawResponse;
 
 public interface WithDrawService {
-    WithDrawResponse withdraw(WithDrawRequest withDrawRequest, String username, String prefix);
+    WithDrawResponse withdraw(WithDrawRequest withDrawRequest, String username, Long agentId);
 
 }
