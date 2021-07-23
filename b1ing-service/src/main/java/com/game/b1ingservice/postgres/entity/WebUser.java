@@ -67,7 +67,7 @@ public class WebUser extends DateAudit<String> implements Serializable {
     @Column(name = "deposit_ref")
     private String depositRef;
 
-    @Column(name = "withdraw_limit", columnDefinition = "default 0")
+    @Column(name = "withdraw_limit", columnDefinition = "integer default 0")
     private Integer withdrawLimit = 0;
 
     @Embedded
