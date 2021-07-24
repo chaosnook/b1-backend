@@ -26,7 +26,32 @@ public class WithdrawHistoryController {
     @PostMapping(value = "/withdrawHistory/updateBlockAutoTransaction", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> updateBlockAutoTransaction(@RequestBody WithdrawBlockStatusReq req, @AuthenticationPrincipal UserPrincipal principal) {
 
-        WithDrawResponse response = withdrawHistoryService.updateBlockAutoTransaction(req, principal.getUsername(), principal.getAgentId());
+        WithDrawResponse response = withdrawHistoryService.updateBlockAutoTransaction(req, principal.getUsername(),
+                principal.getAgentId(), principal.getPrefix());
+
+        if (response.getStatus()) {
+            return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+        } else {
+            return ResponseHelper.bad(response.getMessage());
+        }
+    }
+
+    @PostMapping(value = "/withdrawHistory/refreshTransaction", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> refreshTransaction(@RequestBody RefreshTransactionReq req, @AuthenticationPrincipal UserPrincipal principal) {
+        WithDrawResponse response = withdrawHistoryService.refreshTransaction(req, principal.getUsername(),
+                principal.getAgentId(), principal.getPrefix());
+
+        if (response.getStatus()) {
+            return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
+        } else {
+            return ResponseHelper.bad(response.getMessage());
+        }
+    }
+
+    @PostMapping(value = "/withdrawHistory/selfTransfer", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> selfTransfer(@RequestBody SelfTransactionReq req, @AuthenticationPrincipal UserPrincipal principal) {
+        WithDrawResponse response = withdrawHistoryService.selfTransfer(req, principal.getUsername(),
+                principal.getAgentId(), principal.getPrefix());
 
         if (response.getStatus()) {
             return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);

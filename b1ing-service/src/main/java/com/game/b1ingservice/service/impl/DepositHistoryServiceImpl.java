@@ -75,6 +75,9 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     @Autowired
     private BankBotService bankBotService;
 
+    @Autowired
+    private RedisService redisService;
+
     @Override
     public Page<DepositListHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type) {
 
@@ -242,15 +245,23 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     }
 
     @Override
-    public DepositResponse updateBlockAutoTransaction(DepositBlockStatusReq req, String usernameAdmin, Long agentId) {
+    public DepositResponse updateBlockAutoTransaction(DepositBlockStatusReq req, String usernameAdmin, Long agentId, String prefix) {
         DepositResponse response = new DepositResponse();
         response.setStatus(true);
+
+        String lockKey = String.format("LOCK_D_BA:%s:%s", prefix, req.getDepositId());
         try {
             String status = req.getStatus();
             DepositHistory history = depositHistoryRepository.findFirstByIdAndStatusAndAgent_Id(req.getDepositId(), DEPOSIT_STATUS.BLOCK_AUTO, agentId);
             if (history == null) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_00011);
             }
+
+            // TODO Lock transaction with redis
+            if (!redisService.setEX(lockKey, 1, 3600)) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_00015);
+            }
+
             WebUser webUser = history.getUser();
             if (webUser == null) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_00012);
@@ -319,6 +330,9 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
             history.setReason(req.getReason());
             depositHistoryRepository.save(history);
+
+            // TODO Unlock transaction on redis
+            redisService.delete(lockKey);
         } catch (Exception e) {
             log.error("updateBlockAutoTransaction", e);
             response.setStatus(false);
@@ -329,13 +343,19 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     }
 
     @Override
-    public DepositResponse updateNoteSureTransaction(DepositNotSureStatusReq req, String usernameAdmin, Long agentId) {
+    public DepositResponse updateNoteSureTransaction(DepositNotSureStatusReq req, String usernameAdmin, Long agentId, String prefix) {
         DepositResponse response = new DepositResponse();
         response.setStatus(true);
+        String lockKey = String.format("LOCK_D_NOT_SURE:%s:%s", prefix, req.getDepositId());
         try {
             DepositHistory history = depositHistoryRepository.findFirstByIdAndStatusAndAgent_Id(req.getDepositId(), NOT_SURE, agentId);
             if (history == null) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_00011);
+            }
+
+            // TODO Lock transaction with redis
+            if (!redisService.setEX(lockKey, 1, 3600)) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_00015);
             }
 
             String status = req.getStatus();
@@ -377,6 +397,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
             }
 
             depositHistoryRepository.save(history);
+            redisService.delete(lockKey);
         }catch (Exception e) {
             log.error("updateNoteSureTransaction", e);
             response.setStatus(false);

@@ -26,7 +26,11 @@ public interface WithdrawHistoryService {
 
     void updateStatus(WithdrawHistoryUpdateStatusReq req, Long agentId);
 
-    WithDrawResponse updateBlockAutoTransaction(WithdrawBlockStatusReq req, String username, Long agentId);
+    WithDrawResponse updateBlockAutoTransaction(WithdrawBlockStatusReq req, String username, Long agentId, String prefix);
 
     List<WithdrawHistoryTopAll20Resp> findLast20Transaction(Long agentId);
+
+    WithDrawResponse refreshTransaction(RefreshTransactionReq req, String usernameAdmin, Long agentId, String prefix);
+
+    WithDrawResponse selfTransfer(SelfTransactionReq req, String username, Long agentId, String prefix);
 }
