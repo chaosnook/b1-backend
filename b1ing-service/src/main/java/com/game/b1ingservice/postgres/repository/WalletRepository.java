@@ -86,7 +86,7 @@ public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecif
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE wallet SET credit = ? , version=version+1  WHERE user_id = ? ", nativeQuery = true)
+    @Query(value = "UPDATE wallet SET credit = ? , version=version+1, updated_date = now()  WHERE user_id = ? ", nativeQuery = true)
     void updateUserCredit(BigDecimal credit, Long userId);
 
     @Query(value = "select o from Wallet o where o.trueWallet.botIp = :botIp and o.user.tel = :mobile and o.user.agent.id = :agentId")
