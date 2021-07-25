@@ -41,6 +41,7 @@ public class Constants {
 
         ERR_00013("กรุณารออนุมัติถอน"),
         ERR_00014("ถอนไม่สำเร็จ"),
+        ERR_00015("Admin คนอื่นกำลังทำรายการ"),
 
 
         ERR_01000("id ห้ามว่าง"),
@@ -241,6 +242,9 @@ public class Constants {
         public static final String BLOCK_AUTO = "BLOCK_AUTO";
         public static final String REJECT = "REJECT";
         public static final String REJECT_N_REFUND = "REJECT_N_REFUND";
+
+        public static final String SELF_TRANSFER = "SELF_TRANSFER";
+
     }
 
 
@@ -290,7 +294,13 @@ public class Constants {
 
     public static final String MESSAGE_WITHDRAW = "User %s ถอน credit จำนวน %s บาท";
 
-    public static final String MESSAGE_WITHDRAW_ERROR = "User %s ถอน credit จำนวน %s บาท ไม่สำเร็จ";
+    public static final String MESSAGE_WITHDRAW_ERROR = "User %s ถอน credit จำนวน %s บาท ไม่สำเร็จ : %s";
+
+    public static final String MESSAGE_WITHDRAW_SELF = "Admin %s ถอนมือให้ User %s จำนวน %s บาท";
+
+    public static final String MESSAGE_RE_WITHDRAW = "Admin %s ทำการถอนใหม่ให้ User %s จำนวน %s บาท";
+
+    public static final String MESSAGE_RE_WITHDRAW_ERROR = "Admin %s ทำการถอนใหม่ให้ User %s จำนวน %s บาท ไม่สำเร็จ : %s";
 
     public static final String MESSAGE_WITHDRAW_REMAIN = " ยอดเงินคงเหลือ %s บาท";
 

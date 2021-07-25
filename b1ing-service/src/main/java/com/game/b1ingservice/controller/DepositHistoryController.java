@@ -25,7 +25,8 @@ public class DepositHistoryController {
     @PostMapping(value = "/depositHistory/updateBlockAutoTransaction", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> updateBlockAutoTransaction(@RequestBody DepositBlockStatusReq req, @AuthenticationPrincipal UserPrincipal principal) {
 
-        DepositResponse response = depositHistoryService.updateBlockAutoTransaction(req, principal.getUsername(), principal.getAgentId());
+        DepositResponse response = depositHistoryService.updateBlockAutoTransaction(req, principal.getUsername(),
+                principal.getAgentId(), principal.getPrefix());
 
         if (response.getStatus()) {
             return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);
@@ -38,7 +39,8 @@ public class DepositHistoryController {
     @PostMapping(value = "/depositHistory/updateNotSureStatus", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<?> updateBlockAutoTransaction(@RequestBody DepositNotSureStatusReq req, @AuthenticationPrincipal UserPrincipal principal) {
 
-        DepositResponse response = depositHistoryService.updateNoteSureTransaction(req, principal.getUsername(), principal.getAgentId());
+        DepositResponse response = depositHistoryService.updateNoteSureTransaction(req, principal.getUsername(),
+                principal.getAgentId(), principal.getPrefix());
 
         if (response.getStatus()) {
             return ResponseHelper.success(Constants.MESSAGE.MSG_00000.msg);

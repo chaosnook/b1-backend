@@ -7,12 +7,6 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
-public class WithdrawBlockStatusReq {
-
+public class RefreshTransactionReq {
     private Long withdrawId;
-    private String status;
-    private String reason;
-
-    private String beforeTransfer;
-    private String afterTransfer;
 }

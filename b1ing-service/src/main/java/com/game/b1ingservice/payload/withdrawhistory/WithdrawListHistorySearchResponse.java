@@ -21,6 +21,9 @@ public class WithdrawListHistorySearchResponse {
     private String qrCode;
     private String admin;
 
+    private String beforeTransfer;
+    private String afterTransfer;
+
     private BigDecimal remainBalance;
 
     private int version;

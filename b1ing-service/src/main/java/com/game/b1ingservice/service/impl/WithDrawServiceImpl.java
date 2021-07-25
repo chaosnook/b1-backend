@@ -144,7 +144,7 @@ public class WithDrawServiceImpl implements WithDrawService {
                     withdrawHistory.setStatus(Constants.WITHDRAW_STATUS.ERROR);
                     withdrawHistory.setReason(bankBotResult.getMessege());
 
-                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW_ERROR, webUser.getUsername(), creditWithDraw),
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW_ERROR, webUser.getUsername(), creditWithDraw, bankBotResult.getMessege()),
                             wallet.getUser().getAgent().getLineTokenWithdraw());
                 }
             } else {

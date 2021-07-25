@@ -18,10 +18,7 @@ import com.game.b1ingservice.postgres.entity.WithdrawHistory;
 import com.game.b1ingservice.postgres.repository.WalletRepository;
 import com.game.b1ingservice.postgres.repository.WebUserRepository;
 import com.game.b1ingservice.postgres.repository.WithdrawHistoryRepository;
-import com.game.b1ingservice.service.AMBService;
-import com.game.b1ingservice.service.BankBotService;
-import com.game.b1ingservice.service.LineNotifyService;
-import com.game.b1ingservice.service.WithdrawHistoryService;
+import com.game.b1ingservice.service.*;
 import com.game.b1ingservice.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +63,9 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     @Autowired
     private AMBService ambService;
 
+    @Autowired
+    private RedisService redisService;
+
     @Override
     public WithdrawHistory saveHistory(WithdrawHistory withdrawHistory) {
         return withdrawHistoryRepository.save(withdrawHistory);
@@ -74,13 +74,13 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     @Override
     public List<WithdrawHisUserRes> searchByUser(WithdrawHisUserReq withDrawRequest, String username) {
         List<WithdrawHistory> depositHistories = new ArrayList<>();
-        List<String> statuses =  Arrays.asList(SUCCESS, REJECT_N_REFUND, BLOCK_AUTO, REJECT);
+        List<String> statuses = Arrays.asList(SUCCESS, REJECT_N_REFUND, BLOCK_AUTO, REJECT);
 
         if (withDrawRequest.getStartDate() != null && withDrawRequest.getPrevDate() != null) {
             depositHistories = withdrawHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenAndStatusInOrderByCreatedDateDesc(username,
                     DateUtils.atStartOfDay(DateUtils.convertStartDate(withDrawRequest.getPrevDate())).toInstant(),
                     DateUtils.atEndOfDay(DateUtils.convertEndDate(withDrawRequest.getStartDate())).toInstant(),
-                   statuses);
+                    statuses);
         } else if (withDrawRequest.getStartDate() != null) {
             depositHistories = withdrawHistoryRepository.findAllByUser_usernameAndCreatedDateBetweenAndStatusInOrderByCreatedDateDesc(username,
                     DateUtils.atStartOfDay(DateUtils.convertStartDate(withDrawRequest.getStartDate())).toInstant(),
@@ -215,6 +215,8 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
         }
         searchResponse.setRemainBalance(withdrawHistory.getRemainBalance());
 
+        searchResponse.setBeforeTransfer(withdrawHistory.getBeforeTransfer());
+        searchResponse.setAfterTransfer(withdrawHistory.getAfterTransfer());
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a");
 
@@ -251,8 +253,9 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     }
 
     @Override
-    public WithDrawResponse updateBlockAutoTransaction(WithdrawBlockStatusReq req, String usernameAdmin, Long agentId) {
+    public WithDrawResponse updateBlockAutoTransaction(WithdrawBlockStatusReq req, String usernameAdmin, Long agentId, String prefix) {
         WithDrawResponse response = new WithDrawResponse();
+        String lockKey = String.format("LOCK_W_BA:%s:%s", prefix, req.getWithdrawId());
         try {
             String status = req.getStatus();
 
@@ -260,6 +263,11 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
             if (history == null) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_00011);
             }
+
+            if (!redisService.setEX(lockKey, 1, 3600)) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_00015);
+            }
+
             WebUser webUser = history.getUser();
             if (webUser == null) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_00012);
@@ -328,10 +336,21 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
                     history.setStatus(WITHDRAW_STATUS.ERROR);
                     history.setReason("Can't add credit at amb api");
                 }
+            } else if (SELF_TRANSFER.equals(status)) {
+                history.setStatus(SUCCESS);
+                history.setBeforeTransfer(req.getBeforeTransfer());
+                history.setAfterTransfer(req.getAfterTransfer());
+                response.setStatus(true);
+
+                lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW_SELF, usernameAdmin, webUser.getUsername(),
+                        history.getAmount()),
+                        agent.getLineTokenWithdraw());
             }
 
             history.setReason(req.getReason());
             this.saveHistory(history);
+
+            redisService.delete(lockKey);
 
         } catch (Exception e) {
             log.error("updateBlockAutoTransaction", e);
@@ -344,10 +363,10 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
 
     @Override
     public List<WithdrawHistoryTopAll20Resp> findLast20Transaction(Long agentId) {
-       Page<WithdrawHistory> list =  withdrawHistoryRepository.findByUser_Agent_IdAndStatusOrderByCreatedDateDesc(
-               agentId, SUCCESS, PageRequest.of(0, 20));
+        Page<WithdrawHistory> list = withdrawHistoryRepository.findByUser_Agent_IdAndStatusOrderByCreatedDateDesc(
+                agentId, SUCCESS, PageRequest.of(0, 20));
 
-       List<WithdrawHistoryTopAll20Resp> response = new ArrayList<>();
+        List<WithdrawHistoryTopAll20Resp> response = new ArrayList<>();
         if (!list.isEmpty()) {
             for (WithdrawHistory withdrawDto : list) {
                 WithdrawHistoryTopAll20Resp withdraw = new WithdrawHistoryTopAll20Resp();
@@ -373,6 +392,116 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
                 response.add(withdraw);
             }
         }
+        return response;
+    }
+
+
+    //TODO ให้ bank bot โอนเงินอีกรอบ
+    @Override
+    public WithDrawResponse refreshTransaction(RefreshTransactionReq req, String usernameAdmin, Long agentId, String prefix) {
+        WithDrawResponse response = new WithDrawResponse();
+        String lockKey = String.format("LOCK_REFRESH:%s:%s", prefix, req.getWithdrawId());
+        try {
+            WithdrawHistory history = withdrawHistoryRepository.findFirstByIdAndStatusAndAgent_Id(req.getWithdrawId(), ERROR, agentId);
+            if (history == null) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_00011);
+            }
+
+            if (!redisService.setEX(lockKey, 1, 3600)) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_00015);
+            }
+
+            WebUser webUser = history.getUser();
+            if (webUser == null) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_00012);
+            }
+
+            Agent agent = webUser.getAgent();
+
+            BankBotScbWithdrawCreditRequest request = new BankBotScbWithdrawCreditRequest();
+            request.setAmount(history.getAmount());
+            request.setAccountTo(webUser.getAccountNumber());
+            request.setBankCode(webUser.getBankName());
+
+            BankBotScbWithdrawCreditResponse bankBotResult = bankBotService.withDrawCredit(request, agent.getId());
+            log.info("bankbot withdraw response {}", bankBotResult);
+            history.setIsAuto(false);
+
+            if (bankBotResult.getStatus()) {
+                response.setStatus(true);
+                history.setStatus(SUCCESS);
+                history.setRemainBalance(bankBotResult.getRemainingBalance());
+                history.setQrCode(bankBotResult.getQrString());
+                history.setReason("");
+
+                lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_RE_WITHDRAW + MESSAGE_WITHDRAW_REMAIN,
+                        usernameAdmin, webUser.getUsername(), history.getAmount(), bankBotResult.getRemainingBalance()),
+                        agent.getLineTokenWithdraw());
+            } else {
+                response.setStatus(false);
+                response.setMessage(bankBotResult.getMessege());
+
+                history.setStatus(WITHDRAW_STATUS.ERROR);
+                history.setReason(bankBotResult.getMessege());
+
+                lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_RE_WITHDRAW_ERROR,
+                        usernameAdmin, webUser.getUsername(), history.getAmount(), bankBotResult.getMessege()),
+                        agent.getLineTokenWithdraw());
+            }
+
+
+            this.saveHistory(history);
+
+            redisService.delete(lockKey);
+        } catch (Exception e) {
+            log.error("refreshTransaction", e);
+            response.setStatus(false);
+            response.setMessage(e.getMessage());
+
+            redisService.delete(lockKey);
+        }
+        return response;
+    }
+
+    @Override
+    public WithDrawResponse selfTransfer(SelfTransactionReq req, String usernameAdmin, Long agentId, String prefix) {
+        WithDrawResponse response = new WithDrawResponse();
+        String lockKey = String.format("LOCK_W_BA:%s:%s", prefix, req.getWithdrawId());
+        try {
+            WithdrawHistory history = withdrawHistoryRepository.findFirstByIdAndStatusAndAgent_Id(req.getWithdrawId(), WITHDRAW_STATUS.ERROR, agentId);
+            if (history == null) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_00011);
+            }
+
+            if (!redisService.setEX(lockKey, 1, 3600)) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_00015);
+            }
+
+            WebUser webUser = history.getUser();
+            if (webUser == null) {
+                throw new ErrorMessageException(Constants.ERROR.ERR_00012);
+            }
+
+            Agent agent = webUser.getAgent();
+            history.setStatus(SUCCESS);
+            history.setBeforeTransfer(req.getBeforeTransfer());
+            history.setAfterTransfer(req.getAfterTransfer());
+            response.setStatus(true);
+            history.setReason("");
+
+            lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_WITHDRAW_SELF, usernameAdmin, webUser.getUsername(),
+                    history.getAmount()),
+                    agent.getLineTokenWithdraw());
+
+            this.saveHistory(history);
+
+            redisService.delete(lockKey);
+        } catch (Exception e) {
+            log.error("selfTransfer", e);
+            response.setStatus(false);
+            response.setMessage(e.getMessage());
+        }
+
         return response;
     }
 

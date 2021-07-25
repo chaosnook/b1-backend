@@ -45,6 +45,12 @@ public class WithdrawHistory  extends DateAudit<String> implements Serializable 
     @Column(name = "qr_code", columnDefinition = "character varying(100)")
     private String qrCode;
 
+    @Column(name = "before_transfer", columnDefinition = "character varying(225)")
+    private String beforeTransfer;
+
+    @Column(name = "after_transfer", columnDefinition = "character varying(225)")
+    private String afterTransfer;
+
     @Column(name = "remain_balance", columnDefinition = "numeric(18,2)")
     private BigDecimal remainBalance;
 
