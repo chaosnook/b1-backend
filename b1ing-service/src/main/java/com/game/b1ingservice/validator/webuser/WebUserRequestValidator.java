@@ -20,8 +20,7 @@ public class WebUserRequestValidator extends CommonValidator {
             throw new ErrorMessageException(Constants.ERROR.ERR_01106);
         } else if(!isNumber(req.getTel())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01114);
-
-        } else if(webUserRepository.existsByTelAndAgent_Id(req.getTel(), req.getAgentId())) {
+        } else if(webUserRepository.existsByTelAndAgent_Prefix(req.getTel(), req.getPrefix())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01107);
         }
 
@@ -39,7 +38,7 @@ public class WebUserRequestValidator extends CommonValidator {
             throw new ErrorMessageException(Constants.ERROR.ERR_01121);
         } else if(!isNumber(req.getAccountNumber())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01122);
-        } else if (webUserRepository.existsByAccountNumberAndAgent_Id(req.getAccountNumber(), req.getAgentId())) {
+        } else if (webUserRepository.existsByAccountNumberAndAgent_Prefix(req.getAccountNumber(), req.getPrefix())) {
             throw new ErrorMessageException(Constants.ERROR.ERR_01135);
         }
 
