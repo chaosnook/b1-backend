@@ -36,6 +36,7 @@ public class WebUserController {
     @PostMapping(value = "/webuser")
     public ResponseEntity<?> createWebUser(@RequestBody WebUserRequest req, @AuthenticationPrincipal UserPrincipal principal) {
         req.setAgentId(principal.getAgentId());
+        req.setPrefix(principal.getPrefix());
         webUserRequestValidator.validate(req);
         UserInfoResponse resp = webUserService.createUser(req, principal.getPrefix());
         return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, resp);

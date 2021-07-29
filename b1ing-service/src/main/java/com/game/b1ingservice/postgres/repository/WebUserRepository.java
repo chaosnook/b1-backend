@@ -18,6 +18,8 @@ public interface WebUserRepository extends JpaRepository<WebUser, Long>, JpaSpec
 
     boolean existsByTelAndAgent_Id(String tel, Long agentId);
 
+    boolean existsByTelAndAgent_Prefix(String tel, String prefix);
+
     Optional<WebUser> findFirstByUsernameAndAgent_Id(String username, Long agentId);
 
     Optional<WebUser> findFirstByUsernameAndAgent_Prefix(String username, String prefix);
@@ -39,6 +41,8 @@ public interface WebUserRepository extends JpaRepository<WebUser, Long>, JpaSpec
     void updateDepositRef(String ref, Long userId);
 
     boolean existsByAccountNumberAndAgent_Id(String accountNumber, Long agentId);
+
+    boolean existsByAccountNumberAndAgent_Prefix(String accountNumber, String prefix);
 
     @Transactional
     @Modifying
