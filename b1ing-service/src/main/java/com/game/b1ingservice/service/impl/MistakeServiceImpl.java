@@ -10,10 +10,7 @@ import com.game.b1ingservice.payload.misktake.MistakeSearchReq;
 import com.game.b1ingservice.payload.misktake.MistakeSearchSummaryRes;
 import com.game.b1ingservice.postgres.entity.*;
 import com.game.b1ingservice.postgres.repository.*;
-import com.game.b1ingservice.service.AMBService;
-import com.game.b1ingservice.service.AffiliateService;
-import com.game.b1ingservice.service.LineNotifyService;
-import com.game.b1ingservice.service.MistakeService;
+import com.game.b1ingservice.service.*;
 import com.game.b1ingservice.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +59,9 @@ public class MistakeServiceImpl implements MistakeService {
     @Autowired
     private LineNotifyService lineNotifyService;
 
+    @Autowired
+    private WalletService walletService;
+
     @Override
     public void createMistake(MistakeReq mistakeReq, UserPrincipal principal) {
         Optional<WebUser> opt = webUserRepository.findFirstByUsernameAndAgent_Id(mistakeReq.getUsername().toLowerCase(), principal.getAgentId());
@@ -89,14 +89,15 @@ public class MistakeServiceImpl implements MistakeService {
         // update mistake
         adminUserRepository.addMistake(adminOpt.get().getId());
 
-        Wallet wallet = user.getWallet();
-        BigDecimal beforeAmount = wallet.getCredit();
-        BigDecimal afterAmount = beforeAmount.add(credit);
+        BigDecimal beforeAmount = walletService.updateCurrentWallet(user);
+        BigDecimal afterAmount;
 
         AmbResponse<DepositRes> ambResponse;
 
         switch (mistakeReq.getType()) {
             case Constants.PROBLEM.NO_SLIP:
+                 afterAmount = beforeAmount.add(credit);
+
                 ambResponse = ambService.deposit(DepositReq.builder()
                         .amount(credit.toPlainString()).build(), user.getUsernameAmb(), agent);
                 if (ambResponse.getCode() == 0) {
@@ -108,7 +109,7 @@ public class MistakeServiceImpl implements MistakeService {
                     walletRepository.depositCredit(credit, user.getId());
                     webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), user.getId());
                     // check affiliate
-                    affiliateService.earnPoint(wallet.getUser().getId(), credit, agent.getId());
+                    affiliateService.earnPoint(user.getId(), credit, agent.getId());
 
                     DepositHistory depositHistory = new DepositHistory();
                     depositHistory.setAmount(credit);
@@ -129,6 +130,7 @@ public class MistakeServiceImpl implements MistakeService {
                 break;
 
             case Constants.PROBLEM.ADD_CREDIT:
+                 afterAmount = beforeAmount.add(credit);
                 ambResponse = ambService.deposit(DepositReq.builder()
                         .amount(credit.toPlainString()).build(), user.getUsernameAmb(), agent);
 
@@ -140,7 +142,7 @@ public class MistakeServiceImpl implements MistakeService {
                     walletRepository.depositCreditAndTurnOver(credit, credit, mistakeReq.getTurnOver(), user.getId());
                     webUserRepository.updateDepositRef(ambResponse.getResult().getRef(), user.getId());
                     // check affiliate
-                    affiliateService.earnPoint(wallet.getUser().getId(), credit, agent.getId());
+                    affiliateService.earnPoint(user.getId(), credit, agent.getId());
 
                     DepositHistory depositHistory = new DepositHistory();
                     depositHistory.setAmount(credit);
@@ -161,9 +163,10 @@ public class MistakeServiceImpl implements MistakeService {
                 break;
 
             case Constants.PROBLEM.CUT_CREDIT:
+                afterAmount = beforeAmount.subtract(credit);
+
                 AmbResponse<WithdrawRes> withdrawRes = ambService.withdraw(WithdrawReq.builder()
                         .amount(credit.toPlainString()).build(), user.getUsernameAmb(), agent);
-
                 if (withdrawRes.getCode() == 0) {
                     walletRepository.withDrawCredit(credit, user.getId());
 
