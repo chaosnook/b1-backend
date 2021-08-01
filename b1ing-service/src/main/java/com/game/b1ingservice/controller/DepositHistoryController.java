@@ -65,8 +65,8 @@ public class DepositHistoryController {
         req.setAgentId(principal.getAgentId());
         SearchDepositHistorySpecification specification = new SearchDepositHistorySpecification(req);
 
-        List<DepositSummaryHistorySearchResponse> searchResponse = depositHistoryService.findSummaryByCriteria(specification, req.getType());
-        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, searchResponse);
+        Page<DepositSummaryHistorySearchResponse> searchResponse = depositHistoryService.findSummaryByCriteria(specification, specification.getPageable(), req.getType());
+        return ResponseHelper.successPage(searchResponse, "data", Constants.MESSAGE.MSG_00000.msg);
     }
 
     @PostMapping(value = "/search/list/depositHistory/top20", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})

@@ -98,18 +98,18 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     }
 
     @Override
-    public List<DepositSummaryHistorySearchResponse> findSummaryByCriteria(Specification<DepositHistory> specification, String type) {
+    public Page<DepositSummaryHistorySearchResponse> findSummaryByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type) {
 
-        List<DepositListHistorySearchResponse> searchData = depositHistoryRepository.findAll(specification).stream().map(converter).collect(Collectors.toList());
+        Page<DepositListHistorySearchResponse> searchData = depositHistoryRepository.findAll(specification, pageable).map(converter);
 
         List<DepositListHistorySearchResponse> listSummary;
         if("SEVEN".equals(type)) {
             listSummary = findUserDepositSevenDay(searchData);
         } else {
-            listSummary = searchData;
+            listSummary = searchData.getContent();
         }
 
-        return summaryHistory(listSummary);
+        return summaryHistory(listSummary, pageable);
     }
 
     @Override
@@ -454,8 +454,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         return result;
     }
 
-
-    private List<DepositSummaryHistorySearchResponse> summaryHistory(List<DepositListHistorySearchResponse> searchData) {
+    private Page<DepositSummaryHistorySearchResponse> summaryHistory(List<DepositListHistorySearchResponse> searchData, Pageable pageable) {
 
         Map<String, DepositSummaryHistorySearchResponse> map = new HashMap<>();
         for(DepositListHistorySearchResponse depositList: searchData) {
@@ -489,8 +488,8 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         for (Map.Entry<String, DepositSummaryHistorySearchResponse> entry : map.entrySet()) {
             listSummary.add(entry.getValue());
         }
-
-        return listSummary;
+        
+        return new PageImpl<>(listSummary, pageable, listSummary.size());
     }
 
     private List<DepositListHistorySearchResponse> findUserDepositSevenDay(Page<DepositListHistorySearchResponse> searchData) {

@@ -80,7 +80,8 @@ public class WithdrawHistoryController {
     public ResponseEntity<?> searchSummaryWithDrawHistory(@RequestBody WithdrawHistorySearchRequest req, @AuthenticationPrincipal UserPrincipal principal) {
         req.setAgentId(principal.getAgentId());
         SearchWithdrawHistorySpecification specification = new SearchWithdrawHistorySpecification(req);
-        return ResponseHelper.successWithData(Constants.MESSAGE.MSG_00000.msg, withdrawHistoryService.findSummaryByCriteria(specification, null));
+        Page<WithdrawSummaryHistorySearchResponse> searchResponse = withdrawHistoryService.findSummaryByCriteria(specification, specification.getPageable(), null);
+        return ResponseHelper.successPage(searchResponse, "data", Constants.MESSAGE.MSG_00000.msg);
     }
 
     @PostMapping(value = "/withdrawHistory/userId/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})

@@ -14,7 +14,7 @@ import java.util.List;
 public interface DepositHistoryService {
     Page<DepositListHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type);
 
-    List<DepositSummaryHistorySearchResponse> findSummaryByCriteria(Specification<DepositHistory> specification, String type);
+    Page<DepositSummaryHistorySearchResponse> findSummaryByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type);
 
     List<DepositHisUserRes> searchByUser(DepositHisUserReq depositHisUserReq, String username);
 
