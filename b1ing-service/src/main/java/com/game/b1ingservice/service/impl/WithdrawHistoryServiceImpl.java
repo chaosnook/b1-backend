@@ -183,18 +183,15 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     Function<WithdrawHistory, WithdrawListHistorySearchResponse> converter = withdrawHistory -> {
         WithdrawListHistorySearchResponse searchResponse = new WithdrawListHistorySearchResponse();
         searchResponse.setId(withdrawHistory.getId());
-        if (null == withdrawHistory.getBank()) {
-            searchResponse.setBankName(null);
-            searchResponse.setBankCode(null);
-        } else {
-            searchResponse.setBankName(withdrawHistory.getBank().getBankName());
-            searchResponse.setBankCode(withdrawHistory.getBank().getBankCode());
+        
+        WebUser user = withdrawHistory.getUser();
+        if (null != user) {
+            searchResponse.setUsername(user.getUsername());
+            searchResponse.setAccountNumber(user.getAccountNumber());
+            searchResponse.setBankCode(user.getBankName());
+            searchResponse.setFullName(String.format("%s %s", user.getFirstName(), user.getLastName()));
         }
-        if (null == withdrawHistory.getUser()) {
-            searchResponse.setUsername(null);
-        } else {
-            searchResponse.setUsername(withdrawHistory.getUser().getUsername());
-        }
+
         searchResponse.setAmount(withdrawHistory.getAmount());
         searchResponse.setBeforeAmount(withdrawHistory.getBeforeAmount());
         searchResponse.setAfterAmount(withdrawHistory.getAfterAmount());

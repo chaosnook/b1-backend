@@ -388,7 +388,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
                     history.setUser(webUser);
                     history.setBeforeAmount(beforeAmount);
-                    history.setAfterAmount(history.getAmount().add(history.getBonusAmount()));
+                    history.setAfterAmount(beforeAmount.add(history.getAmount().add(history.getBonusAmount())));
                     history.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
 
                     lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT, usernameAdmin, req.getUsername(), history.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
