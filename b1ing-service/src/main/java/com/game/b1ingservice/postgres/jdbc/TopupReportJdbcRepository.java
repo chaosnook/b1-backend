@@ -27,15 +27,16 @@ public class TopupReportJdbcRepository {
             String sql = "select " +
                     "     bank.bank_name as labels , " +
                     "     sum(deposit_history.amount) as data " +
-                    "     " +
                     "from deposit_history " +
                     "inner join bank on deposit_history.bank_code = bank.id " +
-                    "where to_char(deposit_history.created_date, 'YYYY-MM-DD') between ? and ? " +
-                    "and deposit_history.agent_id = ? " +
-                    "group by bank.bank_name  ";
+                    "where deposit_history.created_date between TO_TIMESTAMP(?, 'yyyy-MM-DD HH24:MI:SS') and TO_TIMESTAMP(?, 'yyyy-MM-DD HH24:MI:SS') " +
+                    "and deposit_history.agent_id = ? and deposit_history.status = 'SUCCESS' " +
+                    "group by bank.bank_name ";
 
             topup = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(TopupReport.class),
-                    topupRequest.getListDateFrom(), topupRequest.getListDateTo(), principal.getAgentId());
+                    topupRequest.getListDateFrom().concat(" 00:00:00"),
+                    topupRequest.getListDateTo().concat(" 23:59:59"),
+                    principal.getAgentId());
 
         } catch (Exception e) {
             log.error("topupReport", e);

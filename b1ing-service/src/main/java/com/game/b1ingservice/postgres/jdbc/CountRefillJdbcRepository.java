@@ -40,7 +40,7 @@ public class CountRefillJdbcRepository {
             sql.append("where d.created_date between TO_TIMESTAMP( ? , 'YYYY-MM-DD HH24:MI:SS') ");
             sql.append("and TO_TIMESTAMP( ? , 'YYYY-MM-DD HH24:MI:SS') ");
             sql.append("and a.id = ? ");
-            sql.append("and d.status = 'SUCCESS' ");
+            sql.append("and d.status = 'SUCCESS' and (d.mistake_type is null or d.mistake_type = 'NO_SLIP') ");
             sql.append("group by u.username) dh on dh.username = us.username ");
             sql.append("left join (select (u.username) as username, count(wh.id) as count, sum(wh.amount) as withdraw  ");
             sql.append("from users u ");
@@ -49,7 +49,7 @@ public class CountRefillJdbcRepository {
             sql.append("where wh.created_date between TO_TIMESTAMP( ? , 'YYYY-MM-DD HH24:MI:SS') ");
             sql.append("and TO_TIMESTAMP( ? , 'YYYY-MM-DD HH24:MI:SS') ");
             sql.append("and a.id = ? ");
-            sql.append("and wh.status = 'SUCCESS' ");
+            sql.append("and wh.status = 'SUCCESS' and wh.mistake_type is null ");
             sql.append("group by u.username) wh on wh.username = us.username ");
             sql.append("where (dh.count is not null) ");
             if (username != null && !"".equals(username)) {

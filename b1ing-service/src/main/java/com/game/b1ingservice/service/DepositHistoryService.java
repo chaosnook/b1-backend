@@ -14,7 +14,7 @@ import java.util.List;
 public interface DepositHistoryService {
     Page<DepositListHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type);
 
-    Page<DepositSummaryHistorySearchResponse> findSummaryByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type);
+    List<DepositSummaryHistorySearchResponse> findSummaryByCriteria(Specification<DepositHistory> specification, String type);
 
     List<DepositHisUserRes> searchByUser(DepositHisUserReq depositHisUserReq, String username);
 
@@ -23,7 +23,6 @@ public interface DepositHistoryService {
     List<DepositHistoryByUserIdResp> findListByUserId(Long userId);
 
     ProfitAndLossResp findProfitAndLoss(ProfitAndLossRequest req, UserPrincipal principal);
-
 
     DepositResponse updateBlockAutoTransaction(DepositBlockStatusReq req, String username, Long agentId, String prefix);
 

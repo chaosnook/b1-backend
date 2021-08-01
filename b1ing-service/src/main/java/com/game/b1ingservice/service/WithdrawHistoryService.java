@@ -16,7 +16,7 @@ public interface WithdrawHistoryService {
 
     Page<WithdrawListHistorySearchResponse> findByCriteria(Specification<WithdrawHistory> specification, Pageable pageable, String type);
 
-    Page<WithdrawSummaryHistorySearchResponse> findSummaryByCriteria(Specification<WithdrawHistory> specification, Pageable pageable, String type);
+    List<WithdrawSummaryHistorySearchResponse> findSummaryByCriteria(Specification<WithdrawHistory> specification, String type);
 
     WithdrawHistory saveHistory(WithdrawHistory withdrawHistory);
 

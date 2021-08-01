@@ -138,7 +138,7 @@ public class BankBotServiceImpl implements BankBotService {
                 }
 
                 try {
-                    // deposit auto คือ admin อนุญาติให้ลูกค้าคนนี้สามารถถอนเงินแบบ auto ได้
+                    // deposit auto คือ admin อนุญาติให้ลูกค้าคนนี้สามารถเติมเงินแบบ auto ได้
                     if (webUser.getDepositAuto()) {
                         AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory, wallet);
                         log.info("amb response : {}", result);

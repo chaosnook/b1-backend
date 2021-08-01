@@ -23,7 +23,6 @@ import com.game.b1ingservice.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -39,6 +38,7 @@ import java.util.stream.Collectors;
 
 import static com.game.b1ingservice.commons.Constants.DEPOSIT_STATUS.SUCCESS;
 import static com.game.b1ingservice.commons.Constants.*;
+import static com.game.b1ingservice.commons.Constants.WITHDRAW_STATUS.ERROR;
 import static com.game.b1ingservice.commons.Constants.WITHDRAW_STATUS.*;
 
 @Slf4j
@@ -134,19 +134,17 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
 
     @Override
     public Page<WithdrawListHistorySearchResponse> findByCriteria(Specification<WithdrawHistory> specification, Pageable pageable, String type) {
-
-        Page<WithdrawListHistorySearchResponse> searchData = withdrawHistoryRepository.findAll(specification, pageable).map(converter);
-        return searchData;
+       return withdrawHistoryRepository.findAll(specification, pageable).map(converter);
     }
 
     @Override
-    public Page<WithdrawSummaryHistorySearchResponse> findSummaryByCriteria(Specification<WithdrawHistory> specification, Pageable pageable, String type) {
+    public List<WithdrawSummaryHistorySearchResponse> findSummaryByCriteria(Specification<WithdrawHistory> specification,  String type) {
 
-        Page<WithdrawSummaryHistorySearchResponse> searchData = withdrawHistoryRepository.findAll(specification, pageable).map(converter2);
-        return summaryHistory(searchData.getContent(), pageable);
+        List<WithdrawSummaryHistorySearchResponse> searchData = withdrawHistoryRepository.findAll(specification).stream().map(converter2).collect(Collectors.toList());
+        return summaryHistory(searchData);
     }
 
-    private Page<WithdrawSummaryHistorySearchResponse> summaryHistory(List<WithdrawSummaryHistorySearchResponse> searchData, Pageable pageable) {
+    private  List<WithdrawSummaryHistorySearchResponse> summaryHistory(List<WithdrawSummaryHistorySearchResponse> searchData) {
 
         Map<String, WithdrawSummaryHistorySearchResponse> map = new HashMap<>();
         for (WithdrawSummaryHistorySearchResponse withdraw : searchData) {
@@ -154,7 +152,6 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
             WithdrawSummaryHistorySearchResponse summary = new WithdrawSummaryHistorySearchResponse();
 
             if (!map.containsKey(withdraw.getBankName())) {
-
                 summary.setBankName(withdraw.getBankName());
                 summary.setCountTask(1);
                 summary.setTotalWithdraw(withdraw.getTotalWithdraw());
@@ -164,7 +161,6 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
                 map.put(withdraw.getBankName(), summary);
 
             } else {
-
                 WithdrawSummaryHistorySearchResponse value = map.get(withdraw.getBankName());
                 summary.setBankName(value.getBankName());
                 summary.setCountTask(value.getCountTask() + 1);
@@ -181,8 +177,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
             listSummary.add(entry.getValue());
         }
 
-        Page<WithdrawSummaryHistorySearchResponse> searchResponse = new PageImpl<>(listSummary, pageable, listSummary.size());
-        return searchResponse;
+        return listSummary;
     }
 
     Function<WithdrawHistory, WithdrawListHistorySearchResponse> converter = withdrawHistory -> {
