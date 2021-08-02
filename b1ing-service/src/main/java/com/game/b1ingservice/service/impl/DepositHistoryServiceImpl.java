@@ -362,12 +362,13 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                 throw new ErrorMessageException(Constants.ERROR.ERR_00015);
             }
 
+            String username = req.getUsername().trim().toLowerCase(Locale.ROOT);
             String status = req.getStatus();
             history.setReason(req.getReason());
 
             // success => เติม credit ให้ user
             if (SUCCESS.equals(status)) {
-                Optional<WebUser> webUserOpt = webUserRepository.findFirstByUsernameAndAgent_Id(req.getUsername().toLowerCase(Locale.ROOT), agentId);
+                Optional<WebUser> webUserOpt = webUserRepository.findFirstByUsernameAndAgent_Id(username, agentId);
                 if (!webUserOpt.isPresent()) {
                     redisService.delete(lockKey);
                     throw new ErrorMessageException(Constants.ERROR.ERR_00012);
@@ -391,7 +392,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                     history.setAfterAmount(beforeAmount.add(history.getAmount().add(history.getBonusAmount())));
                     history.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
 
-                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT, usernameAdmin, req.getUsername(), history.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT, usernameAdmin, username, history.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
                             webUser.getAgent().getLineToken());
 
 
@@ -409,7 +410,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
             depositHistoryRepository.save(history);
             redisService.delete(lockKey);
         }catch (Exception e) {
-            log.error("updateNoteSureTransaction", e);
+            log.error("updateNoteSureTransaction : {} , {}", e, req);
             response.setStatus(false);
             response.setMessage(e.getMessage());
         }
