@@ -92,7 +92,7 @@ public class BankBotServiceImpl implements BankBotService {
 
             String accountLike = "%" + request.getAccountNo();
 
-            MasterBank masterBank = masterBankRepository.findFirstByBankNameLike(request.getBankName());
+            MasterBank masterBank = masterBankRepository.findFirstByBankNameLike("%" + request.getBankName() + "%");
 
             List<Wallet> wallets = walletRepository.findWalletLikeAccount(request.getBotIp(), accountLike, masterBank.getBankCode(), agentId);
 
