@@ -1,6 +1,7 @@
 package com.game.b1ingservice.postgres.repository;
 
 import com.game.b1ingservice.postgres.entity.MasterBank;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -13,4 +14,7 @@ public interface MasterBankRepository extends JpaRepository<MasterBank, Long>, J
  List<MasterBank> findAllByIsWithdrawOrderByBankName(boolean isWithdraw);
 
  List<MasterBank> findAllByIsUserBankOrderByBankName(boolean isUserBank);
+
+ @Cacheable(value = "masterBank", key = "#bankName", unless = "#result==null")
+ MasterBank findFirstByBankNameLike(String bankName);
 }

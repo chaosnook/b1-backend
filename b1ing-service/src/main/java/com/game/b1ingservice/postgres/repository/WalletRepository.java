@@ -81,8 +81,8 @@ public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecif
     @Query(value = "UPDATE wallet SET credit = credit + ? ,turn_over = turn_over + (?*?) , version=version+1  WHERE user_id = ? ", nativeQuery = true)
     int depositCreditAndTurnOver(BigDecimal credit,BigDecimal creditMul, Integer turnOver, Long userId);
 
-    @Query(value = "select o from Wallet o where o.bank.botIp = :botIp and o.user.accountNumber like :accountNumber and o.user.agent.id = :agentId")
-    List<Wallet> findWalletLikeAccount(String botIp, String accountNumber, Long agentId);
+    @Query(value = "select o from Wallet o where o.bank.botIp = :botIp and o.user.accountNumber like :accountNumber and o.user.bankName = :bankName and o.user.agent.id = :agentId")
+    List<Wallet> findWalletLikeAccount(String botIp, String accountNumber, String bankName, Long agentId);
 
     @Transactional
     @Modifying

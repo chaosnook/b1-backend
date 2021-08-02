@@ -15,6 +15,7 @@ public class BankBotAddCreditRequest implements Serializable {
     private String botType;
     private String transactionId;
     private String botIp;
+    private String bankName;
 
     private String accountNo;
     @JsonSerialize(using = MoneySerializer.class)
