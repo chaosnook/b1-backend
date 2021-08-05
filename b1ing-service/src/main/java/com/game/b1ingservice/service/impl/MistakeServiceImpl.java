@@ -225,7 +225,8 @@ public class MistakeServiceImpl implements MistakeService {
 
         List<MistakeSearchListRes> resList = list.stream().map(converter).collect(Collectors.toList());
         resList.addAll(listWithdraw.stream().map(converterWith).collect(Collectors.toList()));
-        return resList;
+        
+        return resList.stream().sorted(Comparator.comparing(MistakeSearchListRes::getDate).reversed()).collect(Collectors.toList());
     }
 
     @Override
@@ -291,6 +292,7 @@ public class MistakeServiceImpl implements MistakeService {
         res.setBeforeAmount(history.getBeforeAmount());
         res.setReason(history.getReason());
         res.setCreatedDate(DATE_FORMAT.format(history.getCreatedDate().toEpochMilli()));
+        res.setDate(history.getCreatedDate());
         res.setCreatedBy(history.getAdmin().getUsername());
 
         return res;
@@ -307,6 +309,7 @@ public class MistakeServiceImpl implements MistakeService {
         res.setBeforeAmount(history.getBeforeAmount());
         res.setReason(history.getReason());
         res.setCreatedDate(DATE_FORMAT.format(history.getCreatedDate().toEpochMilli()));
+        res.setDate(history.getCreatedDate());
         res.setCreatedBy(history.getAdmin().getUsername());
 
         return res;
