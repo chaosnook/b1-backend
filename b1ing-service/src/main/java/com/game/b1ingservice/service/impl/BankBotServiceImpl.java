@@ -154,7 +154,8 @@ public class BankBotServiceImpl implements BankBotService {
                                     depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
                                     webUser.getAgent().getLineToken());
 
-                            walletRepository.depositCreditAndTurnOverNonMultiply(depositHistory.getAmount().add(depositHistory.getBonusAmount()), turnOver, webUser.getId());
+                            walletRepository.depositCreditAndTurnOverNonMultiply(depositHistory.getAmount().add(depositHistory.getBonusAmount()),
+                                    turnOver, webUser.getId());
                             webUserRepository.updateDepositRef(result.getResult().getRef(), webUser.getId());
                             // check affiliate
                             affiliateService.earnPoint(webUser.getId(), request.getAmount(), webUser.getAgent().getId());
