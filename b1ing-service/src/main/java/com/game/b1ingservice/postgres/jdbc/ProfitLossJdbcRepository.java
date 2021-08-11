@@ -58,21 +58,17 @@ public class ProfitLossJdbcRepository {
     public List<SummaryDeposit> sumDeposit(ProfitAndLossRequest request, Long agentId) {
 
         List<SummaryDeposit> summaryDeposit = new ArrayList<>();
-
         try {
-
-           StringBuilder sql = new StringBuilder();
-           sql.append("select sum(d.amount) as deposit, ")
-              .append("sum(d.bonus_amount) as bonus, ")
-              .append("sum(d.amount + d.bonus_amount) as depositBonus ")
-              .append("from deposit_history d ")
-              .append("where d.created_date between TO_TIMESTAMP(?, 'DD/MM/yyyy HH24:MI') ")
-              .append("and TO_TIMESTAMP(?, 'DD/MM/yyyy HH24:MI') ")
-              .append("and d.status = 'SUCCESS' ")
-              .append("and d.agent_id = ?");
-
-            summaryDeposit = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SummaryDeposit.class),
-                    request.getCreatedDateFrom() ,request.getCreatedDateTo(), agentId);
+            String sql = "select sum(d.amount) as deposit, " +
+                    "sum(d.bonus_amount) as bonus, " +
+                    "mistake_type as mistakeType " +
+                    "from deposit_history d " +
+                    "where d.created_date between TO_TIMESTAMP(?, 'DD/MM/yyyy HH24:MI:SS') " +
+                    "and TO_TIMESTAMP(?, 'DD/MM/yyyy HH24:MI:SS') " +
+                    "and d.status = 'SUCCESS' " +
+                    "and d.agent_id = ? group by mistake_type";
+            summaryDeposit = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(SummaryDeposit.class),
+                    request.getCreatedDateFrom().concat(":00") ,request.getCreatedDateTo().concat(":59"), agentId);
 
         } catch (Exception e) {
             log.error("sumProfitLoss", e);
@@ -86,17 +82,14 @@ public class ProfitLossJdbcRepository {
         List<SummaryWithdraw> summaryWithdraw = new ArrayList<>();
 
         try {
-
-            StringBuilder sql = new StringBuilder();
-            sql.append("select sum(w.amount) as withdraw ")
-                    .append("from withdraw_history w ")
-                    .append("where w.created_date between TO_TIMESTAMP(? ,'DD/MM/yyyy HH24:MI') ")
-                    .append("and TO_TIMESTAMP(? ,'DD/MM/yyyy HH24:MI') ")
-                    .append("and w.status = 'SUCCESS' ")
-                    .append("and w.agent_id = ?");
-
-            summaryWithdraw = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(SummaryWithdraw.class),
-                    request.getCreatedDateFrom() ,request.getCreatedDateTo(), agentId);
+            String sql = "select sum(w.amount) as withdraw " +
+                    "from withdraw_history w " +
+                    "where w.created_date between TO_TIMESTAMP(? ,'DD/MM/yyyy HH24:MI:SS') " +
+                    "and TO_TIMESTAMP(? ,'DD/MM/yyyy HH24:MI:SS') " +
+                    "and w.status = 'SUCCESS' and mistake_type is null " +
+                    "and w.agent_id = ?";
+            summaryWithdraw = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(SummaryWithdraw.class),
+                    request.getCreatedDateFrom().concat(":00") ,request.getCreatedDateTo().concat(":59"), agentId);
 
         } catch (Exception e) {
             log.error("sumProfitLoss", e);

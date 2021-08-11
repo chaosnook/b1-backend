@@ -36,10 +36,8 @@ public class TopUpServiceImpl implements TopUpService {
 
         List<TopupReport> lists = topupReportJdbcRepository.topupReportList(topupRequest, principal);
         for (TopupReport report : lists) {
-
             resObj.getLabels().add(report.getLabels());
             resObj.getData().add(report.getData());
-
         }
         return resObj;
     }

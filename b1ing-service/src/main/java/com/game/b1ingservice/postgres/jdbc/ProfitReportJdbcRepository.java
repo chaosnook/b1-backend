@@ -28,7 +28,8 @@ public class ProfitReportJdbcRepository {
                     "    extract(day from created_date) as labels , " +
                     "    sum(amount) as data " +
                     "from deposit_history  " +
-                    "where to_char(created_date, 'YYYY-MM') = ? and agent_id = ?" +
+                    "where to_char(created_date, 'YYYY-MM') = ? and agent_id = ? " +
+                    "and status = 'SUCCESS' and (mistake_type is null or mistake_type = 'NO_SLIP') " +
                     "group by extract(day from created_date) " +
                     "order by labels asc";
 
@@ -46,11 +47,14 @@ public class ProfitReportJdbcRepository {
                     "    extract(day from created_date) as labels , " +
                     "    sum(amount) as data " +
                     "from withdraw_history  " +
-                    "where to_char(created_date, 'YYYY-MM') = ? and agent_id = ?" +
+                    "where to_char(created_date, 'YYYY-MM') = ? and agent_id = ? " +
+                    "and status = 'SUCCESS' and mistake_type is null " +
                     "group by extract(day from created_date) " +
                     "order by labels asc";
 
-            withdraw = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(ProfitReport.class), profitReportRequest.getValue(), principal.getAgentId());
+            withdraw = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(ProfitReport.class),
+                    profitReportRequest.getValue(),
+                    principal.getAgentId());
         } catch (Exception e) {
             log.error("profitReport", e);
         }

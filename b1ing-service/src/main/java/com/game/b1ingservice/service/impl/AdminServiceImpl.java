@@ -354,9 +354,8 @@ public class AdminServiceImpl implements AdminService {
         }
 
         ProfitReportResponse resObj = new ProfitReportResponse();
-        String value = profitReportRequest.getValue();
+        String date = profitReportRequest.getValue();
 
-        String date = value;
         String[] dateParts = date.split("-");
         String yyyy = dateParts[0];
         String mm = dateParts[1];

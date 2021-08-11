@@ -22,11 +22,13 @@ import com.game.b1ingservice.service.*;
 import com.game.b1ingservice.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -39,6 +41,7 @@ import java.util.stream.Collectors;
 
 import static com.game.b1ingservice.commons.Constants.DEPOSIT_STATUS.SUCCESS;
 import static com.game.b1ingservice.commons.Constants.*;
+import static com.game.b1ingservice.commons.Constants.WITHDRAW_STATUS.ERROR;
 import static com.game.b1ingservice.commons.Constants.WITHDRAW_STATUS.*;
 
 @Slf4j
@@ -65,6 +68,10 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    @Qualifier("postgresJdbcTemplate")
+    JdbcTemplate jdbcTemplate;
 
     @Override
     public WithdrawHistory saveHistory(WithdrawHistory withdrawHistory) {
@@ -134,9 +141,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
 
     @Override
     public Page<WithdrawListHistorySearchResponse> findByCriteria(Specification<WithdrawHistory> specification, Pageable pageable, String type) {
-
-        Page<WithdrawListHistorySearchResponse> searchData = withdrawHistoryRepository.findAll(specification, pageable).map(converter);
-        return searchData;
+       return withdrawHistoryRepository.findAll(specification, pageable).map(converter);
     }
 
     @Override
@@ -188,18 +193,15 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
     Function<WithdrawHistory, WithdrawListHistorySearchResponse> converter = withdrawHistory -> {
         WithdrawListHistorySearchResponse searchResponse = new WithdrawListHistorySearchResponse();
         searchResponse.setId(withdrawHistory.getId());
-        if (null == withdrawHistory.getBank()) {
-            searchResponse.setBankName(null);
-            searchResponse.setBankCode(null);
-        } else {
-            searchResponse.setBankName(withdrawHistory.getBank().getBankName());
-            searchResponse.setBankCode(withdrawHistory.getBank().getBankCode());
+        
+        WebUser user = withdrawHistory.getUser();
+        if (null != user) {
+            searchResponse.setUsername(user.getUsername());
+            searchResponse.setAccountNumber(user.getAccountNumber());
+            searchResponse.setBankCode(user.getBankName());
+            searchResponse.setFullName(String.format("%s %s", user.getFirstName(), user.getLastName()));
         }
-        if (null == withdrawHistory.getUser()) {
-            searchResponse.setUsername(null);
-        } else {
-            searchResponse.setUsername(withdrawHistory.getUser().getUsername());
-        }
+
         searchResponse.setAmount(withdrawHistory.getAmount());
         searchResponse.setBeforeAmount(withdrawHistory.getBeforeAmount());
         searchResponse.setAfterAmount(withdrawHistory.getAfterAmount());
@@ -241,9 +243,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
             searchResponse.setBankGroup(String.valueOf(withdrawHistory.getBank().getBankGroup()));
             searchResponse.setBankCode(withdrawHistory.getBank().getBankCode());
         }
-
         searchResponse.setTotalWithdraw(withdrawHistory.getAmount());
-
         return searchResponse;
     };
 
@@ -270,6 +270,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
 
             WebUser webUser = history.getUser();
             if (webUser == null) {
+                redisService.delete(lockKey);
                 throw new ErrorMessageException(Constants.ERROR.ERR_00012);
             }
 
@@ -479,6 +480,7 @@ public class WithdrawHistoryServiceImpl implements WithdrawHistoryService {
 
             WebUser webUser = history.getUser();
             if (webUser == null) {
+                redisService.delete(lockKey);
                 throw new ErrorMessageException(Constants.ERROR.ERR_00012);
             }
 

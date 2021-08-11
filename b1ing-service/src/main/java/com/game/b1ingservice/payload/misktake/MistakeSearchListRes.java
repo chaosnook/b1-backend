@@ -3,6 +3,7 @@ package com.game.b1ingservice.payload.misktake;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @Data
 public class MistakeSearchListRes {
@@ -16,6 +17,7 @@ public class MistakeSearchListRes {
     private String status;
     private String reason;
     private String createdDate;
+    private Instant date;
     private String createdBy;
     private Integer deleteFlag;
 

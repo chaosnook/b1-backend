@@ -24,7 +24,6 @@ public interface DepositHistoryService {
 
     ProfitAndLossResp findProfitAndLoss(ProfitAndLossRequest req, UserPrincipal principal);
 
-
     DepositResponse updateBlockAutoTransaction(DepositBlockStatusReq req, String username, Long agentId, String prefix);
 
     DepositResponse updateNoteSureTransaction(DepositNotSureStatusReq req, String username, Long agentId, String prefix);

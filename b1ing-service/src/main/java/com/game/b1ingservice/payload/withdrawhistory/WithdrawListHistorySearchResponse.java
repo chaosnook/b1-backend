@@ -11,6 +11,9 @@ public class WithdrawListHistorySearchResponse {
     private String bankName;
     private String bankCode;
     private String username;
+    private String fullName;
+    private String accountNumber;
+
     private BigDecimal amount;
     private BigDecimal beforeAmount;
     private BigDecimal afterAmount;

@@ -9,6 +9,6 @@ public class SummaryDeposit {
 
     private BigDecimal deposit;
     private BigDecimal bonus;
-    private BigDecimal depositBonus;
+    private String mistakeType;
 
 }

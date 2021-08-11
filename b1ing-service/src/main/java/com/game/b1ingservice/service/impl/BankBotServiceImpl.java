@@ -75,6 +75,9 @@ public class BankBotServiceImpl implements BankBotService {
     @Autowired
     private PromotionHistoryRepository promotionHistoryRepository;
 
+    @Autowired
+    private MasterBankRepository masterBankRepository;
+
     private static final MediaType MEDIA_JSON = MediaType.parse("application/json");
 
     @Override
@@ -89,7 +92,9 @@ public class BankBotServiceImpl implements BankBotService {
 
             String accountLike = "%" + request.getAccountNo();
 
-            List<Wallet> wallets = walletRepository.findWalletLikeAccount(request.getBotIp(), accountLike, agentId);
+            MasterBank masterBank = masterBankRepository.findFirstByBankNameLike("%" + request.getBankName() + "%");
+
+            List<Wallet> wallets = walletRepository.findWalletLikeAccount(request.getBotIp(), accountLike, masterBank.getBankCode(), agentId);
 
             DepositHistory depositHistory = new DepositHistory();
             depositHistory.setAmount(request.getAmount());
@@ -100,8 +105,7 @@ public class BankBotServiceImpl implements BankBotService {
             depositHistory.setType(Constants.DEPOSIT_TYPE.BANK);
             depositHistory.setIsAuto(true);
             depositHistory.setAgent(opt.get().getAgent());
-//           todo must map to promotion here
-//            and set
+
             depositHistory.setBonusAmount(BigDecimal.ZERO);
 
             if (wallets.size() == 1) {
@@ -138,7 +142,7 @@ public class BankBotServiceImpl implements BankBotService {
                 }
 
                 try {
-                    // deposit auto คือ admin อนุญาติให้ลูกค้าคนนี้สามารถถอนเงินแบบ auto ได้
+                    // deposit auto คือ admin อนุญาติให้ลูกค้าคนนี้สามารถเติมเงินแบบ auto ได้
                     if (webUser.getDepositAuto()) {
                         AmbResponse<DepositRes> result = sendToAskMeBet(depositHistory, wallet);
                         log.info("amb response : {}", result);
@@ -150,7 +154,8 @@ public class BankBotServiceImpl implements BankBotService {
                                     depositHistory.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
                                     webUser.getAgent().getLineToken());
 
-                            walletRepository.depositCreditAndTurnOverNonMultiply(depositHistory.getAmount().add(depositHistory.getBonusAmount()), turnOver, webUser.getId());
+                            walletRepository.depositCreditAndTurnOverNonMultiply(depositHistory.getAmount().add(depositHistory.getBonusAmount()),
+                                    turnOver, webUser.getId());
                             webUserRepository.updateDepositRef(result.getResult().getRef(), webUser.getId());
                             // check affiliate
                             affiliateService.earnPoint(webUser.getId(), request.getAmount(), webUser.getAgent().getId());

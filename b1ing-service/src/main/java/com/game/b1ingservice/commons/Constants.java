@@ -204,6 +204,7 @@ public class Constants {
     public static class AGENT_CONFIG_TYPE  {
         public static final String AMB_CONFIG = "AMB-CONFIG";
     }
+
     public static class AGENT_CONFIG  {
         public static final String MAX_AUTO_WITHDRAW = "maxAutoWithdraw";
         public static final String MIN_WITHDRAW_CREDIT = "minWithdrawCredit";

@@ -41,6 +41,8 @@ public class SearchWithdrawHistorySpecification extends SearchPageSpecification<
             predicates.add(criteriaBuilder.notEqual(root.<String>get("status"), Constants.WITHDRAW_STATUS.BLOCK_AUTO));
         }
 
+        predicates.add(criteriaBuilder.isNull(root.<String>get("mistakeType")));
+
         if (StringUtils.isNotEmpty(searchBody.getIsAuto())) {
             Boolean isAuto = searchBody.getIsAuto().equals("1");
             if (isAuto) {
@@ -50,17 +52,19 @@ public class SearchWithdrawHistorySpecification extends SearchPageSpecification<
             }
         }
 
-        boolean parseCreateDateFrom = DateUtils.canCastDateTime(searchBody.getCreatedDateFrom());
-        boolean parseCreateDateTo = DateUtils.canCastDateTime(searchBody.getCreatedDateTo());
+        boolean parseCreateDateFrom = DateUtils.canCastDateTime(searchBody.getCreatedDateFrom().concat(":00"));
+        boolean parseCreateDateTo = DateUtils.canCastDateTime(searchBody.getCreatedDateTo().concat(":59"));
 
         if (parseCreateDateFrom && parseCreateDateTo) {
             predicates.add(criteriaBuilder.between(root.<Instant>get("createdDate")
-                    , DateUtils.convertStartDateTime(searchBody.getCreatedDateFrom()).toInstant()
-                    , DateUtils.convertEndDateTime(searchBody.getCreatedDateTo()).toInstant()));
+                    , DateUtils.convertStartDateTimeSec(searchBody.getCreatedDateFrom().concat(":00")).toInstant()
+                    , DateUtils.convertEndDateTimeSec(searchBody.getCreatedDateTo().concat(":59")).toInstant()));
         } else if (parseCreateDateFrom) {
-            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.<Instant>get("createdDate"), DateUtils.convertStartDateTime(searchBody.getCreatedDateFrom()).toInstant()));
+            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.<Instant>get("createdDate"),
+                    DateUtils.convertStartDateTimeSec(searchBody.getCreatedDateFrom().concat(":00")).toInstant()));
         } else if (parseCreateDateTo) {
-            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Instant>get("createdDate"), DateUtils.convertEndDateTime(searchBody.getCreatedDateTo()).toInstant()));
+            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Instant>get("createdDate"),
+                    DateUtils.convertEndDateTimeSec(searchBody.getCreatedDateTo().concat(":59")).toInstant()));
         }
 
         return super.buildParallelPredicate(root, query, criteriaBuilder);

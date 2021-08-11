@@ -32,7 +32,7 @@ public interface WebUserRepository extends JpaRepository<WebUser, Long>, JpaSpec
 
     Optional<WebUser> findByIdNotAndUsernameAndAgent_Id(Long id, String username, Long agentId);
 
-    @Query(value = "select u.id, username, username_amb as usernameAmb, deposit_ref as depositRef, w.updated_date FROM users u inner join wallet w on u.id = w.user_id where agent_id = 1 and u.delete_flag = 0 and deposit_ref is not null and w.updated_date >= now() - INTERVAL '3 DAYS'", nativeQuery = true)
+    @Query(value = "select u.id, username, username_amb as usernameAmb, deposit_ref as depositRef FROM users u inner join wallet w on u.id = w.user_id where agent_id = ? and u.delete_flag = 0 and deposit_ref is not null and w.updated_date >= now() - INTERVAL '3 DAYS'", nativeQuery = true)
     List<Map> getAllUser(Long agentId);
 
     @Transactional

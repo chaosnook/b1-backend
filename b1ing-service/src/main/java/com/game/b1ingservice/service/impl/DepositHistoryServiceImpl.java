@@ -78,6 +78,9 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
     @Autowired
     private RedisService redisService;
 
+    @Autowired
+    private WalletService walletService;
+
     @Override
     public Page<DepositListHistorySearchResponse> findByCriteria(Specification<DepositHistory> specification, Pageable pageable, String type) {
 
@@ -194,34 +197,36 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         ProfitAndLossResp resp = new ProfitAndLossResp();
 
         List<SummaryDeposit> listDeposit = profitLossJdbcRepository.sumDeposit(req, principal.getAgentId());
+
         if(!listDeposit.isEmpty()) {
-            SummaryDeposit deposit = listDeposit.get(0);
+            BigDecimal sumDeposit = new BigDecimal(0).setScale(2, RoundingMode.HALF_DOWN);
+            BigDecimal sumBonus = new BigDecimal(0).setScale(2, RoundingMode.HALF_DOWN);
 
-            if(null == deposit.getDeposit()) {
-                resp.setDeposit(new BigDecimal(0).setScale(2, RoundingMode.HALF_DOWN));
-            } else {
-                resp.setDeposit(deposit.getDeposit());
+            for (SummaryDeposit deposit : listDeposit) {
+                if (deposit.getMistakeType() == null) {
+                    sumDeposit = sumDeposit.add(deposit.getDeposit());
+                    sumBonus = sumBonus.add(deposit.getBonus());
+                } else {
+                    switch (deposit.getMistakeType()) {
+                        case PROBLEM.NO_SLIP:
+                            sumDeposit = sumDeposit.add(deposit.getDeposit());
+                            break;
+                        case PROBLEM.ADD_CREDIT:
+                            sumBonus = sumBonus.add(deposit.getDeposit());
+                            break;
+                    }
+                }
             }
 
-            if(null == deposit.getBonus()) {
-                resp.setBonus("0.00(0.00%)");
-            } else {
-                String sum = (deposit.getBonus().divide(resp.getDeposit(),2 , RoundingMode.HALF_DOWN)).multiply(new BigDecimal(100)).toString();
-                String result = deposit.getBonus().setScale(2, RoundingMode.HALF_DOWN) + "(" + sum +  "%)" ;
-                resp.setBonus(result);
-            }
-
-            if(null == deposit.getDepositBonus()) {
-                resp.setDepositBonus(new BigDecimal(0).setScale(2, RoundingMode.HALF_DOWN));
-            } else {
-                resp.setDepositBonus(deposit.getDepositBonus());
-            }
+            resp.setDeposit(sumDeposit);
+            String sum = (sumBonus.divide(sumDeposit,2 , RoundingMode.HALF_DOWN)).multiply(new BigDecimal(100)).toString();
+            resp.setBonus(sumBonus.setScale(2, RoundingMode.HALF_DOWN) + "(" + sum +  "%)");
+            resp.setDepositBonus(sumDeposit.add(sumBonus));
         } else {
             resp.setDeposit(new BigDecimal(0).setScale(2, RoundingMode.HALF_DOWN));
             resp.setBonus("0.00(0.00%)");
             resp.setDepositBonus(new BigDecimal(0).setScale(2, RoundingMode.HALF_DOWN));
         }
-
 
         List<SummaryWithdraw> listWithdraw = profitLossJdbcRepository.sumWithdraw(req, principal.getAgentId());
         if(!listWithdraw.isEmpty()) {
@@ -231,7 +236,6 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
             } else {
                 resp.setWithdraw(withdraw.getWithdraw());
             }
-
             BigDecimal sum = resp.getDeposit().subtract(resp.getWithdraw()).setScale(2, RoundingMode.HALF_DOWN);
             resp.setProfitAndLoss(sum);
         } else {
@@ -258,12 +262,13 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
             }
 
             // TODO Lock transaction with redis
-            if (!redisService.setEX(lockKey, 1, 3600)) {
+            if (!redisService.setEX(lockKey, 1, 600)) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_00015);
             }
 
             WebUser webUser = history.getUser();
             if (webUser == null) {
+                redisService.delete(lockKey);
                 throw new ErrorMessageException(Constants.ERROR.ERR_00012);
             }
 
@@ -331,7 +336,6 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
             history.setReason(req.getReason());
             depositHistoryRepository.save(history);
 
-            // TODO Unlock transaction on redis
             redisService.delete(lockKey);
         } catch (Exception e) {
             log.error("updateBlockAutoTransaction", e);
@@ -354,22 +358,26 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
             }
 
             // TODO Lock transaction with redis
-            if (!redisService.setEX(lockKey, 1, 3600)) {
+            if (!redisService.setEX(lockKey, 1, 600)) {
                 throw new ErrorMessageException(Constants.ERROR.ERR_00015);
             }
 
+            String username = req.getUsername().trim().toLowerCase(Locale.ROOT);
             String status = req.getStatus();
             history.setReason(req.getReason());
 
             // success => เติม credit ให้ user
             if (SUCCESS.equals(status)) {
-                Optional<WebUser> webUserOpt = webUserRepository.findFirstByUsernameAndAgent_Id(req.getUsername().toLowerCase(Locale.ROOT), agentId);
+                Optional<WebUser> webUserOpt = webUserRepository.findFirstByUsernameAndAgent_Id(username, agentId);
                 if (!webUserOpt.isPresent()) {
+                    redisService.delete(lockKey);
                     throw new ErrorMessageException(Constants.ERROR.ERR_00012);
                 }
 
                 WebUser webUser =  webUserOpt.get();
                 DepositReq depositReq = DepositReq.builder().amount(history.getAmount().add(history.getBonusAmount()).setScale(2, RoundingMode.HALF_DOWN).toPlainString()).build();
+
+                BigDecimal beforeAmount = walletService.updateCurrentWallet(webUser);
                 AmbResponse<DepositRes> result =  ambService.deposit(depositReq, webUser.getUsernameAmb(), webUser.getAgent());
                 log.info("amb response : {}", result);
                 if (0 == result.getCode()) {
@@ -379,9 +387,12 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
                     // check affiliate
                     affiliateService.earnPoint(webUser.getId(), history.getAmount(), webUser.getAgent().getId());
 
+                    history.setUser(webUser);
+                    history.setBeforeAmount(beforeAmount);
+                    history.setAfterAmount(beforeAmount.add(history.getAmount().add(history.getBonusAmount())));
                     history.setStatus(Constants.DEPOSIT_STATUS.SUCCESS);
 
-                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT, usernameAdmin, req.getUsername(), history.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
+                    lineNotifyService.sendLineNotifyMessages(String.format(MESSAGE_ADMIN_DEPOSIT, usernameAdmin, username, history.getAmount().setScale(2, RoundingMode.HALF_DOWN)),
                             webUser.getAgent().getLineToken());
 
 
@@ -399,7 +410,7 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
             depositHistoryRepository.save(history);
             redisService.delete(lockKey);
         }catch (Exception e) {
-            log.error("updateNoteSureTransaction", e);
+            log.error("updateNoteSureTransaction : {} , {}", e, req);
             response.setStatus(false);
             response.setMessage(e.getMessage());
         }
@@ -444,7 +455,6 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         return result;
     }
 
-
     private Page<DepositSummaryHistorySearchResponse> summaryHistory(List<DepositListHistorySearchResponse> searchData, Pageable pageable) {
 
         Map<String, DepositSummaryHistorySearchResponse> map = new HashMap<>();
@@ -479,16 +489,15 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
         for (Map.Entry<String, DepositSummaryHistorySearchResponse> entry : map.entrySet()) {
             listSummary.add(entry.getValue());
         }
-
-        Page<DepositSummaryHistorySearchResponse> searchResponse = new PageImpl<>(listSummary, pageable, listSummary.size());
-        return searchResponse;
+        
+        return new PageImpl<>(listSummary, pageable, listSummary.size());
     }
 
     private List<DepositListHistorySearchResponse> findUserDepositSevenDay(Page<DepositListHistorySearchResponse> searchData) {
 
         Map<String, SevenDay> map = new HashMap<>();
 
-        List<DepositListHistorySearchResponse> listData = searchData.getContent().stream()
+        List<DepositListHistorySearchResponse> listData = searchData.stream()
                 .sorted(Comparator.comparing(DepositListHistorySearchResponse::getCreatedDate)).collect(Collectors.toList());
 
         for(DepositListHistorySearchResponse depositHistory : listData) {
@@ -522,7 +531,56 @@ public class DepositHistoryServiceImpl implements DepositHistoryService {
 
         List<DepositListHistorySearchResponse> listSummary = new ArrayList<>();
         for(String username : listUser) {
-            List<DepositListHistorySearchResponse> list = searchData.getContent().stream()
+            List<DepositListHistorySearchResponse> list = searchData.stream()
+                    .filter(obj -> obj.getUsername().equals(username)).collect(Collectors.toList());
+
+            for(DepositListHistorySearchResponse deposit : list) {
+                listSummary.add(deposit);
+            }
+        }
+
+        return listSummary;
+    }
+
+    private List<DepositListHistorySearchResponse> findUserDepositSevenDay(List<DepositListHistorySearchResponse> searchData) {
+
+        Map<String, SevenDay> map = new HashMap<>();
+
+        List<DepositListHistorySearchResponse> listData = searchData.stream()
+                .sorted(Comparator.comparing(DepositListHistorySearchResponse::getCreatedDate)).collect(Collectors.toList());
+
+        for(DepositListHistorySearchResponse depositHistory : listData) {
+
+            String date = depositHistory.getCreatedDate().substring(0,2);
+            if(!map.containsKey(depositHistory.getUsername())) {
+
+                SevenDay sevenDay = new SevenDay();
+                sevenDay.setDay(date);
+                sevenDay.setCount(1);
+                map.put(depositHistory.getUsername(), sevenDay);
+
+            } else {
+
+                SevenDay sevenDay = map.get(depositHistory.getUsername());
+                if(!sevenDay.getDay().equals(date)) {
+                    SevenDay sevenDayNew = new SevenDay();
+                    sevenDayNew.setDay(date);
+                    sevenDayNew.setCount(sevenDay.getCount() + 1);
+                    map.replace(depositHistory.getUsername(), sevenDayNew);
+                }
+            }
+        }
+
+        List<String> listUser = new ArrayList<>();
+        for(Map.Entry<String, SevenDay> entry : map.entrySet()) {
+            if(entry.getValue().getCount() == 7){
+                listUser.add(entry.getKey());
+            }
+        }
+
+        List<DepositListHistorySearchResponse> listSummary = new ArrayList<>();
+        for(String username : listUser) {
+            List<DepositListHistorySearchResponse> list = searchData.stream()
                     .filter(obj -> obj.getUsername().equals(username)).collect(Collectors.toList());
 
             for(DepositListHistorySearchResponse deposit : list) {

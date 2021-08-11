@@ -51,12 +51,14 @@ public class SearchDepositHistorySpecification extends SearchPageSpecification<D
 
         if (parseCreateDateFrom && parseCreateDateTo) {
             predicates.add(criteriaBuilder.between(root.<Instant>get("createdDate")
-                    , DateUtils.convertStartDateTime(searchBody.getCreatedDateFrom()).toInstant()
-                    , DateUtils.convertEndDateTime(searchBody.getCreatedDateTo()).toInstant()));
+                    , DateUtils.convertStartDateTimeSec(searchBody.getCreatedDateFrom().concat(":00")).toInstant()
+                    , DateUtils.convertEndDateTimeSec(searchBody.getCreatedDateTo().concat(":59")).toInstant()));
         } else if (parseCreateDateFrom) {
-            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.<Instant>get("createdDate"), DateUtils.convertStartDateTime(searchBody.getCreatedDateFrom()).toInstant()));
+            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.<Instant>get("createdDate"),
+                    DateUtils.convertStartDateTimeSec(searchBody.getCreatedDateFrom().concat(":00")).toInstant()));
         } else if (parseCreateDateTo) {
-            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Instant>get("createdDate"), DateUtils.convertEndDateTime(searchBody.getCreatedDateTo()).toInstant()));
+            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Instant>get("createdDate"),
+                    DateUtils.convertEndDateTimeSec(searchBody.getCreatedDateTo().concat(":59")).toInstant()));
         }
 
         if (searchBody.isSummary()) {

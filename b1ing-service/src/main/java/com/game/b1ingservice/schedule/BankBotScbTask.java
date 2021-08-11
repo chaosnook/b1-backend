@@ -44,7 +44,7 @@ public class BankBotScbTask {
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
 
-    @Scheduled(cron = "${bank.schedule.cron}")
+   @Scheduled(cron = "${bank.schedule.cron}")
     @SchedulerLock(name = "scheduleAutoBankBotTask",
             lockAtLeastForString = "PT30S", lockAtMostForString = "PT5M")
     public void scheduleAutoBankBotTask() {
@@ -72,7 +72,6 @@ public class BankBotScbTask {
                         request.setType("Deposit");
                         request.setRemark(transaction.getTxnRemark().trim());
                         request.setTransactionId(DigestUtils.sha1Hex(transaction.getTxnDateTime() + (request.getRemark())));
-
 
                         request = extractAccount(request);
                         log.info(request.toString());
@@ -111,6 +110,7 @@ public class BankBotScbTask {
     private BankBotAddCreditRequest extractAccount(BankBotAddCreditRequest request) {
         String[] splited = request.getRemark().split(" ");
         if (request.getRemark().contains(" SCB ")) {
+            request.setBankName(splited[1]);
             request.setAccountNo(splited[2].replace("x", ""));
             request.setFirstName(splited[4]);
 
@@ -119,6 +119,7 @@ public class BankBotScbTask {
             }
 
         } else {
+            request.setBankName(splited[1].replace("(", "").replace(")", ""));
             request.setAccountNo(splited[2].replace("/X", ""));
         }
         return request;
