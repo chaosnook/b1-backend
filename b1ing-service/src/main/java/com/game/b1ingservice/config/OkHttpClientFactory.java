@@ -11,7 +11,8 @@ public class OkHttpClientFactory {
     @Bean
     public OkHttpClient okHttpClient() {
         OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)
+                .connectTimeout(120, TimeUnit.SECONDS)
+                .callTimeout(120, TimeUnit.SECONDS)
                 .build();
         return client;
     }

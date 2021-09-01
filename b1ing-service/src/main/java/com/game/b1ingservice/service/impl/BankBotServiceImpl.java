@@ -317,6 +317,7 @@ public class BankBotServiceImpl implements BankBotService {
                 return objectMapper.readValue(response.body().string(), new TypeReference<BankBotScbWithdrawCreditResponse>() {
                 });
             }catch (Exception e){
+                log.error("withDrawCredit : {} : {}" , e , request);
                 BankBotScbWithdrawCreditResponse response = new BankBotScbWithdrawCreditResponse();
                 response.setStatus(false);
                 response.setMessege(e.getLocalizedMessage());
