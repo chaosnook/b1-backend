@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,6 +46,9 @@ public class AMBServiceImpl implements AMBService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Value("${agent.b1ing.url}")
+    private String urlApi;
+
     private static final MediaType MEDIA_JSON = MediaType.parse("application/json");
 
     @Override
@@ -57,7 +61,7 @@ public class AMBServiceImpl implements AMBService {
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(createUserReq), MEDIA_JSON);
 
             Request request = new Request.Builder()
-                    .url(String.format("%s/create/%s", agent.getUrlEndpoint(), agent.getKey()))
+                    .url(String.format("%s/create/%s", urlApi, agent.getKey()))
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json")
                     .build();
@@ -90,7 +94,7 @@ public class AMBServiceImpl implements AMBService {
             resetPasswordReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(resetPasswordReq), MEDIA_JSON);
             Request request = new Request.Builder()
-                    .url(String.format("%s/reset-password/%s/%s", agent.getUrlEndpoint(), agent.getKey(), username))
+                    .url(String.format("%s/reset-password/%s/%s", urlApi, agent.getKey(), username))
                     .method("PUT", body)
                     .addHeader("Content-Type", "application/json")
                     .build();
@@ -120,7 +124,7 @@ public class AMBServiceImpl implements AMBService {
             withdrawReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(withdrawReq), MEDIA_JSON);
             Request request = new Request.Builder()
-                    .url(String.format("%s/withdraw/%s/%s", agent.getUrlEndpoint(), agent.getKey(), username))
+                    .url(String.format("%s/withdraw/%s/%s", urlApi, agent.getKey(), username))
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json")
                     .build();
@@ -154,7 +158,7 @@ public class AMBServiceImpl implements AMBService {
             depositReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(depositReq), MEDIA_JSON);
             Request request = new Request.Builder()
-                    .url(String.format("%s/deposit/%s/%s", agent.getUrlEndpoint(), agent.getKey(), username))
+                    .url(String.format("%s/deposit/%s/%s", urlApi, agent.getKey(), username))
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json")
                     .build();
@@ -185,7 +189,7 @@ public class AMBServiceImpl implements AMBService {
             gameStatusReq.setSignature(DigestUtils.md5Hex(signature));
             RequestBody body = RequestBody.create(objectMapper.writeValueAsString(gameStatusReq), MEDIA_JSON);
             Request request = new Request.Builder()
-                    .url(String.format("%s/gameStatus/%s", agent.getUrlEndpoint(), agent.getKey()))
+                    .url(String.format("%s/gameStatus/%s", urlApi, agent.getKey()))
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json")
                     .build();
@@ -212,7 +216,7 @@ public class AMBServiceImpl implements AMBService {
         AmbResponse<WinLoseResponse> ambResponse = new AmbResponse<>();
         try {
             Request request = new Request.Builder()
-                    .url(String.format("%s/winLose/%s/%s/%s", agent.getUrlEndpoint(), agent.getKey(), winLoseReq.getUsernameAmb(), winLoseReq.getDepositRef()))
+                    .url(String.format("%s/winLose/%s/%s/%s", urlApi, agent.getKey(), winLoseReq.getUsernameAmb(), winLoseReq.getDepositRef()))
                     .method("GET", null)
                     .build();
 
@@ -243,7 +247,7 @@ public class AMBServiceImpl implements AMBService {
         AmbResponse<GetCreditRes> ambResponse = new AmbResponse<>();
         try {
             Request request = new Request.Builder()
-                    .url(String.format("%s/credit/%s/%s", agent.getUrlEndpoint(), agent.getKey(), username))
+                    .url(String.format("%s/credit/%s/%s", urlApi, agent.getKey(), username))
                     .method("GET", null)
                     .build();
 

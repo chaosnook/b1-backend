@@ -57,9 +57,6 @@ public class Agent extends DateAudit<String> implements Serializable {
     @Column(name = "clientname", columnDefinition = "character varying(50)")
     private String clientName;
 
-    @Column(name = "url_endpoint", columnDefinition = "character varying(255)")
-    private String urlEndpoint;
-
     @Embedded
     private UserAuditEmbeddable audit = new UserAuditEmbeddable();
 
