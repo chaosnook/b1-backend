@@ -52,34 +52,36 @@ public class BankBotScbTask {
             TimeUnit.SECONDS.sleep(new Random().nextInt(5));
             List<Bank> lists = bankRepository.findByBankTypeAndActive("DEPOSIT", true);
             for (Bank bank : lists) {
+                try {
+                    if (!bank.getBotIp().startsWith("100.101.1")) {
+                        List<BankBotScbTransactionResponse> transactionList = fetchScbTransaction(bank);
+                        log.info("sbc transaction : {}", transactionList);
+                        for (BankBotScbTransactionResponse transaction : transactionList) {
+                            BankBotAddCreditRequest request = new BankBotAddCreditRequest();
+                            request.setBotType("SCB");
+                            request.setTransactionId("transactionId");
+                            request.setBotIp(bank.getBotIp());
+                            request.setAccountNo(transaction.getAccountNo());
+                            request.setAmount(BigDecimal.valueOf(transaction.getTxnAmount()));
+                            try {
+                                Date d = sdf.parse(transaction.getTxnDateTime());
+                                request.setTransactionDate(d.toInstant());
+                            } catch (Exception e) {
+                                log.error("scheduleFixedRateTask date ", e);
+                            }
+                            request.setType("Deposit");
+                            request.setRemark(transaction.getTxnRemark().trim());
+                            request.setTransactionId(DigestUtils.sha1Hex(transaction.getTxnDateTime() + (request.getRemark())));
 
-                if (!bank.getBotIp().startsWith("100.101.1")) {
-                    List<BankBotScbTransactionResponse> transactionList = fetchScbTransaction(bank);
-                    log.info("sbc transaction : {}", transactionList);
-                    for (BankBotScbTransactionResponse transaction : transactionList) {
-                        BankBotAddCreditRequest request = new BankBotAddCreditRequest();
-                        request.setBotType("SCB");
-                        request.setTransactionId("transactionId");
-                        request.setBotIp(bank.getBotIp());
-                        request.setAccountNo(transaction.getAccountNo());
-                        request.setAmount(BigDecimal.valueOf(transaction.getTxnAmount()));
-                        try {
-                            Date d = sdf.parse(transaction.getTxnDateTime());
-                            request.setTransactionDate(d.toInstant());
-                        } catch (Exception e) {
-                            log.error("scheduleFixedRateTask date ", e);
+                            request = extractAccount(request);
+                            log.info(request.toString());
+
+                            bankBotService.addCredit(request, bank.getAgent().getId());
                         }
-                        request.setType("Deposit");
-                        request.setRemark(transaction.getTxnRemark().trim());
-                        request.setTransactionId(DigestUtils.sha1Hex(transaction.getTxnDateTime() + (request.getRemark())));
-
-                        request = extractAccount(request);
-                        log.info(request.toString());
-
-                        bankBotService.addCredit(request, bank.getAgent().getId());
                     }
+                }catch (Exception e) {
+                    log.error(e.getLocalizedMessage());
                 }
-
             }
         } catch (InterruptedException e) {
             log.error(e.getLocalizedMessage());
@@ -110,12 +112,18 @@ public class BankBotScbTask {
     private BankBotAddCreditRequest extractAccount(BankBotAddCreditRequest request) {
         String[] splited = request.getRemark().split(" ");
         if (request.getRemark().contains(" SCB ")) {
-            request.setBankName(splited[1]);
-            request.setAccountNo(splited[2].replace("x", ""));
-            request.setFirstName(splited[4]);
+            if (splited.length == 3) {
+                request.setAccountNo(splited[0]);
+                request.setBankName(splited[1]);
+                request.setFirstName(splited[2]);
+            }else {
+                request.setBankName(splited[1]);
+                request.setAccountNo(splited[2].replace("x", ""));
+                request.setFirstName(splited[4]);
 
-            if (splited.length > 5) {
-                request.setLastName(splited[5]);
+                if (splited.length > 5) {
+                    request.setLastName(splited[5]);
+                }
             }
 
         } else {

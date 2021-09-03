@@ -42,20 +42,6 @@ public class TurnOverCheckTask {
             lockAtLeastForString = "PT10M", lockAtMostForString = "PT15M")
     public void scheduleTurnOverCheckTask() {
         try {
-            // Get start end date
-//            Calendar calendar = Calendar.getInstance();
-//            calendar.setTime(new Date());
-//            Date start;
-//            Date end;
-//            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-//            if (hour < 11) {
-//                start = atAMBStartOfDay(-1);
-//                end = atAmbEndOfDay(0);
-//            } else {
-//                start = atAMBStartOfDay(0);
-//                end = atAmbEndOfDay(+1);
-//            }
-
             List<Agent> agents = agentService.getAllAgent();
             for (Agent agent : agents) {
                 List<WinLoseReq> userList = webUserService.getAllUser(agent.getId());
@@ -131,7 +117,6 @@ public class TurnOverCheckTask {
         } catch (Exception e) {
             log.error("scheduleTurnOverCheckTask", e);
         }
-
     }
 
 }
