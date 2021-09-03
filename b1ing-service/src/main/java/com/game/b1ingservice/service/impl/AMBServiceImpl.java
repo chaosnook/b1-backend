@@ -126,7 +126,7 @@ public class AMBServiceImpl implements AMBService {
                     .build();
 
             try (Response response = client.newCall(request).execute()) {
-                log.info("withdraw {} : {}", username, response);
+                log.info("AMB withdraw {} : {}", username, response);
 
                 if (response.code() != 200) {
                     ambResponse.setCode(AMB_ERROR);
@@ -136,7 +136,7 @@ public class AMBServiceImpl implements AMBService {
                 });
             }
         } catch (Exception e) {
-            log.error("withdraw", e);
+            log.error("AMB withdraw : ", e);
             ambResponse.setCode(AMB_ERROR);
         }
 //        finally {
@@ -171,7 +171,7 @@ public class AMBServiceImpl implements AMBService {
                 });
             }
         } catch (Exception e) {
-            log.error("deposit", e);
+            log.error("AMB deposit : ", e);
             ambResponse.setCode(AMB_ERROR);
         }
         return ambResponse;
